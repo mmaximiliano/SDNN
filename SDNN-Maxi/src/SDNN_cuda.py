@@ -219,6 +219,8 @@ class SDNN:
                 d_tmp['H_layer'] = int(1 + floor((self.network_struc[i-1]['H_layer']+2*d_tmp['pad'][0]-d_tmp['filter_size'])/d_tmp['stride']))
                 d_tmp['W_layer'] = int(1 + floor((self.network_struc[i-1]['W_layer']+2*d_tmp['pad'][1]-d_tmp['filter_size'])/d_tmp['stride']))
                 d_tmp['shape'] = (d_tmp['H_layer'], d_tmp['W_layer'], d_tmp['num_filters'])
+                d_tmp['alpha'] = 1 #network_params[i]['alpha']
+                d_tmp['beta'] = 1 #network_params[i]['beta']
             else:
                 exit("unknown layer specified: use 'input', 'conv' or 'pool' ")
             self.network_struc.append(d_tmp)
