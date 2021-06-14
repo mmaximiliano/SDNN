@@ -35,9 +35,9 @@ def main():
 
 
     # Results directories
-    path_set_weigths = 'results/'
-    path_save_weigths = 'results/'
-    path_features = 'results/'
+    path_set_weigths = path + '/results/'
+    path_save_weigths = path + '/results/'
+    path_features = path + '/results/'
 
 
     # ------------------------------- SDNN -------------------------------#
