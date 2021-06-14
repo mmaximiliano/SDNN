@@ -7,8 +7,8 @@ from numba import cuda
 """
 
 
-@cuda.jit(argtypes=[uint8[:, :, :], float32[:, :, :], uint8[:, :, :], float32[:, :, :, :],
-                    uint32, float32])
+@cuda.jit((uint8[:, :, :], float32[:, :, :], uint8[:, :, :], float32[:, :, :, :],
+                    uint32, float32))
 def conv_step(S, V, s, w, stride, th):
 
     idx, idy, idz = cuda.grid(3)
@@ -35,8 +35,8 @@ def conv_step(S, V, s, w, stride, th):
         S[idx, idy, idz] = 0
 
 
-@cuda.jit(argtypes=[uint8[:, :, :], uint8[:, :, :], float32[:, :, :],
-                    uint32, float32])
+@cuda.jit((uint8[:, :, :], uint8[:, :, :], float32[:, :, :],
+                    uint32, float32))
 def pool(S, s, w, stride, th):
 
     idx, idy, idz = cuda.grid(3)
@@ -58,9 +58,9 @@ def pool(S, s, w, stride, th):
         S[idx, idy, idz] = 0
 
 
-@cuda.jit(argtypes=[int32[:], uint8[:, :, :], float32[:, :, :, :], uint8[:, :, :],
+@cuda.jit((int32[:], uint8[:, :, :], float32[:, :, :, :], uint8[:, :, :],
                     float32[:], int16[:], int16[:],
-                    uint32, uint32, float32, float32])
+                    uint32, uint32, float32, float32))
 def STDP_learning(S_sz, s, w, K_STDP,  # Input arrays
                   maxval, maxind1, maxind2,  # Indices
                   stride, offset, a_minus, a_plus):  # Parameters
@@ -108,7 +108,7 @@ def STDP_learning(S_sz, s, w, K_STDP,  # Input arrays
                 K_STDP[i, j, idz] = 0
 
 
-@cuda.jit(argtypes=[uint8[:, :, :], float32[:, :, :], uint8[:, :]])
+@cuda.jit((uint8[:, :, :], float32[:, :, :], uint8[:, :]))
 def lateral_inh(S, V, K_inh):
 
     idx, idy, idz = cuda.grid(3)
@@ -136,7 +136,7 @@ def lateral_inh(S, V, K_inh):
     K_inh[idx, idy] = 0
 
 
-@cuda.jit(argtypes=[float32[:, :], float32[:, :], uint8[:], uint8])
+@cuda.jit((float32[:, :], float32[:, :], uint8[:], uint8))
 def DoG_norm(img_out, img_in, image_size, win_size):
 
     idx, idy = cuda.grid(2)

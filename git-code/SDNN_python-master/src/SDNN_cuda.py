@@ -510,12 +510,8 @@ class SDNN:
         """
 
         # Propagate
-        print("total_time: " + str(self.total_time))
-        print("num_layers: " + str(self.num_layers))
         for t in range(1, self.total_time):
-            print("time" + str(t))
             for i in range(1, self.num_layers):
-                print("layer" + str(i))
                 H, W, D = self.network_struc[i]['shape']
                 H_pad, W_pad = self.network_struc[i]['pad']
                 stride = self.network_struc[i]['stride']
@@ -587,19 +583,14 @@ class SDNN:
             start = timer()
 
             self.reset_layers()  # Reset all layers for the new image
-            if self.DoG:
-                print("Entrando en DoG")
+            if self.DoG:                
                 path_img = next(self.spike_times_train)
                 st = DoG_filter(path_img, self.filt, self.img_size, self.total_time, self.num_layers)
                 st = np.expand_dims(st, axis=2)
-                print("Entrando en DoG")
             else:
-                print("Me salitie DoG")
                 st = self.spike_times_train[i, :, :, :, :]  # (Image_number, H, W, M, time) to (H, W, M, time)
             self.layers[0]['S'] = st  # (H, W, M, time)
-            print("Entro prop_step")
             self.prop_step()
-            print("Salgo prop_step")
 
             # Obtain maximum potential per map in last layer
             V = self.layers[self.num_layers-1]['V']
@@ -608,7 +599,6 @@ class SDNN:
 
 
             dt = timer() - start
-            print(dt)
 
         # Transform features to numpy array
         n_features = self.features_train[0].shape[0]
