@@ -6,7 +6,7 @@ from numba import *
 """
 
 @jit
-def conv_step_CPU(S, I, V, s, w, stride, th, alpha, beta):
+def conv_step_CPU(S, I, V, s, w, stride, th, alpha, beta, delay):
 
     V[V > th] = 0.
     I = np.zeros(V.shape)
@@ -24,7 +24,7 @@ def conv_step_CPU(S, I, V, s, w, stride, th, alpha, beta):
     return V, I, S
 
 @jit
-def pool_CPU(S, s, w, stride, th, alpha, beta):
+def pool_CPU(S, s, w, stride, th, alpha, beta, delay):
 
     V_tmp = np.zeros(S.shape)
     I_tmp = np.zeros(S.shape)

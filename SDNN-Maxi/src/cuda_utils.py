@@ -8,8 +8,8 @@ from numba import cuda
 
 
 @cuda.jit((uint8[:, :, :], float32[:, :, :], float32[:, :, :], uint8[:, :, :], float32[:, :, :, :],
-                    uint32, float32, float32, float32))
-def conv_step(S, I, V, s, w, stride, th, alpha, beta):
+                    uint32, float32, float32, float32, float32))
+def conv_step(S, I, V, s, w, stride, th, alpha, beta, delay):
 
     idx, idy, idz = cuda.grid(3)
     if idx > V.shape[0] - 1:
@@ -40,8 +40,8 @@ def conv_step(S, I, V, s, w, stride, th, alpha, beta):
 
 
 @cuda.jit((uint8[:, :, :], uint8[:, :, :], float32[:, :, :],
-                    uint32, float32, float32, float32))
-def pool(S, s, w, stride, th, alpha, beta):
+                    uint32, float32, float32, float32, float32))
+def pool(S, s, w, stride, th, alpha, beta, delay):
 
     idx, idy, idz = cuda.grid(3)
     if idx > S.shape[0] - 1:
