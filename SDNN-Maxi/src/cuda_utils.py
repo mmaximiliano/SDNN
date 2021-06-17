@@ -7,9 +7,9 @@ from numba import cuda
 """
 
 
-@cuda.jit((uint8[:, :, :], float32[:, :, :], float32[:, :, :], uint8[:, :, :], float32[:, :, :, :],
+@cuda.jit((uint8[:, :, :], float32[:, :, :], float32[:, :, :], float32[:, :, :], uint8[:, :, :], float32[:, :, :, :],
                     uint32, float32, float32, float32, float32))
-def conv_step(S, I, V, s, w, stride, th, alpha, beta, delay):
+def conv_step(S, I, V, C, s, w, stride, th, alpha, beta, delay):
 
     idx, idy, idz = cuda.grid(3)
     if idx > V.shape[0] - 1:
@@ -20,7 +20,8 @@ def conv_step(S, I, V, s, w, stride, th, alpha, beta, delay):
         return
 
     if V[idx, idy, idz] > th:
-        V[idx, idy, idz] = 0.
+        if C[idx, idy, idz] == 0:
+            V[idx, idy, idz] = 0.
 
     # Calculate the membrance potential
     U = 0.
@@ -31,17 +32,33 @@ def conv_step(S, I, V, s, w, stride, th, alpha, beta, delay):
                 U = (U*alpha) + In
                 In = (In*beta) + (w[i, j, k, idz] * s[idx*stride + i, idy*stride+j, k])
 
+    # Calculate potential for this timestep
+    V_prev = V[idx, idy, idz]
+    I_prev = I[idx, idy, idz]
     V[idx, idy, idz] += U
     I[idx, idy, idz] += In
+
+    # Set the counter if neuron reaches threshold
+    if C[idx, idy, idz] == 0:
+        if V[idx, idy, idz] > th:
+            C[idx, idy, idz] = delay
+    else:
+        V[idx, idy, idz] = V_prev
+        I[idx, idy, idz] = I_prev
+        C[idx, idy, idz] = C[idx, idy, idz] - 1
+
     if V[idx, idy, idz] > th:
-        S[idx, idy, idz] = 1
+        if C[idx, idy, idz] == 0:
+            S[idx, idy, idz] = 1
+        else:
+            S[idx, idy, idz] = 0    
     else:
         S[idx, idy, idz] = 0
 
 
 @cuda.jit((uint8[:, :, :], uint8[:, :, :], float32[:, :, :],
-                    uint32, float32, float32, float32, float32))
-def pool(S, s, w, stride, th, alpha, beta, delay):
+                    uint32, float32))
+def pool(S, s, w, stride, th):
 
     idx, idy, idz = cuda.grid(3)
     if idx > S.shape[0] - 1:
@@ -51,14 +68,12 @@ def pool(S, s, w, stride, th, alpha, beta, delay):
     if idz > S.shape[2] - 1:
          return
 
-    U = 0.
-    I = 0.
+    result = 0.
     for j in range(w.shape[1]):
         for i in range(w.shape[0]):
-            U = (U*alpha) + I
-            I = (I*beta) + (w[i, j, idz] * s[idx*stride + i, idy*stride+j, idz])
+            result += w[i, j, idz] * s[idx*stride + i, idy*stride+j, idz]
 
-    if U > th:
+    if result > th:
         S[idx, idy, idz] = 1
     else:
         S[idx, idy, idz] = 0

@@ -6,9 +6,9 @@ from numba import *
 """
 
 @jit
-def conv_step_CPU(S, I, V, s, w, stride, th, alpha, beta, delay):
+def conv_step_CPU(S, I, V, C, s, w, stride, th, alpha, beta, delay):
 
-    V[V > th] = 0.
+    V[(V > th) && (C == 0)] = 0.
     I = np.zeros(V.shape)
     for i in range(V.shape[0]):
         for j in range(V.shape[1]):
@@ -16,26 +16,25 @@ def conv_step_CPU(S, I, V, s, w, stride, th, alpha, beta, delay):
                 if(k<=0):
                     I[i, j, k] = np.sum(w[:, :, :, k] * s[i * stride:i * stride + w.shape[0], j * stride:j * stride + w.shape[1], :])
                 else:
-                    V[i, j, k] = (V[i, j, k-1]*alpha) + I[i, j, k-1]
-                    I[i, j, k] = (I[i, j, k-1]*beta) + (np.sum(w[:, :, :, k] * s[i * stride:i * stride + w.shape[0], j * stride:j * stride + w.shape[1], :]))
+                    if(C[i, j, k] == 0):
+                        V[i, j, k] = (V[i, j, k-1]*alpha) + I[i, j, k-1]
+                        I[i, j, k] = (I[i, j, k-1]*beta) + (np.sum(w[:, :, :, k] * s[i * stride:i * stride + w.shape[0], j * stride:j * stride + w.shape[1], :]))
+                        if(V[i, j, k] > th):
+                            C[i, j, k] = delay
+                    else:
+                        C[i, j, k] = C[i, j, k] - 1 
 
-
-    S = (V > th).astype(int)*np.ones(S.shape)
-    return V, I, S
+    S = (V > th).astype(int)*(C == 0).astype(int)*np.ones(S.shape)
+    return V, I, S, C
 
 @jit
-def pool_CPU(S, s, w, stride, th, alpha, beta, delay):
+def pool_CPU(S, s, w, stride, th):
 
     V_tmp = np.zeros(S.shape)
-    I_tmp = np.zeros(S.shape)
     for i in range(S.shape[0]):
         for j in range(S.shape[1]):
             for k in range(S.shape[2]):
-                if(k<=0):
-                    I_tmp[i, j, k] = np.sum(w[:, :, k] * s[i*stride:i*stride+w.shape[0], j*stride:j*stride+w.shape[1], k])
-                else:
-                    V_tmp[i, j, k] = (V_tmp[i, j, k-1]*alpha) + I_tmp[i, j, k-1]
-                    I_tmp[i, j, k] = (I_tmp[i, j, k-1]*beta) + (np.sum(w[:, :, k] * s[i*stride:i*stride+w.shape[0], j*stride:j*stride+w.shape[1], k]))
+                V_tmp[i, j, k] += np.sum(w[:, :, k] * s[i*stride:i*stride+w.shape[0], j*stride:j*stride+w.shape[1], k])
 
     S = (V_tmp > th).astype(int)*np.ones(S.shape)
     return S

@@ -221,9 +221,6 @@ class SDNN:
                 d_tmp['H_layer'] = int(1 + floor((self.network_struc[i-1]['H_layer']+2*d_tmp['pad'][0]-d_tmp['filter_size'])/d_tmp['stride']))
                 d_tmp['W_layer'] = int(1 + floor((self.network_struc[i-1]['W_layer']+2*d_tmp['pad'][1]-d_tmp['filter_size'])/d_tmp['stride']))
                 d_tmp['shape'] = (d_tmp['H_layer'], d_tmp['W_layer'], d_tmp['num_filters'])
-                d_tmp['alpha'] = network_params[i]['alpha']
-                d_tmp['beta'] = network_params[i]['beta']
-                d_tmp['delay'] = network_params[i]['delay']
             else:
                 exit("unknown layer specified: use 'input', 'conv' or 'pool' ")
             self.network_struc.append(d_tmp)
@@ -285,6 +282,7 @@ class SDNN:
             d_tmp['S'] = np.zeros((H, W, D, self.total_time)).astype(np.uint8)
             d_tmp['V'] = np.zeros((H, W, D, self.total_time)).astype(np.float32)
             d_tmp['I'] = np.zeros((H, W, D, self.total_time)).astype(np.float32)
+            d_tmp['C'] = np.zeros((H, W, D, self.total_time)).astype(np.float32) # Delay counter
             d_tmp['K_STDP'] = np.ones((H, W, D)).astype(np.uint8)
             d_tmp['K_inh'] = np.ones((H, W)).astype(np.uint8)
             self.layers.append(d_tmp)
@@ -300,6 +298,7 @@ class SDNN:
             self.layers[i]['S'] = np.zeros((H, W, D, self.total_time)).astype(np.uint8)
             self.layers[i]['V'] = np.zeros((H, W, D, self.total_time)).astype(np.float32)
             self.layers[i]['I'] = np.zeros((H, W, D, self.total_time)).astype(np.float32)
+            self.layers[i]['C'] = np.zeros((H, W, D, self.total_time)).astype(np.float32) # Reset delay counter
             self.layers[i]['K_STDP'] = np.ones((H, W, D)).astype(np.uint8)
             self.layers[i]['K_inh'] = np.ones((H, W)).astype(np.uint8)
         return
@@ -349,9 +348,6 @@ class SDNN:
                 H_pad, W_pad = self.network_struc[i]['pad']
                 stride = self.network_struc[i]['stride']
                 th = self.network_struc[i]['th']
-                alpha = self.network_struc[i]['alpha']
-                beta = self.network_struc[i]['beta']
-                delay = self.network_struc[i]['delay']
 
                 w = self.weights[i-1]
                 s = self.layers[i - 1]['S'][:, :, :, t - 1]  # Input spikes
@@ -367,16 +363,23 @@ class SDNN:
                            int(ceil(D / blockdim[2])) if int(ceil(D / blockdim[2])) != 0 else 1)
 
                 if self.network_struc[i]['Type'] == 'conv':
-                    V, I, S = self.convolution(S, I, V, s, w, stride, th, alpha, beta, delay, blockdim, griddim)
+                    # Set conv params
+                    alpha = self.network_struc[i]['alpha']
+                    beta = self.network_struc[i]['beta']
+                    delay = self.network_struc[i]['delay']
+                    C = self.layers[i]['C'][:, :, :, t - 1]  # Output delay counter before
+
+                    V, I, S, C = self.convolution(S, I, V, C, s, w, stride, th, alpha, beta, delay, blockdim, griddim)
                     self.layers[i]['V'][:, :, :, t] = V
                     self.layers[i]['I'][:, :, :, t] = I
+                    self.layers[i]['C'][:, :, :, t] = C
 
                     S, K_inh = self.lateral_inh(S, V, K_inh, blockdim, griddim)
                     self.layers[i]['S'][:, :, :, t] = S
                     self.layers[i]['K_inh'] = K_inh
 
                 elif self.network_struc[i]['Type'] == 'pool':
-                    S = self.pooling(S, s, w, stride, th, alpha, beta, delay, blockdim, griddim)
+                    S = self.pooling(S, s, w, stride, th, blockdim, griddim)
                     self.layers[i]['S'][:, :, :, t] = S
 
                     if i < 3:
@@ -535,9 +538,6 @@ class SDNN:
                 H_pad, W_pad = self.network_struc[i]['pad']
                 stride = self.network_struc[i]['stride']
                 th = self.network_struc[i]['th']
-                alpha = self.network_struc[i]['alpha']
-                beta = self.network_struc[i]['beta']
-                delay = self.network_struc[i]['delay']
 
                 w = self.weights[i-1]
                 s = self.layers[i - 1]['S'][:, :, :, t - 1]  # Input spikes
@@ -553,13 +553,19 @@ class SDNN:
                            int(ceil(D / blockdim[2])) if int(ceil(D / blockdim[2])) != 0 else 1)
 
                 if self.network_struc[i]['Type'] == 'conv':
+                    alpha = self.network_struc[i]['alpha']
+                    beta = self.network_struc[i]['beta']
+                    delay = self.network_struc[i]['delay']
+                    C = self.layers[i]['C'][:, :, :, t - 1]  # Output delay counter before
+                    
                     if self.device == 'GPU':
-                        V, I, S = self.convolution(S, I, V, s, w, stride, th, alpha, beta, delay, blockdim, griddim)
+                        V, I, S, C = self.convolution(S, I, V, C, s, w, stride, th, alpha, beta, delay, blockdim, griddim)
                     else:
-                        V, I, S = self.convolution_CPU(S, I, V, s, w, stride, th, alpha, beta, delay)
+                        V, I, S, C = self.convolution_CPU(S, I, V, C, s, w, stride, th, alpha, beta, delay)
                     self.layers[i]['V'][:, :, :, t] = V
                     self.layers[i]['I'][:, :, :, t] = I
                     self.layers[i]['S'][:, :, :, t] = S
+                    self.layers[i]['C'][:, :, :, t] = C
 
                     if self.device == 'GPU':
                         S, K_inh = self.lateral_inh(S, V, K_inh, blockdim, griddim)
@@ -570,9 +576,9 @@ class SDNN:
 
                 elif self.network_struc[i]['Type'] == 'pool':
                     if self.device == 'GPU':
-                        S = self.pooling(S, s, w, stride, th, alpha, beta, delay, blockdim, griddim)
+                        S = self.pooling(S, s, w, stride, th, blockdim, griddim)
                     else:
-                        S = self.pooling_CPU(S, s, w, stride, th, alpha, beta, delay)
+                        S = self.pooling_CPU(S, s, w, stride, th)
                     self.layers[i]['S'][:, :, :, t] = S
 
                     if i < 3:
@@ -698,7 +704,7 @@ class SDNN:
         return X_test, self.y_test
 
 # --------------------------- CUDA interfacing functions ------------------------#
-    def convolution(self, S, I, V, s, w, stride, th, alpha, beta, delay, blockdim, griddim):
+    def convolution(self, S, I, V, C, s, w, stride, th, alpha, beta, delay, blockdim, griddim):
         """
             Cuda Convolution Kernel call
             Returns the updated potentials and spike times
@@ -706,16 +712,19 @@ class SDNN:
         d_S = cuda.to_device(np.ascontiguousarray(S).astype(np.uint8))
         d_I = cuda.to_device(np.ascontiguousarray(I).astype(np.float32))
         d_V = cuda.to_device(np.ascontiguousarray(V).astype(np.float32))
+        d_C = cuda.to_device(np.ascontiguousarray(C).astype(np.float32))
         d_s = cuda.to_device(np.ascontiguousarray(s).astype(np.uint8))
         d_w = cuda.to_device(np.ascontiguousarray(w).astype(np.float32))
         V_out = np.empty(d_V.shape, dtype=d_V.dtype)
         I_out = np.empty(d_I.shape, dtype=d_I.dtype)
         S_out = np.empty(d_S.shape, dtype=d_S.dtype)
-        conv_step[griddim, blockdim](d_S, d_I, d_V, d_s, d_w, stride, th, alpha, beta, delay)
+        C_out = np.empty(d_C.shape, dtype=d_C.dtype)
+        conv_step[griddim, blockdim](d_S, d_I, d_V, d_C, d_s, d_w, stride, th, alpha, beta, delay)
         d_V.copy_to_host(V_out)
         d_I.copy_to_host(I_out)
         d_S.copy_to_host(S_out)
-        return V_out, I_out, S_out
+        d_C.copy_to_host(C_out)
+        return V_out, I_out, S_out, C_out
 
     def lateral_inh(self, S, V, K_inh, blockdim, griddim):
         """
@@ -732,7 +741,7 @@ class SDNN:
         d_K_inh.copy_to_host(K_inh_out)
         return S_out, K_inh_out
 
-    def pooling(self, S, s, w, stride, th, alpha, beta, delay, blockdim, griddim):
+    def pooling(self, S, s, w, stride, th, blockdim, griddim):
         """
             Cuda Pooling Kernel call
             Returns the updated spike times
@@ -741,7 +750,7 @@ class SDNN:
         d_s = cuda.to_device(np.ascontiguousarray(s).astype(np.uint8))
         d_w = cuda.to_device(np.ascontiguousarray(w).astype(np.float32))
         S_out = np.empty(d_S.shape, dtype=d_S.dtype)
-        pool[griddim, blockdim](d_S, d_s, d_w, stride, th, alpha, beta, delay)
+        pool[griddim, blockdim](d_S, d_s, d_w, stride, th)
         d_S.copy_to_host(S_out)
         return S_out
 
@@ -765,13 +774,13 @@ class SDNN:
 
 
 # --------------------------- CPU interfacing functions ------------------------#
-    def convolution_CPU(self, S, I, V, s, w, stride, th, alpha, beta, delay):
+    def convolution_CPU(self, S, I, V, C, s, w, stride, th, alpha, beta, delay):
         """
             CPU Convolution Function call
             Returns the updated potentials and spike times
         """
-        V_out, S_out = conv_step_CPU(S, I, V, s, w, stride, th, alpha, beta, delay)
-        return V_out, S_out
+        V_out, I_out, S_out, C_out = conv_step_CPU(S, I, V, C, s, w, stride, th, alpha, beta, delay)
+        return V_out, I_out, S_out, C_out
 
     def lateral_inh_CPU(self, S, V, K_inh):
         """
