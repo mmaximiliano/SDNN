@@ -47,13 +47,11 @@ def main():
     network_params = [{'Type': 'input', 'num_filters': 1, 'pad': (0, 0), 'H_layer': DoG_params['img_size'][1],
                        'W_layer': DoG_params['img_size'][0]},
                       {'Type': 'conv', 'num_filters': 4, 'filter_size': 5, 'th': 10.,
-                       'alpha': float(np.exp(-1e-3/10e-3)), 'beta': float(np.exp(-1e-3/2e-5)), 'delay': 0},
-                      {'Type': 'pool', 'num_filters': 4, 'filter_size': 7, 'th': 0., 'stride': 6,
-                       'alpha': float(np.exp(-1e-3/10e-3)), 'beta': float(np.exp(-1e-3/2e-5)), 'delay': 0},
+                       'alpha': float(np.exp(-1e-3/10e-3)), 'beta': float(np.exp(-1e-3/2e-5)), 'delay': 2},
+                      {'Type': 'pool', 'num_filters': 4, 'filter_size': 7, 'th': 0., 'stride': 6},
                       {'Type': 'conv', 'num_filters': 20, 'filter_size': 17, 'th': 60.,
-                       'alpha': float(np.exp(-1e-3/10e-3)), 'beta': float(np.exp(-1e-3/2e-5)), 'delay': 0},
-                      {'Type': 'pool', 'num_filters': 20, 'filter_size': 5, 'th': 0., 'stride': 5,
-                       'alpha': float(np.exp(-1e-3/10e-3)), 'beta': float(np.exp(-1e-3/2e-5)), 'delay': 0},
+                       'alpha': float(np.exp(-1e-3/10e-3)), 'beta': float(np.exp(-1e-3/2e-5)), 'delay': 1},
+                      {'Type': 'pool', 'num_filters': 20, 'filter_size': 5, 'th': 0., 'stride': 5},
                       {'Type': 'conv', 'num_filters': 20, 'filter_size': 5, 'th': 2.,
                        'alpha': float(np.exp(-1e-3/10e-3)), 'beta': float(np.exp(-1e-3/2e-5)), 'delay': 0}]
 
