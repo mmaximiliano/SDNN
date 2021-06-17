@@ -8,7 +8,7 @@ from numba import *
 @jit
 def conv_step_CPU(S, I, V, C, s, w, stride, th, alpha, beta, delay):
 
-    V[(V > th) && (C == 0)] = 0.
+    V[(V > th) & (C == 0)] = 0.
     I = np.zeros(V.shape)
     for i in range(V.shape[0]):
         for j in range(V.shape[1]):
