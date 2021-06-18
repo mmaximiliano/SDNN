@@ -61,8 +61,8 @@ def DoG_filter(path_img, filt, img_size, total_time, num_layers):
     img_out = img
 
     # Convert to spike times
-    I = np.argsort(1 / img_out.flatten())  # Get indices of sorted latencies
-    lat = np.sort(1 / img_out.flatten())  # Get sorted latencies
+    I = np.argsort(1 / img_out.flatten())  # Get indices of sorted latencies (Returns the indices that would sort the array of spikes)
+    lat = np.sort(1 / img_out.flatten())  # Get sorted latencies (sort spike times)
     I = np.delete(I, np.where(lat == np.inf))  # Remove infinite latencies indexes
     II = np.unravel_index(I, img_out.shape)  # Get the row, column and depth of the latencies in order
     t_step = np.ceil(np.arange(I.size) / ((I.size) / (total_time - num_layers))).astype(np.uint8)
