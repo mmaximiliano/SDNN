@@ -129,3 +129,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+SDNN-Maxi/.idea/kubernetes-settings.xml
+SDNN-Maxi/.idea/misc.xml
+SDNN-Maxi/.idea/modules.xml
+SDNN-Maxi/.idea/SDNN-Maxi.iml
+SDNN-Maxi/.idea/vcs.xml
