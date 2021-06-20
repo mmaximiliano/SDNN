@@ -682,7 +682,7 @@ class SDNN:
 
             # Obtain maximum potential per map in last layer
             V = self.layers[self.num_layers-1]['V']
-            features = np.max(np.max(np.max(V, axis=0), axis=0), axis=1)
+            features = np.max(np.max(V, axis=0), axis=0)
             self.features_test.append(features)
 
         # Transform features to numpy array
