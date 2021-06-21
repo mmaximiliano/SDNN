@@ -46,8 +46,8 @@ def main():
     total_time = 15
     network_params = [{'Type': 'input', 'num_filters': 1, 'pad': (0, 0), 'H_layer': DoG_params['img_size'][1],
                        'W_layer': DoG_params['img_size'][0]},
-                      {'Type': 'conv', 'num_filters': 4, 'filter_size': 5, 'th': 10.,
-                       'alpha': .95, 'beta': .95, 'delay': 2},
+                      {'Type': 'P_conv', 'num_filters': 4, 'filter_size': 5, 'th': (10., 10.),
+                       'alpha': (.95, .95), 'beta': (.95, .95), 'delay': (0, 2)},
                       {'Type': 'pool', 'num_filters': 4, 'filter_size': 7, 'th': 0., 'stride': 6},
                       {'Type': 'conv', 'num_filters': 20, 'filter_size': 17, 'th': 60.,
                        'alpha': .95, 'beta': .95, 'delay': 1},
@@ -77,7 +77,14 @@ def main():
 
     # Set the weights or learn STDP
     if set_weights:
-        weight_path_list = [path_set_weigths + 'weight_' + str(i) + '.npy' for i in range(len(network_params) - 1)]
+        weight_path_list = []
+        for i in range(len(network_params) - 1):
+            if (network_params[i]['Type'] == 'P_conv') | \
+                    ((i >= 1) & (network_params[i-1]['Type'] == 'P_conv')):
+                weight_path_list.append([path_set_weigths + 'weight_P0_' + str(i) + '.npy'])
+                weight_path_list.append([path_set_weigths + 'weight_P1_' + str(i) + '.npy'])
+            else:
+                weight_path_list.append([path_set_weigths + 'weight_' + str(i) + '.npy'])
         first_net.set_weights(weight_path_list)
     else:
         first_net.train_SDNN()
@@ -86,7 +93,12 @@ def main():
     if save_weights:
         weights = first_net.get_weights()
         for i in range(len(weights)):
-            np.save(path_save_weigths + 'weight_'+str(i), weights[i])
+            if (network_params[i]['Type'] == 'P_conv') | \
+                    ((i>=1) & (network_params[i-1]['Type'] == 'P_conv')):
+                np.save(path_save_weigths + 'weight_P0_' + str(i), weights[i][0])
+                np.save(path_save_weigths + 'weight_P1_' + str(i), weights[i][1])
+            else:
+                np.save(path_save_weigths + 'weight_'+str(i), weights[i])
 
     # Get features
     X_train, y_train = first_net.train_features()
