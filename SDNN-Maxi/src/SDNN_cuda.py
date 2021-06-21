@@ -117,13 +117,7 @@ class SDNN:
 
         # --------------------------- Network Initialisation -------------------#
         # Total time and number of layers
-        layer_count = 0
-        for i in range(len(network_params)):
-            if network_params[i]['Type'] == 'P_conv':
-                layer_count += 2
-            else:
-                layer_count += 1
-        self.num_layers = layer_count
+        self.num_layers = len(network_params)
         self.learnable_layers = []
         self.total_time = total_time
 
