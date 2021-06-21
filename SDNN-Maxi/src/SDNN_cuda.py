@@ -102,7 +102,8 @@ class SDNN:
                 -'img_size': A tuple of integers with the dimensions to which the images are to be resized 
                 -'DoG_size': An int with the size of the DoG filter window size
                 -'std1': A float with the standard deviation 1 for the DoG filter
-                -'std2': A float with the standard deviation 2 for the DoG filter                  
+                -'std2': A float with the standard deviation 2 for the DoG filter
+            - Type P_*: Makes a parallel layer of the specified type by *
                  
         """
 
@@ -116,7 +117,13 @@ class SDNN:
 
         # --------------------------- Network Initialisation -------------------#
         # Total time and number of layers
-        self.num_layers = len(network_params)
+        layer_count = 0
+        for i in range(len(network_params)):
+            if network_params[i]['Type'] == 'P_conv':
+                layer_count += 2
+            else:
+                layer_count += 1
+        self.num_layers = layer_count
         self.learnable_layers = []
         self.total_time = total_time
 
@@ -195,7 +202,7 @@ class SDNN:
                 d_tmp['num_filters'] = network_params[i]['num_filters']
                 d_tmp['pad'] = network_params[i]['pad']
                 d_tmp['shape'] = (d_tmp['H_layer'], d_tmp['W_layer'], d_tmp['num_filters'])
-            elif network_params[i]['Type'] == 'conv':
+            elif (network_params[i]['Type'] == 'conv') | (network_params[i]['Type'] == 'P_conv'):
                 d_tmp['Type'] = network_params[i]['Type']
                 d_tmp['th'] = network_params[i]['th']
                 d_tmp['filter_size'] = network_params[i]['filter_size']
@@ -242,8 +249,27 @@ class SDNN:
                 weights_tmp = (mean + std * np.random.normal(size=w_shape))
                 weights_tmp[weights_tmp >= 1.] = 0.99
                 weights_tmp[weights_tmp <= 0.] = 0.01
+            elif self.network_struc[i]['Type'] == 'P_conv':
+                weights_tmp_0 = (mean + std * np.random.normal(size=w_shape))
+                weights_tmp_0[weights_tmp_0 >= 1.] = 0.99
+                weights_tmp_0[weights_tmp_0 <= 0.] = 0.01
+
+                weights_tmp_1 = (mean + std * np.random.normal(size=w_shape))
+                weights_tmp_1[weights_tmp_1 >= 1.] = 0.99
+                weights_tmp_1[weights_tmp_1 <= 0.] = 0.01
+
+                weights_tmp = (weights_tmp_0.astype(np.float32()), weights_tmp_1.astype(np.float32()))
+                self.weights.append(weights_tmp)
+                continue
             elif self.network_struc[i]['Type'] == 'pool':
-                weights_tmp = np.ones((HH, WW, MM))/(HH*WW)
+                if self.network_struc[i-1]['Type'] == 'P_conv':
+                    weights_tmp_0 = np.ones((HH, WW, MM))/(HH*WW)
+                    weights_tmp_1 = np.ones((HH, WW, MM))/(HH*WW)
+                    weights_tmp = (weights_tmp_0.astype(np.float32()), weights_tmp_1.astype(np.float32()))
+                    self.weights.append(weights_tmp)
+                    continue
+                else:
+                    weights_tmp = np.ones((HH, WW, MM))/(HH*WW)
             else:
                 continue
             self.weights.append(weights_tmp.astype(np.float32))
@@ -256,9 +282,15 @@ class SDNN:
         for i in range(1, self.num_layers):
             H_pre, W_pre, M_pre = self.network_struc[i - 1]['shape']
             if self.network_struc[i]['Type'] == 'conv':
-                HH, WW, MM, DD = self.weights[i-1].shape
+                if self.network_struc[i-1]['Type'] == 'P_conv':
+                    HH, WW, MM, DD = self.weights[i-1][0].shape
+                else:
+                    HH, WW, MM, DD = self.weights[i-1].shape
             else:
-                HH, WW, MM = self.weights[i-1].shape
+                if self.network_struc[i-1]['Type'] == 'P_conv':
+                    HH, WW, MM = self.weights[i-1][0].shape
+                else:
+                    HH, WW, MM = self.weights[i-1].shape
             H_post, W_post, D_post = self.network_struc[i]['shape']
             stride = self.network_struc[i]['stride']
             H_pad, W_pad = self.network_struc[i]['pad']
@@ -279,12 +311,26 @@ class SDNN:
         for i in range(self.num_layers):
             d_tmp = {}
             H, W, D = self.network_struc[i]['shape']
-            d_tmp['S'] = np.zeros((H, W, D, self.total_time)).astype(np.uint8)
-            d_tmp['V'] = np.zeros((H, W, D)).astype(np.float32)
-            d_tmp['I'] = np.zeros((H, W, D)).astype(np.float32)
-            d_tmp['C'] = np.zeros((H, W, D)).astype(np.float32) # Delay counter
-            d_tmp['K_STDP'] = np.ones((H, W, D)).astype(np.uint8)
-            d_tmp['K_inh'] = np.ones((H, W)).astype(np.uint8)
+            if self.network_struc[i]['Type'] == 'P_conv':
+                d_tmp['S'] = (np.zeros((H, W, D, self.total_time)).astype(np.uint8),
+                              np.zeros((H, W, D, self.total_time)).astype(np.uint8))
+                d_tmp['V'] = (np.zeros((H, W, D)).astype(np.float32),
+                              np.zeros((H, W, D)).astype(np.float32))
+                d_tmp['I'] = (np.zeros((H, W, D)).astype(np.float32),
+                              np.zeros((H, W, D)).astype(np.float32))
+                d_tmp['C'] = (np.zeros((H, W, D)).astype(np.float32),
+                              np.zeros((H, W, D)).astype(np.float32))
+                d_tmp['K_STDP'] = (np.ones((H, W, D)).astype(np.uint8),
+                                   np.ones((H, W, D)).astype(np.uint8))
+                d_tmp['K_inh'] = (np.ones((H, W)).astype(np.uint8),
+                                  np.ones((H, W)).astype(np.uint8))
+            else:
+                d_tmp['S'] = np.zeros((H, W, D, self.total_time)).astype(np.uint8)
+                d_tmp['V'] = np.zeros((H, W, D)).astype(np.float32)
+                d_tmp['I'] = np.zeros((H, W, D)).astype(np.float32)
+                d_tmp['C'] = np.zeros((H, W, D)).astype(np.float32)  # Delay counter
+                d_tmp['K_STDP'] = np.ones((H, W, D)).astype(np.uint8)
+                d_tmp['K_inh'] = np.ones((H, W)).astype(np.uint8)
             self.layers.append(d_tmp)
         return
 
@@ -295,18 +341,33 @@ class SDNN:
         """
         for i in range(self.num_layers):
             H, W, D = self.network_struc[i]['shape']
-            self.layers[i]['S'] = np.zeros((H, W, D, self.total_time)).astype(np.uint8)
-            self.layers[i]['V'] = np.zeros((H, W, D)).astype(np.float32)
-            self.layers[i]['I'] = np.zeros((H, W, D)).astype(np.float32)
-            self.layers[i]['C'] = np.zeros((H, W, D)).astype(np.float32)  # Reset delay counter
-            self.layers[i]['K_STDP'] = np.ones((H, W, D)).astype(np.uint8)
-            self.layers[i]['K_inh'] = np.ones((H, W)).astype(np.uint8)
+            if self.network_struc[i]['Type'] == 'P_conv':
+                self.layers[i]['S'] = (np.zeros((H, W, D, self.total_time)).astype(np.uint8),
+                                       np.zeros((H, W, D, self.total_time)).astype(np.uint8))
+                self.layers[i]['V'] = (np.zeros((H, W, D)).astype(np.float32),
+                                       np.zeros((H, W, D)).astype(np.float32))
+                self.layers[i]['I'] = (np.zeros((H, W, D)).astype(np.float32),
+                                       np.zeros((H, W, D)).astype(np.float32))
+                self.layers[i]['C'] = (np.zeros((H, W, D)).astype(np.float32),
+                                       np.zeros((H, W, D)).astype(np.float32))
+                self.layers[i]['K_STDP'] = (np.ones((H, W, D)).astype(np.uint8),
+                                            np.ones((H, W, D)).astype(np.uint8))
+                self.layers[i]['K_inh'] = (np.ones((H, W)).astype(np.uint8),
+                                           np.ones((H, W)).astype(np.uint8))
+            else:
+                self.layers[i]['S'] = np.zeros((H, W, D, self.total_time)).astype(np.uint8)
+                self.layers[i]['V'] = np.zeros((H, W, D)).astype(np.float32)
+                self.layers[i]['I'] = np.zeros((H, W, D)).astype(np.float32)
+                self.layers[i]['C'] = np.zeros((H, W, D)).astype(np.float32)  # Reset delay counter
+                self.layers[i]['K_STDP'] = np.ones((H, W, D)).astype(np.uint8)
+                self.layers[i]['K_inh'] = np.ones((H, W)).astype(np.uint8)
         return
 
     # Weights getter
     def get_weights(self):
         return self.weights
 
+    # REVISAR COMO AGARRAR LOS PESOS CUANDO SON LAYERS PARALELOS
     # Weights setter
     def set_weights(self, path_list):
         """
@@ -317,9 +378,20 @@ class SDNN:
                          stored as *.npy                    
         """
         self.weights = []
-        for id in range(self.num_layers-1):
-            weight_tmp = np.load(path_list[id])
-            self.weights.append(weight_tmp.astype(np.float32))
+        id = 0
+        while id < self.num_layers-1:
+            if (self.network_struc[id]['Type'] == 'P_conv') | \
+                    ((id >= 1) & (self.network_struc[id-1]['Type'] == 'P_conv')):
+                weight_tmp_0 = np.load(path_list[id])
+                id += 1
+                weight_tmp_1 = np.load(path_list[id])
+                id += 1
+                weight_tmp = (weight_tmp_0.astype(np.float32), weight_tmp_1.astype(np.float32))
+                self.weights.append(weight_tmp)
+            else:
+                weight_tmp = np.load(path_list[id])
+                self.weights.append(weight_tmp.astype(np.float32))
+                id += 1
         return
 
     # Generates an iterator with the path to image sets
@@ -350,11 +422,28 @@ class SDNN:
                 th = self.network_struc[i]['th']
 
                 w = self.weights[i-1]
-                s = self.layers[i - 1]['S'][:, :, :, t - 1]  # Input spikes
-                s = np.pad(s, ((H_pad, H_pad), (W_pad, W_pad), (0, 0)), mode='constant')  # Pad the input
-                S = self.layers[i]['S'][:, :, :, t]  # Output spikes
-                V = self.layers[i]['V'][:, :, :]  # Output voltage before
-                I = self.layers[i]['I'][:, :, :]  # Output voltage before
+                if self.network_struc[i-1]['Type'] == 'P_conv':
+                    s_0 = self.layers[i - 1]['S'][0][:, :, :, t - 1]  # Input spikes
+                    s_0 = np.pad(s_0, ((H_pad, H_pad), (W_pad, W_pad), (0, 0)), mode='constant')  # Pad the input
+
+                    s_1 = self.layers[i - 1]['S'][1][:, :, :, t - 1]  # Input spikes
+                    s_1 = np.pad(s_1, ((H_pad, H_pad), (W_pad, W_pad), (0, 0)), mode='constant')  # Pad the input
+
+                    s = (s_0, s_1)
+
+                else:
+                    s = self.layers[i - 1]['S'][:, :, :, t - 1]  # Input spikes
+                    s = np.pad(s, ((H_pad, H_pad), (W_pad, W_pad), (0, 0)), mode='constant')  # Pad the input
+
+                if self.network_struc[i]['Type'] == 'P_conv':
+                    S = self.layers[i]['S']  # Output spikes
+                    V = self.layers[i]['V']  # Output voltage before
+                    I = self.layers[i]['I']  # Output voltage before
+                else:
+                    S = self.layers[i]['S'][:, :, :, t]  # Output spikes
+                    V = self.layers[i]['V'][:, :, :]  # Output voltage before
+                    I = self.layers[i]['I'][:, :, :]  # Output voltage before
+
                 K_inh = self.layers[i]['K_inh']  # Lateral inhibition matrix
 
                 blockdim = (self.thds_per_dim, self.thds_per_dim, self.thds_per_dim)
@@ -378,8 +467,33 @@ class SDNN:
                     self.layers[i]['S'][:, :, :, t] = S
                     self.layers[i]['K_inh'] = K_inh
 
+                elif self.network_struc[i]['Type'] == 'P_conv':
+                    for p in {0, 1}:
+                        # Set Parallel conv params
+                        S_tmp = S[p][:, :, :, t]  # Output spikes
+                        V_tmp = V[p][:, :, :]  # Output voltage before
+                        I_tmp = I[p][:, :, :]  # Output voltage before
+                        C_tmp = self.layers[i]['C'][p][:, :, :]  # Output delay counter before
+                        K_inh_tmp = K_inh[p]
+                        alpha = self.network_struc[i]['alpha'][p]
+                        beta = self.network_struc[i]['beta'][p]
+                        delay = self.network_struc[i]['delay'][p]
+
+                        V_tmp, I_tmp, S_tmp, C_tmp = self.convolution(S_tmp, I_tmp, V_tmp, C_tmp, s, w[p], stride,
+                                                                      th[p], alpha, beta, delay, blockdim, griddim)
+                        self.layers[i]['V'][p][:, :, :] = V_tmp
+                        self.layers[i]['I'][p][:, :, :] = I_tmp
+                        self.layers[i]['C'][p][:, :, :] = C_tmp
+
+                        S_tmp, K_inh_tmp = self.lateral_inh(S_tmp, V_tmp, K_inh_tmp, blockdim, griddim)
+                        self.layers[i]['S'][p][:, :, :, t] = S_tmp
+                        self.layers[i]['K_inh'][p] = K_inh_tmp
+
                 elif self.network_struc[i]['Type'] == 'pool':
-                    S = self.pooling(S, s, w, stride, th, blockdim, griddim)
+                    if self.network_struc[i - 1]['Type'] == 'P_conv':
+                        S = self.parallel_pooling(S, s[0], s[1], w[0], w[1], stride, th, blockdim, griddim)
+                    else:
+                        S = self.pooling(S, s, w, stride, th, blockdim, griddim)
                     self.layers[i]['S'][:, :, :, t] = S
 
                     if i < 3:
@@ -422,6 +536,39 @@ class SDNN:
                                           stride, offset, a_minus, a_plus, blockdim, griddim)
                     self.weights[lay - 1] = w
                     self.layers[lay]['K_STDP'] = K_STDP
+            if self.network_struc[lay]['Type'] == 'P_conv':
+                for p in {0, 1}:
+                    # valid are neurons in the learning layer that can do STDP and that have fired in the current t
+                    S = self.layers[lay]['S'][p][:, :, :, t]  # Output spikes
+                    V = self.layers[lay]['V'][p][:, :, :]  # Output voltage
+                    K_STDP = self.layers[lay]['K_STDP'][p]  # Lateral inhibition matrix
+                    valid = S*V*K_STDP
+
+                    if np.count_nonzero(valid) > 0:
+
+                        H, W, D = self.network_struc[lay]['shape']
+                        stride = self.network_struc[lay]['stride']
+                        offset = self.offsetSTDP[lay]
+                        a_minus = self.stdp_a_minus[lay]
+                        a_plus = self.stdp_a_plus[lay]
+
+                        s = self.layers[lay - 1]['S'][:, :, :, :t]  # Input spikes
+                        ssum = np.sum(s, axis=3)
+                        s = np.pad(ssum, ((H_pad, H_pad), (W_pad, W_pad), (0, 0)), mode='constant')  # Pad the input
+                        w = self.weights[lay - 1][p]
+
+                        maxval, maxind1, maxind2 = self.get_STDP_idxs(valid, H, W, D, lay)
+
+                        blockdim = (self.thds_per_dim, self.thds_per_dim, self.thds_per_dim)
+                        griddim = (int(ceil(H / blockdim[0])) if int(ceil(H / blockdim[2])) != 0 else 1,
+                                int(ceil(W / blockdim[1])) if int(ceil(W / blockdim[2])) != 0 else 1,
+                                int(ceil(D / blockdim[2])) if int(ceil(D / blockdim[2])) != 0 else 1)
+
+                        w, K_STDP = self.STDP(S.shape, s, w, K_STDP,
+                                            maxval, maxind1, maxind2,
+                                            stride, offset, a_minus, a_plus, blockdim, griddim)
+                        self.weights[lay - 1][p] = w
+                        self.layers[lay]['K_STDP'][p] = K_STDP
 
     # Train all images in training set
     def train_SDNN(self):
@@ -527,7 +674,7 @@ class SDNN:
     def prop_step(self):
         """
             Propagates one image through the SDNN network. 
-            This function is identical to train_step() but here  no STDP takes place and we always reach the last layer
+            This function is identical to train_step() but here no STDP takes place and we always reach the last layer
         """
 
         # Propagate
@@ -540,11 +687,27 @@ class SDNN:
                 th = self.network_struc[i]['th']
 
                 w = self.weights[i-1]
-                s = self.layers[i - 1]['S'][:, :, :, t - 1]  # Input spikes
-                s = np.pad(s, ((H_pad, H_pad), (W_pad, W_pad), (0, 0)), mode='constant')  # Pad the input
-                S = self.layers[i]['S'][:, :, :, t]  # Output spikes
-                V = self.layers[i]['V'][:, :, :]  # Output voltage before
-                I = self.layers[i]['I'][:, :, :]  # Output voltage before
+                if self.network_struc[i-1]['Type'] == 'P_conv':
+                    s_0 = self.layers[i - 1]['S'][0][:, :, :, t - 1]  # Input spikes
+                    s_0 = np.pad(s_0, ((H_pad, H_pad), (W_pad, W_pad), (0, 0)), mode='constant')  # Pad the input
+
+                    s_1 = self.layers[i - 1]['S'][1][:, :, :, t - 1]  # Input spikes
+                    s_1 = np.pad(s_1, ((H_pad, H_pad), (W_pad, W_pad), (0, 0)), mode='constant')  # Pad the input
+
+                    s = (s_0, s_1)
+                else:
+                    s = self.layers[i - 1]['S'][:, :, :, t - 1]  # Input spikes
+                    s = np.pad(s, ((H_pad, H_pad), (W_pad, W_pad), (0, 0)), mode='constant')  # Pad the input
+
+                if self.network_struc[i]['Type'] == 'P_conv':
+                    S = self.layers[i]['S']  # Output spikes
+                    V = self.layers[i]['V']  # Output voltage before
+                    I = self.layers[i]['I']  # Output voltage before
+                else:
+                    S = self.layers[i]['S'][:, :, :, t]  # Output spikes
+                    V = self.layers[i]['V'][:, :, :]  # Output voltage before
+                    I = self.layers[i]['I'][:, :, :]  # Output voltage before
+
                 K_inh = self.layers[i]['K_inh']  # Lateral inhibition matrix
 
                 blockdim = (self.thds_per_dim, self.thds_per_dim, self.thds_per_dim)
@@ -574,11 +737,46 @@ class SDNN:
                     self.layers[i]['S'][:, :, :, t] = S
                     self.layers[i]['K_inh'] = K_inh
 
+                elif self.network_struc[i]['Type'] == 'P_conv':
+                    for p in {0, 1}:
+                        # Set Parallel conv params
+                        S_tmp = S[p][:, :, :, t]  # Output spikes
+                        V_tmp = V[p][:, :, :]  # Output voltage before
+                        I_tmp = I[p][:, :, :]  # Output voltage before
+                        C_tmp = self.layers[i]['C'][p][:, :, :]  # Output delay counter before
+                        K_inh_tmp = K_inh[p]
+                        alpha = self.network_struc[i]['alpha'][p]
+                        beta = self.network_struc[i]['beta'][p]
+                        delay = self.network_struc[i]['delay'][p]
+
+                        if self.device == 'GPU':
+                            V_tmp, I_tmp, S_tmp, C_tmp = self.convolution(S_tmp, I_tmp, V_tmp, C_tmp, s, w[p], stride,
+                                                                          th[p], alpha, beta, delay, blockdim, griddim)
+                        else:
+                            V_tmp, I_tmp, S_tmp, C_tmp = self.convolution_CPU(S_tmp, I_tmp, V_tmp, C_tmp, s, w[p],
+                                                                              stride, th[p], alpha, beta, delay)
+                        self.layers[i]['V'][p][:, :, :] = V_tmp
+                        self.layers[i]['I'][p][:, :, :] = I_tmp
+                        self.layers[i]['C'][p][:, :, :] = C_tmp
+
+                        if self.device == 'GPU':
+                            S_tmp, K_inh_tmp = self.lateral_inh(S_tmp, V_tmp, K_inh_tmp, blockdim, griddim)
+                        else:
+                            S_tmp, K_inh_tmp = self.lateral_inh_CPU(S_tmp, V_tmp, K_inh_tmp)
+                        self.layers[i]['S'][p][:, :, :, t] = S_tmp
+                        self.layers[i]['K_inh'][p] = K_inh_tmp
+
                 elif self.network_struc[i]['Type'] == 'pool':
                     if self.device == 'GPU':
-                        S = self.pooling(S, s, w, stride, th, blockdim, griddim)
+                        if self.network_struc[i - 1]['Type'] == 'P_conv':
+                            S = self.parallel_pooling(S, s[0], s[1], w[0], w[1], stride, th, blockdim, griddim)
+                        else:
+                            S = self.pooling(S, s, w, stride, th, blockdim, griddim)
                     else:
-                        S = self.pooling_CPU(S, s, w, stride, th)
+                        if self.network_struc[i - 1]['Type'] == 'P_conv':
+                            S = self.parallel_pooling_CPU(S, s[0], s[1], w[0], w[1], stride, th)
+                        else:
+                            S = self.pooling_CPU(S, s, w, stride, th)
                     self.layers[i]['S'][:, :, :, t] = S
 
                     if i < 3:
@@ -754,6 +952,21 @@ class SDNN:
         d_S.copy_to_host(S_out)
         return S_out
 
+    def parallel_pooling(self, S, s_0, s_1, w_0, w_1, stride, th, blockdim, griddim):
+        """
+            Cuda Parallel Pooling Kernel call
+            Returns the updated spike times
+        """
+        d_S = cuda.to_device(np.ascontiguousarray(S).astype(np.uint8))
+        d_s_0 = cuda.to_device(np.ascontiguousarray(s_0).astype(np.uint8))
+        d_s_1 = cuda.to_device(np.ascontiguousarray(s_1).astype(np.uint8))
+        d_w_0 = cuda.to_device(np.ascontiguousarray(w_0).astype(np.float32))
+        d_w_1 = cuda.to_device(np.ascontiguousarray(w_1).astype(np.float32))
+        S_out = np.empty(d_S.shape, dtype=d_S.dtype)
+        parallel_pool[griddim, blockdim](d_S, d_s_0, d_s_1, d_w_0, d_w_1, stride, th)
+        d_S.copy_to_host(S_out)
+        return S_out
+
     def STDP(self, S_sz, s, w, K_STDP, maxval, maxind1, maxind2, stride, offset, a_minus, a_plus, blockdim, griddim):
         """
             Cuda STDP-Update Kernel call
@@ -796,6 +1009,16 @@ class SDNN:
             Returns the updated spike times
         """
         S_out = pool_CPU(S, s, w, stride, th)
+        return S_out
+
+    def parallel_pooling_CPU(self, S, s_0, s_1, w_0, w_1, stride, th):
+        """
+            CPU Parallel Pooling Function call
+            Returns the updated spike times
+        """
+        # FALTA TERMINAR
+        # S_out = pool_CPU(S, s, w, stride, th)
+        S_out = []
         return S_out
 
     def STDP_CPU(self, S_sz, s, w, K_STDP, maxval, maxind1, maxind2, stride, offset, a_minus, a_plus):
