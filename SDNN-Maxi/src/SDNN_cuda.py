@@ -280,6 +280,9 @@ class SDNN:
                     HH, WW, MM, DD = self.weights[i-1][0].shape
                 else:
                     HH, WW, MM, DD = self.weights[i-1].shape
+
+            elif self.network_struc[i]['Type'] == 'P_conv':
+                HH, WW, MM, DD = self.weights[i-1][0].shape
             else:
                 if self.network_struc[i-1]['Type'] == 'P_conv':
                     HH, WW, MM = self.weights[i-1][0].shape
