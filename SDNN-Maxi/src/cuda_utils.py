@@ -51,7 +51,7 @@ def conv_step(S, I, V, C, s, w, stride, th, alpha, beta, delay):
         if C[idx, idy, idz] == 0:
             S[idx, idy, idz] = 1
         else:
-            S[idx, idy, idz] = 0    
+            S[idx, idy, idz] = 0
     else:
         S[idx, idy, idz] = 0
 
@@ -77,6 +77,30 @@ def pool(S, s, w, stride, th):
         S[idx, idy, idz] = 1
     else:
         S[idx, idy, idz] = 0
+
+@cuda.jit((uint8[:, :, :], uint8[:, :, :], uint8[:, :, :], float32[:, :, :], float32[:, :, :],
+           uint32, float32))
+def parallel_pool(S, s_0, s_1, w_0, w_1, stride, th):
+
+    idx, idy, idz = cuda.grid(3)
+    if idx > S.shape[0] - 1:
+        return
+    if idy > S.shape[1] - 1:
+        return
+    if idz > S.shape[2] - 1:
+        return
+
+    result = 0.
+    for j in range(w_0.shape[1]):
+        for i in range(w_0.shape[0]):
+            result += (w_0[i, j, idz] * s_0[idx*stride + i, idy*stride+j, idz]) + \
+                      (w_1[i, j, idz] * s_1[idx*stride + i, idy*stride+j, idz])
+
+    if result > th:
+        S[idx, idy, idz] = 1
+    else:
+        S[idx, idy, idz] = 0
+
 
 
 @cuda.jit((int32[:], uint8[:, :, :], float32[:, :, :, :], uint8[:, :, :],
