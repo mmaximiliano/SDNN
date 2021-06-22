@@ -252,14 +252,14 @@ class SDNN:
                 weights_tmp_1[weights_tmp_1 >= 1.] = 0.99
                 weights_tmp_1[weights_tmp_1 <= 0.] = 0.01
 
-                weights_tmp = (weights_tmp_0.astype(np.float32()), weights_tmp_1.astype(np.float32()))
+                weights_tmp = np.array([weights_tmp_0.astype(np.float32()), weights_tmp_1.astype(np.float32())])
                 self.weights.append(weights_tmp)
                 continue
             elif self.network_struc[i]['Type'] == 'pool':
                 if self.network_struc[i-1]['Type'] == 'P_conv':
                     weights_tmp_0 = np.ones((HH, WW, MM))/(HH*WW)
                     weights_tmp_1 = np.ones((HH, WW, MM))/(HH*WW)
-                    weights_tmp = (weights_tmp_0.astype(np.float32()), weights_tmp_1.astype(np.float32()))
+                    weights_tmp = np.array([weights_tmp_0.astype(np.float32()), weights_tmp_1.astype(np.float32())])
                     self.weights.append(weights_tmp)
                     continue
                 else:
@@ -309,18 +309,18 @@ class SDNN:
             d_tmp = {}
             H, W, D = self.network_struc[i]['shape']
             if self.network_struc[i]['Type'] == 'P_conv':
-                d_tmp['S'] = (np.zeros((H, W, D, self.total_time)).astype(np.uint8),
-                              np.zeros((H, W, D, self.total_time)).astype(np.uint8))
-                d_tmp['V'] = (np.zeros((H, W, D)).astype(np.float32),
-                              np.zeros((H, W, D)).astype(np.float32))
-                d_tmp['I'] = (np.zeros((H, W, D)).astype(np.float32),
-                              np.zeros((H, W, D)).astype(np.float32))
-                d_tmp['C'] = (np.zeros((H, W, D)).astype(np.float32),
-                              np.zeros((H, W, D)).astype(np.float32))
-                d_tmp['K_STDP'] = (np.ones((H, W, D)).astype(np.uint8),
-                                   np.ones((H, W, D)).astype(np.uint8))
-                d_tmp['K_inh'] = (np.ones((H, W)).astype(np.uint8),
-                                  np.ones((H, W)).astype(np.uint8))
+                d_tmp['S'] = np.array([np.zeros((H, W, D, self.total_time)).astype(np.uint8),
+                              np.zeros((H, W, D, self.total_time)).astype(np.uint8)])
+                d_tmp['V'] = np.array([np.zeros((H, W, D)).astype(np.float32),
+                              np.zeros((H, W, D)).astype(np.float32)])
+                d_tmp['I'] = np.array([np.zeros((H, W, D)).astype(np.float32),
+                              np.zeros((H, W, D)).astype(np.float32)])
+                d_tmp['C'] = np.array([np.zeros((H, W, D)).astype(np.float32),
+                              np.zeros((H, W, D)).astype(np.float32)])
+                d_tmp['K_STDP'] = np.array([np.ones((H, W, D)).astype(np.uint8),
+                                   np.ones((H, W, D)).astype(np.uint8)])
+                d_tmp['K_inh'] = np.array([np.ones((H, W)).astype(np.uint8),
+                                  np.ones((H, W)).astype(np.uint8)])
             else:
                 d_tmp['S'] = np.zeros((H, W, D, self.total_time)).astype(np.uint8)
                 d_tmp['V'] = np.zeros((H, W, D)).astype(np.float32)
@@ -364,7 +364,6 @@ class SDNN:
     def get_weights(self):
         return self.weights
 
-    # REVISAR COMO AGARRAR LOS PESOS CUANDO SON LAYERS PARALELOS
     # Weights setter
     def set_weights(self, path_list):
         """
@@ -383,7 +382,7 @@ class SDNN:
                 id += 1
                 weight_tmp_1 = np.load(path_list[id])
                 id += 1
-                weight_tmp = (weight_tmp_0.astype(np.float32), weight_tmp_1.astype(np.float32))
+                weight_tmp = np.array([weight_tmp_0.astype(np.float32), weight_tmp_1.astype(np.float32)])
                 self.weights.append(weight_tmp)
             else:
                 weight_tmp = np.load(path_list[id])
