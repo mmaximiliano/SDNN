@@ -339,18 +339,18 @@ class SDNN:
         for i in range(self.num_layers):
             H, W, D = self.network_struc[i]['shape']
             if self.network_struc[i]['Type'] == 'P_conv':
-                self.layers[i]['S'] = (np.zeros((H, W, D, self.total_time)).astype(np.uint8),
-                                       np.zeros((H, W, D, self.total_time)).astype(np.uint8))
-                self.layers[i]['V'] = (np.zeros((H, W, D)).astype(np.float32),
-                                       np.zeros((H, W, D)).astype(np.float32))
-                self.layers[i]['I'] = (np.zeros((H, W, D)).astype(np.float32),
-                                       np.zeros((H, W, D)).astype(np.float32))
-                self.layers[i]['C'] = (np.zeros((H, W, D)).astype(np.float32),
-                                       np.zeros((H, W, D)).astype(np.float32))
-                self.layers[i]['K_STDP'] = (np.ones((H, W, D)).astype(np.uint8),
-                                            np.ones((H, W, D)).astype(np.uint8))
-                self.layers[i]['K_inh'] = (np.ones((H, W)).astype(np.uint8),
-                                           np.ones((H, W)).astype(np.uint8))
+                self.layers[i]['S'] = np.array([np.zeros((H, W, D, self.total_time)).astype(np.uint8),
+                                       np.zeros((H, W, D, self.total_time)).astype(np.uint8)])
+                self.layers[i]['V'] = np.array([np.zeros((H, W, D)).astype(np.float32),
+                                       np.zeros((H, W, D)).astype(np.float32)])
+                self.layers[i]['I'] = np.array([np.zeros((H, W, D)).astype(np.float32),
+                                       np.zeros((H, W, D)).astype(np.float32)])
+                self.layers[i]['C'] = np.array([np.zeros((H, W, D)).astype(np.float32),
+                                       np.zeros((H, W, D)).astype(np.float32)])
+                self.layers[i]['K_STDP'] = np.array([np.ones((H, W, D)).astype(np.uint8),
+                                            np.ones((H, W, D)).astype(np.uint8)])
+                self.layers[i]['K_inh'] = np.array([np.ones((H, W)).astype(np.uint8),
+                                           np.ones((H, W)).astype(np.uint8)])
             else:
                 self.layers[i]['S'] = np.zeros((H, W, D, self.total_time)).astype(np.uint8)
                 self.layers[i]['V'] = np.zeros((H, W, D)).astype(np.float32)
