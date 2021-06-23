@@ -549,6 +549,8 @@ class SDNN:
 
                     if (self.network_struc[lay-1]['Type'] == 'P_conv') | \
                         (self.network_struc[lay-1]['Type'] == 'P_pool'):
+                        # FALTA TERMINAR -> INCOMPLETO XQ NO LO USO
+                        s = self.layers[lay - 1]['S'][:, :, :, :t]  # Input spikes
                     else:
                         s = self.layers[lay - 1]['S'][:, :, :, :t]  # Input spikes
                         ssum = np.sum(s, axis=3)
