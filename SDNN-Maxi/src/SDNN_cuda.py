@@ -211,7 +211,7 @@ class SDNN:
                 d_tmp['beta'] = network_params[i]['beta']
                 d_tmp['delay'] = network_params[i]['delay']
                 self.learnable_layers.append(i)
-            elif network_params[i]['Type'] == 'pool':
+            elif (network_params[i]['Type'] == 'pool') | (network_params[i]['Type'] == 'P_pool'):
                 d_tmp['Type'] = network_params[i]['Type']
                 d_tmp['th'] = network_params[i]['th']
                 d_tmp['filter_size'] = network_params[i]['filter_size']
@@ -255,6 +255,12 @@ class SDNN:
                 weights_tmp = np.array([weights_tmp_0.astype(np.float32()), weights_tmp_1.astype(np.float32())])
                 self.weights.append(weights_tmp)
                 continue
+            elif self.network_struc[i]['Type'] == 'P_pool':
+                weights_tmp_0 = np.ones((HH, WW, MM))/(HH*WW)
+                weights_tmp_1 = np.ones((HH, WW, MM))/(HH*WW)
+                weights_tmp = np.array([weights_tmp_0.astype(np.float32()), weights_tmp_1.astype(np.float32())])
+                self.weights.append(weights_tmp)
+                continue
             elif self.network_struc[i]['Type'] == 'pool':
                 if self.network_struc[i-1]['Type'] == 'P_conv':
                     weights_tmp_0 = np.ones((HH, WW, MM))/(HH*WW)
@@ -278,11 +284,14 @@ class SDNN:
             if self.network_struc[i]['Type'] == 'conv':
                 if self.network_struc[i-1]['Type'] == 'P_conv':
                     HH, WW, MM, DD = self.weights[i-1][0].shape
+                elif self.network_struc[i-1]['Type'] == 'P_pool':
+                    HH, WW, MM = self.weights[i-1][0].shape
                 else:
                     HH, WW, MM, DD = self.weights[i-1].shape
-
             elif self.network_struc[i]['Type'] == 'P_conv':
                 HH, WW, MM, DD = self.weights[i-1][0].shape
+            elif self.network_struc[i]['Type'] == 'P_pool':
+                HH, WW, MM = self.weights[i-1][0].shape
             else:
                 if self.network_struc[i-1]['Type'] == 'P_conv':
                     HH, WW, MM = self.weights[i-1][0].shape
@@ -308,7 +317,7 @@ class SDNN:
         for i in range(self.num_layers):
             d_tmp = {}
             H, W, D = self.network_struc[i]['shape']
-            if self.network_struc[i]['Type'] == 'P_conv':
+            if (self.network_struc[i]['Type'] == 'P_conv') | (self.network_struc[i]['Type'] == 'P_pool'):
                 d_tmp['S'] = np.array([np.zeros((H, W, D, self.total_time)).astype(np.uint8),
                               np.zeros((H, W, D, self.total_time)).astype(np.uint8)])
                 d_tmp['V'] = np.array([np.zeros((H, W, D)).astype(np.float32),
@@ -338,7 +347,7 @@ class SDNN:
         """
         for i in range(self.num_layers):
             H, W, D = self.network_struc[i]['shape']
-            if self.network_struc[i]['Type'] == 'P_conv':
+            if (self.network_struc[i]['Type'] == 'P_conv') | (self.network_struc[i]['Type'] == 'P_pool'):
                 self.layers[i]['S'] = np.array([np.zeros((H, W, D, self.total_time)).astype(np.uint8),
                                        np.zeros((H, W, D, self.total_time)).astype(np.uint8)])
                 self.layers[i]['V'] = np.array([np.zeros((H, W, D)).astype(np.float32),
@@ -377,7 +386,9 @@ class SDNN:
         id = 0
         while id < self.num_layers-1:
             if (self.network_struc[id]['Type'] == 'P_conv') | \
-                    ((id >= 1) & (self.network_struc[id-1]['Type'] == 'P_conv')):
+                    (self.network_struc[id-1]['Type'] == 'P_pool') | \
+                    ((id >= 1) & (self.network_struc[id-1]['Type'] == 'P_conv')) | \
+                    ((id >= 1) & (self.network_struc[id-1]['Type'] == 'P_pool')):
                 weight_tmp_0 = np.load(path_list[id])
                 id += 1
                 weight_tmp_1 = np.load(path_list[id])
@@ -418,7 +429,7 @@ class SDNN:
                 th = self.network_struc[i]['th']
 
                 w = self.weights[i-1]
-                if self.network_struc[i-1]['Type'] == 'P_conv':
+                if (self.network_struc[i-1]['Type'] == 'P_conv') | (self.network_struc[i-1]['Type'] == 'P_pool'):
                     s_0 = self.layers[i - 1]['S'][0][:, :, :, t - 1]  # Input spikes
                     s_0 = np.pad(s_0, ((H_pad, H_pad), (W_pad, W_pad), (0, 0)), mode='constant')  # Pad the input
 
@@ -431,7 +442,7 @@ class SDNN:
                     s = self.layers[i - 1]['S'][:, :, :, t - 1]  # Input spikes
                     s = np.pad(s, ((H_pad, H_pad), (W_pad, W_pad), (0, 0)), mode='constant')  # Pad the input
 
-                if self.network_struc[i]['Type'] == 'P_conv':
+                if (self.network_struc[i]['Type'] == 'P_conv') | (self.network_struc[i]['Type'] == 'P_pool'):
                     S = self.layers[i]['S']  # Output spikes
                     V = self.layers[i]['V']  # Output voltage before
                     I = self.layers[i]['I']  # Output voltage before
@@ -448,6 +459,7 @@ class SDNN:
                            int(ceil(D / blockdim[2])) if int(ceil(D / blockdim[2])) != 0 else 1)
 
                 if self.network_struc[i]['Type'] == 'conv':
+                    # FALTA VER COMO INTERGRAR SI LA ANTERIOR ES PARALELA
                     # Set conv params
                     alpha = self.network_struc[i]['alpha']
                     beta = self.network_struc[i]['beta']
@@ -475,8 +487,14 @@ class SDNN:
                         beta = self.network_struc[i]['beta'][p]
                         delay = self.network_struc[i]['delay'][p]
 
-                        V_tmp, I_tmp, S_tmp, C_tmp = self.convolution(S_tmp, I_tmp, V_tmp, C_tmp, s, w[p], stride,
-                                                                      th[p], alpha, beta, delay, blockdim, griddim)
+                        if (self.network_struc[i-1]['Type'] == 'P_conv') | (self.network_struc[i-1]['Type'] == 'P_pool'):
+                            V_tmp, I_tmp, S_tmp, C_tmp = self.convolution(S_tmp, I_tmp, V_tmp, C_tmp, s[p], w[p],
+                                                                          stride, th[p], alpha, beta, delay,
+                                                                          blockdim, griddim)
+                        else:
+                            V_tmp, I_tmp, S_tmp, C_tmp = self.convolution(S_tmp, I_tmp, V_tmp, C_tmp, s, w[p],
+                                                                          stride, th[p], alpha, beta, delay,
+                                                                          blockdim, griddim)
                         self.layers[i]['V'][p][:, :, :] = V_tmp
                         self.layers[i]['I'][p][:, :, :] = I_tmp
                         self.layers[i]['C'][p][:, :, :] = C_tmp
@@ -484,6 +502,20 @@ class SDNN:
                         S_tmp, K_inh_tmp = self.lateral_inh(S_tmp, V_tmp, K_inh_tmp, blockdim, griddim)
                         self.layers[i]['S'][p][:, :, :, t] = S_tmp
                         self.layers[i]['K_inh'][p] = K_inh_tmp
+
+                elif self.network_struc[i]['Type'] == 'P_pool':
+                    for p in {0, 1}:
+                        K_inh_tmp = K_inh[p]
+                        if (self.network_struc[i-1]['Type'] == 'P_conv') | (self.network_struc[i-1]['Type'] == 'P_pool'):
+                            S_tmp = self.pooling(S[p], s[p], w[p], stride, th[p], blockdim, griddim)
+                        else:
+                            S_tmp = self.pooling(S[p], s, w[p], stride, th[p], blockdim, griddim)
+                        self.layers[i]['S'][p][:, :, :, t] = S_tmp
+
+                        if i < 3:
+                            S_tmp, K_inh_tmp = self.lateral_inh(S[p], V[p], K_inh_tmp, blockdim, griddim)
+                            self.layers[i]['S'][p][:, :, :, t] = S_tmp
+                            self.layers[i]['K_inh'][p] = K_inh_tmp
 
                 elif self.network_struc[i]['Type'] == 'pool':
                     if self.network_struc[i - 1]['Type'] == 'P_conv':
@@ -515,10 +547,13 @@ class SDNN:
                     a_minus = self.stdp_a_minus[lay]
                     a_plus = self.stdp_a_plus[lay]
 
-                    s = self.layers[lay - 1]['S'][:, :, :, :t]  # Input spikes
-                    ssum = np.sum(s, axis=3)
-                    s = np.pad(ssum, ((H_pad, H_pad), (W_pad, W_pad), (0, 0)), mode='constant')  # Pad the input
-                    w = self.weights[lay - 1]
+                    if (self.network_struc[lay-1]['Type'] == 'P_conv') | \
+                        (self.network_struc[lay-1]['Type'] == 'P_pool'):
+                    else:
+                        s = self.layers[lay - 1]['S'][:, :, :, :t]  # Input spikes
+                        ssum = np.sum(s, axis=3)
+                        s = np.pad(ssum, ((H_pad, H_pad), (W_pad, W_pad), (0, 0)), mode='constant')  # Pad the input
+                        w = self.weights[lay - 1]
 
                     maxval, maxind1, maxind2 = self.get_STDP_idxs(valid, H, W, D, lay)
 
@@ -548,7 +583,12 @@ class SDNN:
                         a_minus = self.stdp_a_minus[lay]
                         a_plus = self.stdp_a_plus[lay]
 
-                        s = self.layers[lay - 1]['S'][:, :, :, :t]  # Input spikes
+                        if (self.network_struc[lay-1]['Type'] == 'P_conv') | \
+                                (self.network_struc[lay-1]['Type'] == 'P_pool'):
+                            s = self.layers[lay - 1]['S'][p][:, :, :, :t]  # Input spikes
+                        else:
+                            s = self.layers[lay - 1]['S'][:, :, :, :t]  # Input spikes
+
                         ssum = np.sum(s, axis=3)
                         s = np.pad(ssum, ((H_pad, H_pad), (W_pad, W_pad), (0, 0)), mode='constant')  # Pad the input
                         w = self.weights[lay - 1][p]
@@ -683,7 +723,7 @@ class SDNN:
                 th = self.network_struc[i]['th']
 
                 w = self.weights[i-1]
-                if self.network_struc[i-1]['Type'] == 'P_conv':
+                if (self.network_struc[i-1]['Type'] == 'P_conv') | (self.network_struc[i-1]['Type'] == 'P_pool'):
                     s_0 = self.layers[i - 1]['S'][0][:, :, :, t - 1]  # Input spikes
                     s_0 = np.pad(s_0, ((H_pad, H_pad), (W_pad, W_pad), (0, 0)), mode='constant')  # Pad the input
 
@@ -695,7 +735,7 @@ class SDNN:
                     s = self.layers[i - 1]['S'][:, :, :, t - 1]  # Input spikes
                     s = np.pad(s, ((H_pad, H_pad), (W_pad, W_pad), (0, 0)), mode='constant')  # Pad the input
 
-                if self.network_struc[i]['Type'] == 'P_conv':
+                if (self.network_struc[i]['Type'] == 'P_conv') | (self.network_struc[i]['Type'] == 'P_pool'):
                     S = self.layers[i]['S']  # Output spikes
                     V = self.layers[i]['V']  # Output voltage before
                     I = self.layers[i]['I']  # Output voltage before
@@ -712,6 +752,7 @@ class SDNN:
                            int(ceil(D / blockdim[2])) if int(ceil(D / blockdim[2])) != 0 else 1)
 
                 if self.network_struc[i]['Type'] == 'conv':
+                    # FALTA VER COMO INTERGRAR SI LA ANTERIOR ES PARALELA
                     alpha = self.network_struc[i]['alpha']
                     beta = self.network_struc[i]['beta']
                     delay = self.network_struc[i]['delay']
@@ -746,11 +787,23 @@ class SDNN:
                         delay = self.network_struc[i]['delay'][p]
 
                         if self.device == 'GPU':
-                            V_tmp, I_tmp, S_tmp, C_tmp = self.convolution(S_tmp, I_tmp, V_tmp, C_tmp, s, w[p], stride,
-                                                                          th[p], alpha, beta, delay, blockdim, griddim)
+                            if (self.network_struc[i-1]['Type'] == 'P_conv') | \
+                                (self.network_struc[i-1]['Type'] == 'P_pool'):
+                                V_tmp, I_tmp, S_tmp, C_tmp = self.convolution(S_tmp, I_tmp, V_tmp, C_tmp, s[p],
+                                                                              w[p], stride, th[p], alpha, beta,
+                                                                              delay, blockdim, griddim)
+                            else:
+                                V_tmp, I_tmp, S_tmp, C_tmp = self.convolution(S_tmp, I_tmp, V_tmp, C_tmp, s,
+                                                                              w[p], stride, th[p], alpha, beta,
+                                                                              delay, blockdim, griddim)
                         else:
-                            V_tmp, I_tmp, S_tmp, C_tmp = self.convolution_CPU(S_tmp, I_tmp, V_tmp, C_tmp, s, w[p],
-                                                                              stride, th[p], alpha, beta, delay)
+                            if (self.network_struc[i-1]['Type'] == 'P_conv') | \
+                                    (self.network_struc[i-1]['Type'] == 'P_pool'):
+                                V_tmp, I_tmp, S_tmp, C_tmp = self.convolution_CPU(S_tmp, I_tmp, V_tmp, C_tmp, s[p], w[p],
+                                                                                  stride, th[p], alpha, beta, delay)
+                            else:
+                                V_tmp, I_tmp, S_tmp, C_tmp = self.convolution_CPU(S_tmp, I_tmp, V_tmp, C_tmp, s, w[p],
+                                                                                  stride, th[p], alpha, beta, delay)
                         self.layers[i]['V'][p][:, :, :] = V_tmp
                         self.layers[i]['I'][p][:, :, :] = I_tmp
                         self.layers[i]['C'][p][:, :, :] = C_tmp
@@ -761,6 +814,20 @@ class SDNN:
                             S_tmp, K_inh_tmp = self.lateral_inh_CPU(S_tmp, V_tmp, K_inh_tmp)
                         self.layers[i]['S'][p][:, :, :, t] = S_tmp
                         self.layers[i]['K_inh'][p] = K_inh_tmp
+
+                elif self.network_struc[i]['Type'] == 'P_pool':
+                    for p in {0, 1}:
+                        K_inh_tmp = K_inh[p]
+                        if (self.network_struc[i-1]['Type'] == 'P_conv') | (self.network_struc[i-1]['Type'] == 'P_pool'):
+                            S_tmp = self.pooling(S[p], s[p], w[p], stride, th[p], blockdim, griddim)
+                        else:
+                            S_tmp = self.pooling(S[p], s, w[p], stride, th[p], blockdim, griddim)
+                        self.layers[i]['S'][p][:, :, :, t] = S_tmp
+
+                        if i < 3:
+                            S_tmp, K_inh_tmp = self.lateral_inh(S[p], V[p], K_inh_tmp, blockdim, griddim)
+                            self.layers[i]['S'][p][:, :, :, t] = S_tmp
+                            self.layers[i]['K_inh'][p] = K_inh_tmp
 
                 elif self.network_struc[i]['Type'] == 'pool':
                     if self.device == 'GPU':
@@ -792,8 +859,12 @@ class SDNN:
                             where N is the number of training samples
                             and M is the number of maps in the last layer
         """
-        self.network_struc[3]['th'] = 50.
-        self.network_struc[5]['th'] = 100000  # Set threshold of last layer to inf
+        if (self.network_struc[3]['Type'] == 'P_conv') & (self.network_struc[5]['Type'] == 'P_conv'):
+            self.network_struc[3]['th'] = (50., 50.)
+            self.network_struc[5]['th'] = (100000., 100000.)  # Set threshold of last layer to inf
+        else:
+            self.network_struc[3]['th'] = 50.
+            self.network_struc[5]['th'] = 100000  # Set threshold of last layer to inf
         print("-----------------------------------------------------------")
         print("----------- EXTRACTING TRAINING FEATURES ------------------")
         print("-----------------------------------------------------------")
@@ -817,8 +888,15 @@ class SDNN:
             self.prop_step()
 
             # Obtain maximum potential per map in last layer
-            V = self.layers[self.num_layers-1]['V']
-            features = np.max(np.max(V, axis=0), axis=0)
+            if (self.network_struc[5]['Type'] == 'P_conv'):
+                V_0 = self.layers[self.num_layers-1]['V'][0]
+                V_1 = self.layers[self.num_layers-1]['V'][1]
+                features_0 = np.max(np.max(V_0, axis=0), axis=0)
+                features_1 = np.max(np.max(V_1, axis=0), axis=0)
+                features = np.concatenate((features_0, features_1), axis=None)
+            else:
+                V = self.layers[self.num_layers-1]['V']
+                features = np.max(np.max(V, axis=0), axis=0)
             self.features_train.append(features)
 
 
@@ -852,8 +930,12 @@ class SDNN:
                             where N is the number of training samples
                             and M is the number of maps in the last layer
         """
-        self.network_struc[3]['th'] = 50.
-        self.network_struc[5]['th'] = 100000  # Set threshold of last layer to inf
+        if (self.network_struc[3]['Type'] == 'P_conv') & (self.network_struc[5]['Type'] == 'P_conv'):
+            self.network_struc[3]['th'] = (50., 50.)
+            self.network_struc[5]['th'] = (100000., 100000.)  # Set threshold of last layer to inf
+        else:
+            self.network_struc[3]['th'] = 50.
+            self.network_struc[5]['th'] = 100000  # Set threshold of last layer to inf
         print("-----------------------------------------------------------")
         print("---------------- EXTRACTING TEST FEATURES -----------------")
         print("-----------------------------------------------------------")
@@ -875,8 +957,16 @@ class SDNN:
             self.prop_step()
 
             # Obtain maximum potential per map in last layer
-            V = self.layers[self.num_layers-1]['V']
-            features = np.max(np.max(V, axis=0), axis=0)
+            if (self.network_struc[5]['Type'] == 'P_conv'):
+                V_0 = self.layers[self.num_layers-1]['V'][0]
+                V_1 = self.layers[self.num_layers-1]['V'][1]
+                features_0 = np.max(np.max(V_0, axis=0), axis=0)
+                features_1 = np.max(np.max(V_1, axis=0), axis=0)
+                features = np.concatenate((features_0, features_1), axis=None)
+            else:
+                V = self.layers[self.num_layers-1]['V']
+                features = np.max(np.max(V, axis=0), axis=0)
+
             self.features_test.append(features)
 
         # Transform features to numpy array
