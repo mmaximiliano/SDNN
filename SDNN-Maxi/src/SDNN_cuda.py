@@ -619,7 +619,7 @@ class SDNN:
         print("-----------------------------------------------------------")
         print("-------------------- STARTING LEARNING---------------------")
         print("-----------------------------------------------------------")
-        for i in range(self.max_iter):
+        for i in range(2990, self.max_iter):
             print("----------------- Learning Progress  {}%----------------------".format(str(i) + '/'
                                                                                           + str(self.max_iter)
                                                                                           + ' ('
