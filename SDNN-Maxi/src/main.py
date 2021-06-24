@@ -50,7 +50,7 @@ def main():
                        'alpha': .95, 'beta': .95, 'delay': 2},
                       {'Type': 'pool', 'num_filters': 4, 'filter_size': 7, 'th': 0., 'stride': 6},
                       {'Type': 'conv', 'num_filters': 20, 'filter_size': 17, 'th': 60.,
-                       'alpha': .95, 'beta': 95., 'delay': 1},
+                       'alpha': .95, 'beta': .95, 'delay': 1},
                       {'Type': 'pool', 'num_filters': 20, 'filter_size': 5, 'th': 0., 'stride': 5},
                       {'Type': 'conv', 'num_filters': 20, 'filter_size': 5, 'th': 2.,
                        'alpha': .95, 'beta': .95, 'delay': 0}]
@@ -73,6 +73,7 @@ def main():
     first_net = SDNN(network_params, weight_params, stdp_params, total_time,
                      DoG_params=DoG_params, spike_times_learn=spike_times_learn,
                      spike_times_train=spike_times_train, spike_times_test=spike_times_test, device='GPU')
+
 
     # Set the weights or learn STDP
     if set_weights:

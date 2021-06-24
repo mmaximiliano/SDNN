@@ -288,6 +288,7 @@ class SDNN:
                     HH, WW, MM = self.weights[i-1][0].shape
                 else:
                     HH, WW, MM, DD = self.weights[i-1].shape
+
             elif self.network_struc[i]['Type'] == 'P_conv':
                 HH, WW, MM, DD = self.weights[i-1][0].shape
             elif self.network_struc[i]['Type'] == 'P_pool':
@@ -388,7 +389,7 @@ class SDNN:
         id = 0
         while id < self.num_layers-1:
             if (self.network_struc[id]['Type'] == 'P_conv') | \
-                    (self.network_struc[id-1]['Type'] == 'P_pool') | \
+                    (self.network_struc[id]['Type'] == 'P_pool') | \
                     ((id >= 1) & (self.network_struc[id-1]['Type'] == 'P_conv')) | \
                     ((id >= 1) & (self.network_struc[id-1]['Type'] == 'P_pool')):
                 weight_tmp_0 = np.load(path_list[id])
@@ -431,7 +432,8 @@ class SDNN:
                 th = self.network_struc[i]['th']
 
                 w = self.weights[i-1]
-                if (self.network_struc[i-1]['Type'] == 'P_conv') | (self.network_struc[i-1]['Type'] == 'P_pool'):
+                if (self.network_struc[i-1]['Type'] == 'P_conv') | \
+                        (self.network_struc[i-1]['Type'] == 'P_pool'):
                     s_0 = self.layers[i - 1]['S'][0][:, :, :, t - 1]  # Input spikes
                     s_0 = np.pad(s_0, ((H_pad, H_pad), (W_pad, W_pad), (0, 0)), mode='constant')  # Pad the input
 
@@ -444,7 +446,8 @@ class SDNN:
                     s = self.layers[i - 1]['S'][:, :, :, t - 1]  # Input spikes
                     s = np.pad(s, ((H_pad, H_pad), (W_pad, W_pad), (0, 0)), mode='constant')  # Pad the input
 
-                if (self.network_struc[i]['Type'] == 'P_conv') | (self.network_struc[i]['Type'] == 'P_pool'):
+                if (self.network_struc[i]['Type'] == 'P_conv') | \
+                        (self.network_struc[i]['Type'] == 'P_pool'):
                     S = self.layers[i]['S']  # Output spikes
                     V = self.layers[i]['V']  # Output voltage before
 
@@ -494,7 +497,8 @@ class SDNN:
                         beta = self.network_struc[i]['beta'][p]
                         delay = self.network_struc[i]['delay'][p]
 
-                        if (self.network_struc[i-1]['Type'] == 'P_conv') | (self.network_struc[i-1]['Type'] == 'P_pool'):
+                        if (self.network_struc[i-1]['Type'] == 'P_conv') | \
+                                (self.network_struc[i-1]['Type'] == 'P_pool'):
                             V_tmp, I_tmp, S_tmp, C_tmp = self.convolution(S_tmp, I_tmp, V_tmp, C_tmp, s[p], w[p],
                                                                           stride, th[p], alpha, beta, delay,
                                                                           blockdim, griddim)
@@ -869,11 +873,14 @@ class SDNN:
                             where N is the number of training samples
                             and M is the number of maps in the last layer
         """
-        if (self.network_struc[3]['Type'] == 'P_conv') & (self.network_struc[5]['Type'] == 'P_conv'):
+        if self.network_struc[3]['Type'] == 'P_conv':
             self.network_struc[3]['th'] = (50., 50.)
-            self.network_struc[5]['th'] = (100000., 100000.)  # Set threshold of last layer to inf
         else:
             self.network_struc[3]['th'] = 50.
+
+        if self.network_struc[5]['Type'] == 'P_conv':
+            self.network_struc[5]['th'] = (100000., 100000.)  # Set threshold of last layer to inf
+        else:
             self.network_struc[5]['th'] = 100000  # Set threshold of last layer to inf
         print("-----------------------------------------------------------")
         print("----------- EXTRACTING TRAINING FEATURES ------------------")
@@ -940,11 +947,14 @@ class SDNN:
                             where N is the number of training samples
                             and M is the number of maps in the last layer
         """
-        if (self.network_struc[3]['Type'] == 'P_conv') & (self.network_struc[5]['Type'] == 'P_conv'):
+        if self.network_struc[3]['Type'] == 'P_conv':
             self.network_struc[3]['th'] = (50., 50.)
-            self.network_struc[5]['th'] = (100000., 100000.)  # Set threshold of last layer to inf
         else:
             self.network_struc[3]['th'] = 50.
+
+        if self.network_struc[5]['Type'] == 'P_conv':
+            self.network_struc[5]['th'] = (100000., 100000.)  # Set threshold of last layer to inf
+        else:
             self.network_struc[5]['th'] = 100000  # Set threshold of last layer to inf
         print("-----------------------------------------------------------")
         print("---------------- EXTRACTING TEST FEATURES -----------------")

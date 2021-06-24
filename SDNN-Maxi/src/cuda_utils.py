@@ -127,7 +127,6 @@ def pool(S, s, w, stride, th):
     else:
         S[idx, idy, idz] = 0
 
-
 @cuda.jit((uint8[:, :, :], uint8[:, :, :], uint8[:, :, :], float32[:, :, :], float32[:, :, :],
            uint32, float32))
 def parallel_pool(S, s_0, s_1, w_0, w_1, stride, th):
