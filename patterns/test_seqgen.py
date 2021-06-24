@@ -8,7 +8,7 @@ Created on Thu Jun 24 08:34:30 2021
 import pan_functions
 from torch.utils.data import DataLoader
 
-root_dataset = 'C:/Record/DVS/N-MNIST/Train'
+root_dataset = './N-MNIST/Train'
 
 # seed random for same sequence
 pan_functions.seed_torch(seed=0)
