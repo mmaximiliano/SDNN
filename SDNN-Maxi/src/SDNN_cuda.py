@@ -454,9 +454,9 @@ class SDNN:
                 K_inh = self.layers[i]['K_inh']  # Lateral inhibition matrix
 
                 blockdim = (self.thds_per_dim, self.thds_per_dim, self.thds_per_dim)
-                griddim = (int(ceil(H / blockdim[0])) if int(ceil(H / blockdim[2])) != 0 else 1,
-                           int(ceil(W / blockdim[1])) if int(ceil(W / blockdim[2])) != 0 else 1,
-                           int(ceil(D / blockdim[2])) if int(ceil(D / blockdim[2])) != 0 else 1)
+                griddim = (int(ceil((H / blockdim[0])/2)) if int(ceil((H / blockdim[2])/2)) != 0 else 1,
+                           int(ceil((W / blockdim[1])/2)) if int(ceil((W / blockdim[2])/2)) != 0 else 1,
+                           int(ceil((D / blockdim[2])/2)) if int(ceil((D / blockdim[2])/2)) != 0 else 1)
 
                 if self.network_struc[i]['Type'] == 'conv':
                     # FALTA VER COMO INTERGRAR SI LA ANTERIOR ES PARALELA
