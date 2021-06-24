@@ -252,20 +252,20 @@ class SDNN:
                 weights_tmp_1[weights_tmp_1 >= 1.] = 0.99
                 weights_tmp_1[weights_tmp_1 <= 0.] = 0.01
 
-                weights_tmp = np.array([weights_tmp_0.astype(np.float32()), weights_tmp_1.astype(np.float32())])
+                weights_tmp = np.array([weights_tmp_0.astype(np.float32), weights_tmp_1.astype(np.float32)])
                 self.weights.append(weights_tmp)
                 continue
             elif self.network_struc[i]['Type'] == 'P_pool':
                 weights_tmp_0 = np.ones((HH, WW, MM))/(HH*WW)
                 weights_tmp_1 = np.ones((HH, WW, MM))/(HH*WW)
-                weights_tmp = np.array([weights_tmp_0.astype(np.float32()), weights_tmp_1.astype(np.float32())])
+                weights_tmp = np.array([weights_tmp_0.astype(np.float32), weights_tmp_1.astype(np.float32)])
                 self.weights.append(weights_tmp)
                 continue
             elif self.network_struc[i]['Type'] == 'pool':
                 if self.network_struc[i-1]['Type'] == 'P_conv':
                     weights_tmp_0 = np.ones((HH, WW, MM))/(HH*WW)
                     weights_tmp_1 = np.ones((HH, WW, MM))/(HH*WW)
-                    weights_tmp = np.array([weights_tmp_0.astype(np.float32()), weights_tmp_1.astype(np.float32())])
+                    weights_tmp = np.array([weights_tmp_0.astype(np.float32), weights_tmp_1.astype(np.float32)])
                     self.weights.append(weights_tmp)
                     continue
                 else:
@@ -333,8 +333,9 @@ class SDNN:
             else:
                 d_tmp['S'] = np.zeros((H, W, D, self.total_time)).astype(np.uint8)
                 d_tmp['V'] = np.zeros((H, W, D)).astype(np.float32)
-                d_tmp['I'] = np.zeros((H, W, D)).astype(np.float32)
-                d_tmp['C'] = np.zeros((H, W, D)).astype(np.float32)  # Delay counter
+                if self.network_struc[i]['Type'] == 'conv':
+                    d_tmp['I'] = np.zeros((H, W, D)).astype(np.float32)
+                    d_tmp['C'] = np.zeros((H, W, D)).astype(np.float32)  # Delay counter
                 d_tmp['K_STDP'] = np.ones((H, W, D)).astype(np.uint8)
                 d_tmp['K_inh'] = np.ones((H, W)).astype(np.uint8)
             self.layers.append(d_tmp)
@@ -363,8 +364,9 @@ class SDNN:
             else:
                 self.layers[i]['S'] = np.zeros((H, W, D, self.total_time)).astype(np.uint8)
                 self.layers[i]['V'] = np.zeros((H, W, D)).astype(np.float32)
-                self.layers[i]['I'] = np.zeros((H, W, D)).astype(np.float32)
-                self.layers[i]['C'] = np.zeros((H, W, D)).astype(np.float32)  # Reset delay counter
+                if self.network_struc[i]['Type'] == 'conv':
+                    self.layers[i]['I'] = np.zeros((H, W, D)).astype(np.float32)
+                    self.layers[i]['C'] = np.zeros((H, W, D)).astype(np.float32)  # Reset delay counter
                 self.layers[i]['K_STDP'] = np.ones((H, W, D)).astype(np.uint8)
                 self.layers[i]['K_inh'] = np.ones((H, W)).astype(np.uint8)
         return
@@ -445,11 +447,11 @@ class SDNN:
                 if (self.network_struc[i]['Type'] == 'P_conv') | (self.network_struc[i]['Type'] == 'P_pool'):
                     S = self.layers[i]['S']  # Output spikes
                     V = self.layers[i]['V']  # Output voltage before
-                    I = self.layers[i]['I']  # Output voltage before
+
                 else:
                     S = self.layers[i]['S'][:, :, :, t]  # Output spikes
                     V = self.layers[i]['V'][:, :, :]  # Output voltage before
-                    I = self.layers[i]['I'][:, :, :]  # Output voltage before
+
 
                 K_inh = self.layers[i]['K_inh']  # Lateral inhibition matrix
 
@@ -465,12 +467,14 @@ class SDNN:
                     beta = self.network_struc[i]['beta']
                     delay = self.network_struc[i]['delay']
                     C = self.layers[i]['C'][:, :, :]  # Output delay counter before
+                    I = self.layers[i]['I'][:, :, :]  # Output voltage before
 
                     if (self.network_struc[i-1]['Type'] == 'P_conv') | (self.network_struc[i-1]['Type'] == 'P_pool'):
                         V, I, S, C = self.parallel_convolution(S, I, V, C, s[0], s[1], w[0], w[1], stride, th, alpha,
                                                                beta, delay, blockdim, griddim)
                     else:
-                        V, I, S, C = self.convolution(S, I, V, C, s, w, stride, th, alpha, beta, delay, blockdim, griddim)
+                        V, I, S, C = self.convolution(S, I, V, C, s, w, stride, th, alpha, beta, delay,
+                                                      blockdim, griddim)
                     self.layers[i]['V'][:, :, :] = V
                     self.layers[i]['I'][:, :, :] = I
                     self.layers[i]['C'][:, :, :] = C
@@ -480,6 +484,7 @@ class SDNN:
                     self.layers[i]['K_inh'] = K_inh
 
                 elif self.network_struc[i]['Type'] == 'P_conv':
+                    I = self.layers[i]['I']  # Output voltage before
                     for p in {0, 1}:
                         # Set Parallel conv params
                         S_tmp = S[p][:, :, :, t]  # Output spikes
