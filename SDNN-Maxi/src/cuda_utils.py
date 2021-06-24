@@ -8,7 +8,7 @@ from numba import cuda
 
 
 @cuda.jit((uint8[:, :, :], float32[:, :, :], float32[:, :, :], float32[:, :, :], uint8[:, :, :], float32[:, :, :, :],
-                    uint32, float32, float32, float32, float32))
+                    uint32, float32, float32, float32, uint32))
 def conv_step(S, I, V, C, s, w, stride, th, alpha, beta, delay):
 
     idx, idy, idz = cuda.grid(3)
@@ -56,7 +56,7 @@ def conv_step(S, I, V, C, s, w, stride, th, alpha, beta, delay):
         S[idx, idy, idz] = 0
 
 @cuda.jit((uint8[:, :, :], float32[:, :, :], float32[:, :, :], float32[:, :, :], uint8[:, :, :], uint8[:, :, :],
-           float32[:, :, :, :], float32[:, :, :, :], uint32, float32, float32, float32, float32))
+           float32[:, :, :, :], float32[:, :, :, :], uint32, float32, float32, float32, uint32))
 def parallel_conv_step(S, I, V, C, s_0, s_1, w_0, w_1, stride, th, alpha, beta, delay):
 
     idx, idy, idz = cuda.grid(3)
@@ -120,14 +120,13 @@ def pool(S, s, w, stride, th):
     result = 0.
     for j in range(w.shape[1]):
         for i in range(w.shape[0]):
-            if (idz > w.shape[2]):
-                print("idz > w.shape[2]")
             result += w[i, j, idz] * s[idx*stride + i, idy*stride+j, idz]
 
     if result > th:
         S[idx, idy, idz] = 1
     else:
         S[idx, idy, idz] = 0
+
 
 @cuda.jit((uint8[:, :, :], uint8[:, :, :], uint8[:, :, :], float32[:, :, :], float32[:, :, :],
            uint32, float32))

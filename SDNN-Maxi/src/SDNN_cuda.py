@@ -452,7 +452,6 @@ class SDNN:
                     S = self.layers[i]['S'][:, :, :, t]  # Output spikes
                     V = self.layers[i]['V'][:, :, :]  # Output voltage before
 
-
                 K_inh = self.layers[i]['K_inh']  # Lateral inhibition matrix
 
                 blockdim = (self.thds_per_dim, self.thds_per_dim, self.thds_per_dim)
@@ -461,7 +460,6 @@ class SDNN:
                            int(ceil(D / blockdim[2])) if int(ceil(D / blockdim[2])) != 0 else 1)
 
                 if self.network_struc[i]['Type'] == 'conv':
-                    # FALTA VER COMO INTERGRAR SI LA ANTERIOR ES PARALELA
                     # Set conv params
                     alpha = self.network_struc[i]['alpha']
                     beta = self.network_struc[i]['beta']
@@ -559,7 +557,8 @@ class SDNN:
                     if (self.network_struc[lay-1]['Type'] == 'P_conv') | \
                         (self.network_struc[lay-1]['Type'] == 'P_pool'):
                         # FALTA TERMINAR -> INCOMPLETO XQ NO LO USO
-                        s = self.layers[lay - 1]['S'][:, :, :, :t]  # Input spikes
+                        s_0 = self.layers[lay - 1]['S'][0][:, :, :, :t]  # Input spikes
+                        s_1 = self.layers[lay - 1]['S'][1][:, :, :, :t]  # Input spikes
                     else:
                         s = self.layers[lay - 1]['S'][:, :, :, :t]  # Input spikes
                         ssum = np.sum(s, axis=3)
@@ -628,7 +627,7 @@ class SDNN:
         print("-----------------------------------------------------------")
         print("-------------------- STARTING LEARNING---------------------")
         print("-----------------------------------------------------------")
-        for i in range(2990, self.max_iter):
+        for i in range(self.max_iter):
             print("----------------- Learning Progress  {}%----------------------".format(str(i) + '/'
                                                                                           + str(self.max_iter)
                                                                                           + ' ('
