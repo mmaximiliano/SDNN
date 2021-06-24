@@ -466,7 +466,11 @@ class SDNN:
                     delay = self.network_struc[i]['delay']
                     C = self.layers[i]['C'][:, :, :]  # Output delay counter before
 
-                    V, I, S, C = self.convolution(S, I, V, C, s, w, stride, th, alpha, beta, delay, blockdim, griddim)
+                    if (self.network_struc[i-1]['Type'] == 'P_conv') | (self.network_struc[i-1]['Type'] == 'P_pool'):
+                        V, I, S, C = self.parallel_convolution(S, I, V, C, s[0], s[1], w[0], w[1], stride, th, alpha,
+                                                               beta, delay, blockdim, griddim)
+                    else:
+                        V, I, S, C = self.convolution(S, I, V, C, s, w, stride, th, alpha, beta, delay, blockdim, griddim)
                     self.layers[i]['V'][:, :, :] = V
                     self.layers[i]['I'][:, :, :] = I
                     self.layers[i]['C'][:, :, :] = C
@@ -1005,7 +1009,31 @@ class SDNN:
         I_out = np.empty(d_I.shape, dtype=d_I.dtype)
         S_out = np.empty(d_S.shape, dtype=d_S.dtype)
         C_out = np.empty(d_C.shape, dtype=d_C.dtype)
-        conv_step[griddim, blockdim](d_S, d_I, d_V, d_C, d_s, d_w, stride, th, alpha, beta, delay)
+        parallel_conv_step[griddim, blockdim](d_S, d_I, d_V, d_C, d_s, d_w, stride, th, alpha, beta, delay)
+        d_V.copy_to_host(V_out)
+        d_I.copy_to_host(I_out)
+        d_S.copy_to_host(S_out)
+        d_C.copy_to_host(C_out)
+        return V_out, I_out, S_out, C_out
+
+    def parallel_convolution(self, S, I, V, C, s_0, s_1, w_0, w_1, stride, th, alpha, beta, delay, blockdim, griddim):
+        """
+            Cuda Parallel Convolution Kernel call
+            Returns the updated potentials and spike times
+        """
+        d_S = cuda.to_device(np.ascontiguousarray(S).astype(np.uint8))
+        d_I = cuda.to_device(np.ascontiguousarray(I).astype(np.float32))
+        d_V = cuda.to_device(np.ascontiguousarray(V).astype(np.float32))
+        d_C = cuda.to_device(np.ascontiguousarray(C).astype(np.float32))
+        d_s_0 = cuda.to_device(np.ascontiguousarray(s_0).astype(np.uint8))
+        d_s_1 = cuda.to_device(np.ascontiguousarray(s_1).astype(np.uint8))
+        d_w_0 = cuda.to_device(np.ascontiguousarray(w_0).astype(np.float32))
+        d_w_1 = cuda.to_device(np.ascontiguousarray(w_1).astype(np.float32))
+        V_out = np.empty(d_V.shape, dtype=d_V.dtype)
+        I_out = np.empty(d_I.shape, dtype=d_I.dtype)
+        S_out = np.empty(d_S.shape, dtype=d_S.dtype)
+        C_out = np.empty(d_C.shape, dtype=d_C.dtype)
+        conv_step[griddim, blockdim](d_S, d_I, d_V, d_C, d_s_0, d_s_1, d_w_0, d_w_1, stride, th, alpha, beta, delay)
         d_V.copy_to_host(V_out)
         d_I.copy_to_host(I_out)
         d_S.copy_to_host(S_out)

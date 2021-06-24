@@ -55,6 +55,55 @@ def conv_step(S, I, V, C, s, w, stride, th, alpha, beta, delay):
     else:
         S[idx, idy, idz] = 0
 
+@cuda.jit((uint8[:, :, :], float32[:, :, :], float32[:, :, :], float32[:, :, :], uint8[:, :, :], uint8[:, :, :],
+           float32[:, :, :, :], float32[:, :, :, :], uint32, float32, float32, float32, float32))
+def parallel_conv_step(S, I, V, C, s_0, s_1, w_0, w_1, stride, th, alpha, beta, delay):
+
+    idx, idy, idz = cuda.grid(3)
+    if idx > V.shape[0] - 1:
+        return
+    if idy > V.shape[1] - 1:
+        return
+    if idz > V.shape[2] - 1:
+        return
+
+    if V[idx, idy, idz] > th:
+        if C[idx, idy, idz] == 0:
+            V[idx, idy, idz] = 0.
+
+    # Calculate the membrance potential
+    U = 0.
+    In = 0.
+    for k in range(w_0.shape[2]):
+        for j in range(w_0.shape[1]):
+            for i in range(w_0.shape[0]):
+                U = (U*alpha) + In
+                In = (In*beta) + (w_0[i, j, k, idz] * s_0[idx*stride + i, idy*stride+j, k]) \
+                    + (w_1[i, j, k, idz] * s_1[idx*stride + i, idy*stride+j, k])
+
+    # Calculate potential for this timestep
+    V_prev = V[idx, idy, idz]
+    I_prev = I[idx, idy, idz]
+    V[idx, idy, idz] += U
+    I[idx, idy, idz] += In
+
+    # Set the counter if neuron reaches threshold
+    if C[idx, idy, idz] == 0:
+        if V[idx, idy, idz] > th:
+            C[idx, idy, idz] = delay
+    else:
+        V[idx, idy, idz] = V_prev
+        I[idx, idy, idz] = I_prev
+        C[idx, idy, idz] = C[idx, idy, idz] - 1
+
+    if V[idx, idy, idz] > th:
+        if C[idx, idy, idz] == 0:
+            S[idx, idy, idz] = 1
+        else:
+            S[idx, idy, idz] = 0
+    else:
+        S[idx, idy, idz] = 0
+
 
 @cuda.jit((uint8[:, :, :], uint8[:, :, :], float32[:, :, :],
                     uint32, float32))
