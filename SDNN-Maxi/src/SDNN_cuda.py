@@ -752,11 +752,11 @@ class SDNN:
                 if (self.network_struc[i]['Type'] == 'P_conv') | (self.network_struc[i]['Type'] == 'P_pool'):
                     S = self.layers[i]['S']  # Output spikes
                     V = self.layers[i]['V']  # Output voltage before
-                    I = self.layers[i]['I']  # Output voltage before
+
                 else:
                     S = self.layers[i]['S'][:, :, :, t]  # Output spikes
                     V = self.layers[i]['V'][:, :, :]  # Output voltage before
-                    I = self.layers[i]['I'][:, :, :]  # Output voltage before
+
 
                 K_inh = self.layers[i]['K_inh']  # Lateral inhibition matrix
 
@@ -771,6 +771,7 @@ class SDNN:
                     beta = self.network_struc[i]['beta']
                     delay = self.network_struc[i]['delay']
                     C = self.layers[i]['C'][:, :, :]  # Output delay counter before
+                    I = self.layers[i]['I']  # Output voltage before
                     
                     if self.device == 'GPU':
                         V, I, S, C = self.convolution(S, I, V, C, s, w, stride, th, alpha, beta, delay, blockdim, griddim)
@@ -789,6 +790,7 @@ class SDNN:
                     self.layers[i]['K_inh'] = K_inh
 
                 elif self.network_struc[i]['Type'] == 'P_conv':
+                    I = self.layers[i]['I']  # Output voltage before
                     for p in {0, 1}:
                         # Set Parallel conv params
                         S_tmp = S[p][:, :, :, t]  # Output spikes
