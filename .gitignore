@@ -137,3 +137,7 @@ SDNN-Maxi/.idea/vcs.xml
 SDNN-Maxi/.idea/other.xml
 SDNN-Maxi/.idea/sonarlint/issuestore/index.pb
 SDNN-Maxi/.idea/inspectionProfiles/Project_Default.xml
+
+# Ignore specific files
+patterns/N-MNIST.zip
+patterns/N-MNIST/*
