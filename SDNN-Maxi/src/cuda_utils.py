@@ -72,7 +72,7 @@ def pool(S, s, w, stride, th):
     for j in range(w.shape[1]):
         for i in range(w.shape[0]):
             if (idz > w.shape[2]):
-                print("str(idz) + " > " +str(w.shape[2])")
+                print("idz > w.shape[2]")
             result += w[i, j, idz] * s[idx*stride + i, idy*stride+j, idz]
 
     if result > th:
