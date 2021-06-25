@@ -141,3 +141,4 @@ SDNN-Maxi/.idea/inspectionProfiles/Project_Default.xml
 # Ignore specific files
 patterns/N-MNIST.zip
 patterns/N-MNIST/*
+SDNN-Maxi/.idea/*
