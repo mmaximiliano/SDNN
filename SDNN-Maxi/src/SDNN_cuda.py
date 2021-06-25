@@ -240,9 +240,22 @@ class SDNN:
             DD = self.network_struc[i]['num_filters']
             w_shape = (HH, WW, MM, DD)
             if self.network_struc[i]['Type'] == 'conv':
-                weights_tmp = (mean + std * np.random.normal(size=w_shape))
-                weights_tmp[weights_tmp >= 1.] = 0.99
-                weights_tmp[weights_tmp <= 0.] = 0.01
+                if self.network_struc[i-1]['Type'] == 'P_pool':
+                    weights_tmp_0 = (mean + std * np.random.normal(size=w_shape))
+                    weights_tmp_0[weights_tmp_0 >= 1.] = 0.99
+                    weights_tmp_0[weights_tmp_0 <= 0.] = 0.01
+
+                    weights_tmp_1 = (mean + std * np.random.normal(size=w_shape))
+                    weights_tmp_1[weights_tmp_1 >= 1.] = 0.99
+                    weights_tmp_1[weights_tmp_1 <= 0.] = 0.01
+
+                    weights_tmp = np.array([weights_tmp_0.astype(np.float32), weights_tmp_1.astype(np.float32)])
+                    self.weights.append(weights_tmp)
+                    continue
+                else:
+                    weights_tmp = (mean + std * np.random.normal(size=w_shape))
+                    weights_tmp[weights_tmp >= 1.] = 0.99
+                    weights_tmp[weights_tmp <= 0.] = 0.01
             elif self.network_struc[i]['Type'] == 'P_conv':
                 weights_tmp_0 = (mean + std * np.random.normal(size=w_shape))
                 weights_tmp_0[weights_tmp_0 >= 1.] = 0.99
