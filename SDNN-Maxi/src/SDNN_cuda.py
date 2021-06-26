@@ -153,7 +153,7 @@ class SDNN:
         # --------------------------- CUDA Parameters -------------------#
         self.device = device
         if self.device == 'GPU':
-            self.thds_per_dim = 14  # (Use 8 if doesn't work)
+            self.thds_per_dim = 16  # (Use 8 if doesn't work)
 
         # --------------------------- Input spike times -------------------#
         # Generate Iterators with the full path to the images in each set OR reference the spike times
