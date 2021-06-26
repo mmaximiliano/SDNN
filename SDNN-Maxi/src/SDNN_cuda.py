@@ -532,15 +532,16 @@ class SDNN:
                 elif self.network_struc[i]['Type'] == 'P_pool':
                     for p in {0, 1}:
                         K_inh_tmp = K_inh[p]
+                        S_tmp = S[p][:, :, :, t]  # Output spikes
                         if (self.network_struc[i-1]['Type'] == 'P_conv') | \
                                 (self.network_struc[i-1]['Type'] == 'P_pool'):
-                            S_tmp = self.pooling(S[p], s[p], w[p], stride, th[p], blockdim, griddim)
+                            S_tmp = self.pooling(S_tmp, s[p], w[p], stride, th[p], blockdim, griddim)
                         else:
-                            S_tmp = self.pooling(S[p], s, w[p], stride, th[p], blockdim, griddim)
+                            S_tmp = self.pooling(S_tmp, s, w[p], stride, th[p], blockdim, griddim)
                         self.layers[i]['S'][p][:, :, :, t] = S_tmp
 
                         if i < 3:
-                            S_tmp, K_inh_tmp = self.lateral_inh(S[p], V[p], K_inh_tmp, blockdim, griddim)
+                            S_tmp, K_inh_tmp = self.lateral_inh(S_tmp, V[p][:, :, :], K_inh_tmp, blockdim, griddim)
                             self.layers[i]['S'][p][:, :, :, t] = S_tmp
                             self.layers[i]['K_inh'][p] = K_inh_tmp
 
@@ -574,17 +575,6 @@ class SDNN:
                     a_minus = self.stdp_a_minus[lay]
                     a_plus = self.stdp_a_plus[lay]
 
-                    if (self.network_struc[lay-1]['Type'] == 'P_conv') | \
-                        (self.network_struc[lay-1]['Type'] == 'P_pool'):
-                        # FALTA TERMINAR -> INCOMPLETO XQ NO LO USO
-                        s_0 = self.layers[lay - 1]['S'][0][:, :, :, :t]  # Input spikes
-                        s_1 = self.layers[lay - 1]['S'][1][:, :, :, :t]  # Input spikes
-                    else:
-                        s = self.layers[lay - 1]['S'][:, :, :, :t]  # Input spikes
-                        ssum = np.sum(s, axis=3)
-                        s = np.pad(ssum, ((H_pad, H_pad), (W_pad, W_pad), (0, 0)), mode='constant')  # Pad the input
-                        w = self.weights[lay - 1]
-
                     maxval, maxind1, maxind2 = self.get_STDP_idxs(valid, H, W, D, lay)
 
                     blockdim = (self.thds_per_dim, self.thds_per_dim, self.thds_per_dim)
@@ -592,11 +582,31 @@ class SDNN:
                                int(ceil(W / blockdim[1])) if int(ceil(W / blockdim[2])) != 0 else 1,
                                int(ceil(D / blockdim[2])) if int(ceil(D / blockdim[2])) != 0 else 1)
 
-                    w, K_STDP = self.STDP(S.shape, s, w, K_STDP,
-                                          maxval, maxind1, maxind2,
-                                          stride, offset, a_minus, a_plus, blockdim, griddim)
-                    self.weights[lay - 1] = w
-                    self.layers[lay]['K_STDP'] = K_STDP
+                    if (self.network_struc[lay-1]['Type'] == 'P_conv') | \
+                        (self.network_struc[lay-1]['Type'] == 'P_pool'):
+                        # FALTA TERMINAR -> INCOMPLETO XQ NO LO USO
+                        for p in {0, 1}:
+                            s = self.layers[lay - 1]['S'][p][:, :, :, :t]  # Input spikes
+                            ssum = np.sum(s, axis=3)
+                            s = np.pad(ssum, ((H_pad, H_pad), (W_pad, W_pad), (0, 0)), mode='constant')  # Pad the input
+                            w = self.weights[lay - 1][p]
+
+                            w, K_STDP = self.STDP(S.shape, s, w, K_STDP,
+                                                  maxval, maxind1, maxind2,
+                                                  stride, offset, a_minus, a_plus, blockdim, griddim)
+                            self.weights[lay - 1][p] = w
+                            self.layers[lay]['K_STDP'] = K_STDP
+                    else:
+                        s = self.layers[lay - 1]['S'][:, :, :, :t]  # Input spikes
+                        ssum = np.sum(s, axis=3)
+                        s = np.pad(ssum, ((H_pad, H_pad), (W_pad, W_pad), (0, 0)), mode='constant')  # Pad the input
+                        w = self.weights[lay - 1]
+                        w, K_STDP = self.STDP(S.shape, s, w, K_STDP,
+                                              maxval, maxind1, maxind2,
+                                              stride, offset, a_minus, a_plus, blockdim, griddim)
+                        self.weights[lay - 1] = w
+                        self.layers[lay]['K_STDP'] = K_STDP
+
             if self.network_struc[lay]['Type'] == 'P_conv':
                 for p in {0, 1}:
                     # valid are neurons in the learning layer that can do STDP and that have fired in the current t
@@ -850,14 +860,16 @@ class SDNN:
                 elif self.network_struc[i]['Type'] == 'P_pool':
                     for p in {0, 1}:
                         K_inh_tmp = K_inh[p]
-                        if (self.network_struc[i-1]['Type'] == 'P_conv') | (self.network_struc[i-1]['Type'] == 'P_pool'):
-                            S_tmp = self.pooling(S[p], s[p], w[p], stride, th[p], blockdim, griddim)
+                        S_tmp = S[p][:, :, :, t]  # Output spikes
+                        if (self.network_struc[i-1]['Type'] == 'P_conv') | \
+                                (self.network_struc[i-1]['Type'] == 'P_pool'):
+                            S_tmp = self.pooling(S_tmp, s[p], w[p], stride, th[p], blockdim, griddim)
                         else:
-                            S_tmp = self.pooling(S[p], s, w[p], stride, th[p], blockdim, griddim)
+                            S_tmp = self.pooling(S_tmp, s, w[p], stride, th[p], blockdim, griddim)
                         self.layers[i]['S'][p][:, :, :, t] = S_tmp
 
                         if i < 3:
-                            S_tmp, K_inh_tmp = self.lateral_inh(S[p], V[p], K_inh_tmp, blockdim, griddim)
+                            S_tmp, K_inh_tmp = self.lateral_inh(S_tmp, V[p], K_inh_tmp, blockdim, griddim)
                             self.layers[i]['S'][p][:, :, :, t] = S_tmp
                             self.layers[i]['K_inh'][p] = K_inh_tmp
 

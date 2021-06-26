@@ -48,10 +48,10 @@ def main():
                        'W_layer': DoG_params['img_size'][0]},
                       {'Type': 'conv', 'num_filters': 4, 'filter_size': 5, 'th': 10.,
                        'alpha': .95, 'beta': .95, 'delay': 0},
-                      {'Type': 'pool', 'num_filters': 4, 'filter_size': 7, 'th': 0., 'stride': 6},
+                      {'Type': 'pool', 'num_filters': 4, 'filter_size': 7, 'th': (0., 0.), 'stride': 6},
                       {'Type': 'conv', 'num_filters': 20, 'filter_size': 17, 'th': 60.,
                        'alpha': .95, 'beta': .95, 'delay': 0},
-                      {'Type': 'P_pool', 'num_filters': 20, 'filter_size': 5, 'th': (0.,0.), 'stride': 5},
+                      {'Type': 'P_pool', 'num_filters': 20, 'filter_size': 5, 'th': 0., 'stride': 5},
                       {'Type': 'conv', 'num_filters': 20, 'filter_size': 5, 'th': 2.,
                        'alpha': .95, 'beta': .95, 'delay': 0}]
 
