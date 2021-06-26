@@ -83,8 +83,8 @@ def main():
                     (network_params[i]['Type'] == 'P_pool') | \
                     ((i >= 1) & (network_params[i-1]['Type'] == 'P_conv')) | \
                     ((i >= 1) & (network_params[i-1]['Type'] == 'P_pool')):
-                weight_path_list.append([path_set_weigths + 'weight_P0_' + str(i) + '.npy'])
-                weight_path_list.append([path_set_weigths + 'weight_P1_' + str(i) + '.npy'])
+                weight_path_list.append(str(path_set_weigths + 'weight_P0_' + str(i) + '.npy'))
+                weight_path_list.append(str(path_set_weigths + 'weight_P1_' + str(i) + '.npy'))
             else:
                 weight_path_list.append(str(path_set_weigths + 'weight_' + str(i) + '.npy'))
         first_net.set_weights(weight_path_list)
