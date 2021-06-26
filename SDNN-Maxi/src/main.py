@@ -15,7 +15,7 @@ import time
 def main():
 
     # Flags
-    learn_SDNN = True  # This flag toggles between Learning STDP and classify features
+    learn_SDNN = False  # This flag toggles between Learning STDP and classify features
                         # or just classify by loading pretrained weights for the face/motor dataset
     if learn_SDNN:
         set_weights = False  # Loads the weights from a path (path_set_weigths) and prevents any SDNN learning
@@ -86,7 +86,7 @@ def main():
                 weight_path_list.append([path_set_weigths + 'weight_P0_' + str(i) + '.npy'])
                 weight_path_list.append([path_set_weigths + 'weight_P1_' + str(i) + '.npy'])
             else:
-                weight_path_list.append([path_set_weigths + 'weight_' + str(i) + '.npy'])
+                weight_path_list.append(str(path_set_weigths + 'weight_' + str(i) + '.npy'))
         first_net.set_weights(weight_path_list)
     else:
         first_net.train_SDNN()
