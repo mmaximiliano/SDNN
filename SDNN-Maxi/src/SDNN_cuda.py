@@ -941,10 +941,11 @@ class SDNN:
                 features_0 = np.max(np.max(V_0, axis=0), axis=0)
                 features_1 = np.max(np.max(V_1, axis=0), axis=0)
                 features = np.concatenate((features_0, features_1), axis=None)
+                print("Cantidad de max potential per map (Parallel)" + str(features.shape))
             else:
                 V = self.layers[self.num_layers-1]['V']
                 features = np.max(np.max(V, axis=0), axis=0)
-                print("Cantidad de max potential per map" + str(features.shape))
+                print("Cantidad de max potential per map (Seq)" + str(features.shape))
             self.features_train.append(features)
 
 
