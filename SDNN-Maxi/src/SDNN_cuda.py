@@ -336,22 +336,23 @@ class SDNN:
                               np.zeros((H, W, D, self.total_time)).astype(np.uint8)])
                 d_tmp['V'] = np.array([np.zeros((H, W, D)).astype(np.float32),
                               np.zeros((H, W, D)).astype(np.float32)])
-                d_tmp['I'] = np.array([np.zeros((H, W, D)).astype(np.float32),
-                              np.zeros((H, W, D)).astype(np.float32)])
-                d_tmp['C'] = np.array([np.zeros((H, W, D)).astype(np.float32),
-                              np.zeros((H, W, D)).astype(np.float32)])
                 d_tmp['K_STDP'] = np.array([np.ones((H, W, D)).astype(np.uint8),
-                                   np.ones((H, W, D)).astype(np.uint8)])
+                                            np.ones((H, W, D)).astype(np.uint8)])
                 d_tmp['K_inh'] = np.array([np.ones((H, W)).astype(np.uint8),
-                                  np.ones((H, W)).astype(np.uint8)])
+                                           np.ones((H, W)).astype(np.uint8)])
+                if self.network_struc[i]['Type'] == 'P_conv':
+                    d_tmp['I'] = np.array([np.zeros((H, W, D)).astype(np.float32),
+                                           np.zeros((H, W, D)).astype(np.float32)])
+                    d_tmp['C'] = np.array([np.zeros((H, W, D)).astype(np.float32),
+                                           np.zeros((H, W, D)).astype(np.float32)])
             else:
                 d_tmp['S'] = np.zeros((H, W, D, self.total_time)).astype(np.uint8)
                 d_tmp['V'] = np.zeros((H, W, D)).astype(np.float32)
+                d_tmp['K_STDP'] = np.ones((H, W, D)).astype(np.uint8)
+                d_tmp['K_inh'] = np.ones((H, W)).astype(np.uint8)
                 if self.network_struc[i]['Type'] == 'conv':
                     d_tmp['I'] = np.zeros((H, W, D)).astype(np.float32)
                     d_tmp['C'] = np.zeros((H, W, D)).astype(np.float32)  # Delay counter
-                d_tmp['K_STDP'] = np.ones((H, W, D)).astype(np.uint8)
-                d_tmp['K_inh'] = np.ones((H, W)).astype(np.uint8)
             self.layers.append(d_tmp)
         return
 
@@ -367,14 +368,15 @@ class SDNN:
                                        np.zeros((H, W, D, self.total_time)).astype(np.uint8)])
                 self.layers[i]['V'] = np.array([np.zeros((H, W, D)).astype(np.float32),
                                        np.zeros((H, W, D)).astype(np.float32)])
-                self.layers[i]['I'] = np.array([np.zeros((H, W, D)).astype(np.float32),
-                                       np.zeros((H, W, D)).astype(np.float32)])
-                self.layers[i]['C'] = np.array([np.zeros((H, W, D)).astype(np.float32),
-                                       np.zeros((H, W, D)).astype(np.float32)])
                 self.layers[i]['K_STDP'] = np.array([np.ones((H, W, D)).astype(np.uint8),
                                             np.ones((H, W, D)).astype(np.uint8)])
                 self.layers[i]['K_inh'] = np.array([np.ones((H, W)).astype(np.uint8),
                                            np.ones((H, W)).astype(np.uint8)])
+                if self.network_struc[i]['Type'] == 'P_conv':
+                    self.layers[i]['I'] = np.array([np.zeros((H, W, D)).astype(np.float32),
+                                                    np.zeros((H, W, D)).astype(np.float32)])
+                    self.layers[i]['C'] = np.array([np.zeros((H, W, D)).astype(np.float32),
+                                                    np.zeros((H, W, D)).astype(np.float32)])
             else:
                 self.layers[i]['S'] = np.zeros((H, W, D, self.total_time)).astype(np.uint8)
                 self.layers[i]['V'] = np.zeros((H, W, D)).astype(np.float32)
@@ -530,7 +532,8 @@ class SDNN:
                 elif self.network_struc[i]['Type'] == 'P_pool':
                     for p in {0, 1}:
                         K_inh_tmp = K_inh[p]
-                        if (self.network_struc[i-1]['Type'] == 'P_conv') | (self.network_struc[i-1]['Type'] == 'P_pool'):
+                        if (self.network_struc[i-1]['Type'] == 'P_conv') | \
+                                (self.network_struc[i-1]['Type'] == 'P_pool'):
                             S_tmp = self.pooling(S[p], s[p], w[p], stride, th[p], blockdim, griddim)
                         else:
                             S_tmp = self.pooling(S[p], s, w[p], stride, th[p], blockdim, griddim)
