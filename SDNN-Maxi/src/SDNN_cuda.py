@@ -980,7 +980,7 @@ class SDNN:
                 print("Cantidad de max potential per map (Parallel)" + str(features.shape))
             else:
                 V = self.layers[self.num_layers-1]['V']
-                if self.network_struc[-1]['Type'] == 'G_pool':
+                if self.network_struc[self.num_layers-1]['Type'] == 'G_pool':
                     features = np.max(np.max(np.max(V, axis=0), axis=0), axis=0)
                 else:
                     features = np.max(np.max(V, axis=0), axis=0)
@@ -1056,7 +1056,7 @@ class SDNN:
                 features = np.concatenate((features_0, features_1), axis=None)
             else:
                 V = self.layers[self.num_layers-1]['V']
-                if self.network_struc[5]['Type'] == 'G_pool':
+                if self.network_struc[self.num_layers-1]['Type'] == 'G_pool':
                     features = np.max(np.max(np.max(V, axis=0), axis=0), axis=0)
                 else:
                     features = np.max(np.max(V, axis=0), axis=0)
