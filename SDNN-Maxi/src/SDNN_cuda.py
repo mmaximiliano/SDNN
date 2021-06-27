@@ -981,7 +981,7 @@ class SDNN:
             else:
                 V = self.layers[self.num_layers-1]['V']
                 if self.network_struc[-1]['Type'] == 'G_pool':
-                    features = np.max(np.max(np.max(V, axis=0), axis=0), axis=1)
+                    features = np.max(np.max(np.max(V, axis=0), axis=0), axis=0)
                 else:
                     features = np.max(np.max(V, axis=0), axis=0)
                 print("Cantidad de max potential per map (Seq)" + str(features.shape))
@@ -1048,7 +1048,7 @@ class SDNN:
             self.prop_step()
 
             # Obtain maximum potential per map in last layer
-            if (self.network_struc[5]['Type'] == 'P_conv'):
+            if self.network_struc[5]['Type'] == 'P_conv':
                 V_0 = self.layers[self.num_layers-1]['V'][0]
                 V_1 = self.layers[self.num_layers-1]['V'][1]
                 features_0 = np.max(np.max(V_0, axis=0), axis=0)
@@ -1056,7 +1056,10 @@ class SDNN:
                 features = np.concatenate((features_0, features_1), axis=None)
             else:
                 V = self.layers[self.num_layers-1]['V']
-                features = np.max(np.max(V, axis=0), axis=0)
+                if self.network_struc[5]['Type'] == 'G_pool':
+                    features = np.max(np.max(np.max(V, axis=0), axis=0), axis=0)
+                else:
+                    features = np.max(np.max(V, axis=0), axis=0)
 
             self.features_test.append(features)
 
