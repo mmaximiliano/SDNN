@@ -981,7 +981,7 @@ class SDNN:
             else:
                 V = self.layers[self.num_layers-1]['V']
                 if self.network_struc[self.num_layers-1]['Type'] == 'G_pool':
-                    features = np.max(np.max(np.max(V, axis=0), axis=0), axis=0)
+                    features = np.max(np.max(V, axis=0), axis=0)
                 else:
                     features = np.max(np.max(V, axis=0), axis=0)
                 print("Cantidad de max potential per map (Seq)" + str(features.shape))
