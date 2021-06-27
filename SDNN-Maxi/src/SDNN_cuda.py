@@ -228,6 +228,7 @@ class SDNN:
             elif network_params[i]['Type'] == 'G_pool':
                 d_tmp['Type'] = network_params[i]['Type']
                 d_tmp['th'] = network_params[i]['th']
+                d_tmp['filter_size'] = None
                 d_tmp['num_filters'] = network_params[i-1]['num_filters']
                 d_tmp['pad'] = np.array([0, 0])
                 d_tmp['stride'] = 0
