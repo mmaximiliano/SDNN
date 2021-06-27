@@ -104,6 +104,7 @@ class SDNN:
                 -'std1': A float with the standard deviation 1 for the DoG filter
                 -'std2': A float with the standard deviation 2 for the DoG filter
             - Type P_*: Makes a parallel layer of the specified type by *
+            - Type G_pool is a layer that makes a fully connected global pooling per timestep
                  
         """
 
@@ -224,6 +225,15 @@ class SDNN:
                 d_tmp['H_layer'] = int(1 + floor((self.network_struc[i-1]['H_layer']+2*d_tmp['pad'][0]-d_tmp['filter_size'])/d_tmp['stride']))
                 d_tmp['W_layer'] = int(1 + floor((self.network_struc[i-1]['W_layer']+2*d_tmp['pad'][1]-d_tmp['filter_size'])/d_tmp['stride']))
                 d_tmp['shape'] = (d_tmp['H_layer'], d_tmp['W_layer'], d_tmp['num_filters'])
+            elif network_params[i]['Type'] == 'G_pool':
+                d_tmp['Type'] = network_params[i]['Type']
+                d_tmp['th'] = network_params[i]['th']
+                d_tmp['num_filters'] = network_params[i-1]['num_filters']
+                d_tmp['pad'] = np.array([0, 0])
+                d_tmp['stride'] = 0
+                d_tmp['H_layer'] = 1
+                d_tmp['W_layer'] = 1
+                d_tmp['shape'] = (d_tmp['H_layer'], d_tmp['W_layer'], d_tmp['num_filters'])
             else:
                 exit("unknown layer specified: use 'input', 'conv' or 'pool' ")
             self.network_struc.append(d_tmp)
@@ -285,6 +295,12 @@ class SDNN:
                     continue
                 else:
                     weights_tmp = np.ones((HH, WW, MM))/(HH*WW)
+            elif self.network_struc[i]['Type'] == 'G_pool':
+                HH = self.network_struc[i-1]['H_layer']
+                WW = self.network_struc[i-1]['W_layer']
+                weights_tmp = np.ones((HH, WW, MM))/(HH*WW)
+            elif self.network_struc[i]['Type'] == 'PG_pool':
+                print("NOT IMPLEMENTED YET")
             else:
                 continue
             self.weights.append(weights_tmp.astype(np.float32))
@@ -295,6 +311,8 @@ class SDNN:
             Checks the dimensions of the SDNN
         """
         for i in range(1, self.num_layers):
+            if self.network_struc[i]['Type'] == "G_pool":
+                continue
             H_pre, W_pre, M_pre = self.network_struc[i - 1]['shape']
             if self.network_struc[i]['Type'] == 'conv':
                 if self.network_struc[i-1]['Type'] == 'P_conv':
@@ -560,6 +578,12 @@ class SDNN:
                         S, K_inh = self.lateral_inh(S, V, K_inh, blockdim, griddim)
                         self.layers[i]['S'][:, :, :, t] = S
                         self.layers[i]['K_inh'] = K_inh
+                elif self.network_struc[i]['Type'] == 'G_pool':
+                    if self.network_struc[i - 1]['Type'] == 'P_conv':
+                        print("NOT IMPLEMENTED YET")
+                    else:
+                        S = self.pooling(S, s, w, stride, th, blockdim, griddim)
+                    self.layers[i]['S'][:, :, :, t] = S
 
             # STDP learning
             lay = self.learning_layer
@@ -898,6 +922,13 @@ class SDNN:
                         self.layers[i]['S'][:, :, :, t] = S
                         self.layers[i]['K_inh'] = K_inh
 
+                elif self.network_struc[i]['Type'] == 'G_pool':
+                    if self.network_struc[i - 1]['Type'] == 'P_conv':
+                        print("NOT IMPLEMENTED YET")
+                    else:
+                        S = self.pooling(S, s, w, stride, th, blockdim, griddim)
+                    self.layers[i]['S'][:, :, :, t] = S
+
     # Get training features
     def train_features(self):
         """
@@ -939,15 +970,20 @@ class SDNN:
             self.prop_step()
 
             # Obtain maximum potential per map in last layer
-            if (self.network_struc[5]['Type'] == 'P_conv'):
+            if self.network_struc[5]['Type'] == 'P_conv':
                 V_0 = self.layers[self.num_layers-1]['V'][0]
                 V_1 = self.layers[self.num_layers-1]['V'][1]
                 features_0 = np.max(np.max(V_0, axis=0), axis=0)
                 features_1 = np.max(np.max(V_1, axis=0), axis=0)
                 features = np.concatenate((features_0, features_1), axis=None)
+                print("Cantidad de max potential per map (Parallel)" + str(features.shape))
             else:
                 V = self.layers[self.num_layers-1]['V']
-                features = np.max(np.max(V, axis=0), axis=0)
+                if self.network_struc[-1]['Type'] == 'G_pool':
+                    features = np.max(np.max(np.max(V, axis=0), axis=0), axis=1)
+                else:
+                    features = np.max(np.max(V, axis=0), axis=0)
+                print("Cantidad de max potential per map (Seq)" + str(features.shape))
             self.features_train.append(features)
 
 
