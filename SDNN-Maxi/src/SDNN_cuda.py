@@ -333,6 +333,8 @@ class SDNN:
         for i in range(self.num_layers):
             d_tmp = {}
             H, W, D = self.network_struc[i]['shape']
+            print("Layer " + str(i) + " Type: " + str(self.network_struc[i]['Type']) +
+                  " -> H: " + str(H) + " W: " + str(W) + " D: " + str(D))
             if (self.network_struc[i]['Type'] == 'P_conv') | (self.network_struc[i]['Type'] == 'P_pool'):
                 d_tmp['S'] = np.array([np.zeros((H, W, D, self.total_time)).astype(np.uint8),
                               np.zeros((H, W, D, self.total_time)).astype(np.uint8)])
