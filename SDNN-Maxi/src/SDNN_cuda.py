@@ -1054,7 +1054,7 @@ class SDNN:
             else:
                 V = self.layers[self.num_layers-1]['V']
                 features = np.max(np.max(V, axis=0), axis=0)
-
+                print("Cantidad de max potential per map (Seq)" + str(features.shape))
             self.features_test.append(features)
 
         # Transform features to numpy array
