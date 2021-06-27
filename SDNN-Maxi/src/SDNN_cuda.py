@@ -57,7 +57,7 @@ class SDNN:
 
     def __init__(self, network_params, weight_params, stdp_params, total_time, DoG_params=None,
                  spike_times_learn=None, spike_times_train=None, spike_times_test=None,
-                 y_train=None, y_test=None, device='GPU'):
+                 y_train=None, y_test=None, svm=True, device='GPU'):
         """
             Initialisaition of SDNN
 
@@ -116,6 +116,8 @@ class SDNN:
             self.DoG = False
 
         # --------------------------- Network Initialisation -------------------#
+        # Type of classification
+        self.svm = svm
         # Total time and number of layers
         self.num_layers = len(network_params)
         self.learnable_layers = []
@@ -941,11 +943,9 @@ class SDNN:
                 features_0 = np.max(np.max(V_0, axis=0), axis=0)
                 features_1 = np.max(np.max(V_1, axis=0), axis=0)
                 features = np.concatenate((features_0, features_1), axis=None)
-                print("Cantidad de max potential per map (Parallel)" + str(features.shape))
             else:
                 V = self.layers[self.num_layers-1]['V']
                 features = np.max(np.max(V, axis=0), axis=0)
-                print("Cantidad de max potential per map (Seq)" + str(features.shape))
             self.features_train.append(features)
 
 

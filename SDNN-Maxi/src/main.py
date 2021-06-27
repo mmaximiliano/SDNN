@@ -17,6 +17,8 @@ def main():
     # Flags
     learn_SDNN = True  # This flag toggles between Learning STDP and classify features
                         # or just classify by loading pretrained weights for the face/motor dataset
+    SVM = True  # This flag toggles between using a max global pooling + linear SVM classifier
+                # or using a single nueron to detect patterns
     if learn_SDNN:
         set_weights = False  # Loads the weights from a path (path_set_weigths) and prevents any SDNN learning
         save_weights = True  # Saves the weights in a path (path_save_weigths)
@@ -72,7 +74,8 @@ def main():
     # Create network
     first_net = SDNN(network_params, weight_params, stdp_params, total_time,
                      DoG_params=DoG_params, spike_times_learn=spike_times_learn,
-                     spike_times_train=spike_times_train, spike_times_test=spike_times_test, device='GPU')
+                     spike_times_train=spike_times_train, spike_times_test=spike_times_test,
+                     svm=SVM, device='GPU')
 
 
     # Set the weights or learn STDP
