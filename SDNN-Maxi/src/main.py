@@ -54,9 +54,9 @@ def main():
                       {'Type': 'conv', 'num_filters': 20, 'filter_size': 17, 'th': 60.,
                        'alpha': 1., 'beta': 1., 'delay': 0},
                       {'Type': 'pool', 'num_filters': 20, 'filter_size': 5, 'th': 0., 'stride': 5},
-                      {'Type': 'conv', 'num_filters': 20, 'filter_size': 5, 'th': 2.,
-                       'alpha': 1., 'beta': 1., 'delay': 0},
-                      {'Type': 'G_pool', 'th': 0.}]
+                      {'Type': 'P_conv', 'num_filters': 20, 'filter_size': 5, 'th': (2., 2.),
+                       'alpha': (.95, .95), 'beta': (.95, .95), 'delay': (0, 1)},
+                      {'Type': 'PG_pool', 'th': (0., 0.)}]
 
     weight_params = {'mean': 0.8, 'std': 0.01}
 
@@ -85,6 +85,7 @@ def main():
         for i in range(len(network_params) - 1):
             if (network_params[i]['Type'] == 'P_conv') | \
                     (network_params[i]['Type'] == 'P_pool') | \
+                    (network_params[i]['Type'] == 'PG_pool') | \
                     ((i >= 1) & (network_params[i-1]['Type'] == 'P_conv')) | \
                     ((i >= 1) & (network_params[i-1]['Type'] == 'P_pool')):
                 weight_path_list.append(str(path_set_weigths + 'weight_P0_' + str(i) + '.npy'))
@@ -101,6 +102,7 @@ def main():
         for i in range(len(weights)):
             if (network_params[i]['Type'] == 'P_conv') | \
                     (network_params[i]['Type'] == 'P_pool') | \
+                    (network_params[i]['Type'] == 'PG_pool') | \
                     ((i >= 1) & (network_params[i-1]['Type'] == 'P_conv')) | \
                     ((i >= 1) & (network_params[i-1]['Type'] == 'P_pool')):
                 np.save(path_save_weigths + 'weight_P0_' + str(i), weights[i][0])
