@@ -5,7 +5,8 @@ __email__ = maxii.martino@gmail.com
 
 from SDNN_cuda import SDNN
 from Classifier import Classifier
-from singleNeuron import SingleNeuron
+import torch
+from singleNeuron import preSpikes, nextSpikes, STDPLIFDensePopulation
 import numpy as np
 from os.path import dirname, realpath
 from math import floor
@@ -140,9 +141,32 @@ def main():
 
     else:
         print("Pattern classification - NOT IMPLEMENTED YET")
-        stdp_params = {'a_minus': 0.003, 'a_plus': 0.004}
-        finalSpikeTrain = SingleNeuron(X_train, weight_params, stdp_params)
-        return finalSpikeTrain
+        T = X_train.size
+        N_in = X_train.size
+        N_out = 1
+        singleNeuron = STDPLIFDensePopulation(in_channels=N_in, out_channels=N_out,
+                                              weight=0.7, alpha=float(np.exp(-1e-3/10e-3)),
+                                              beta=float(np.exp(-1e-3/2e-5)), delay=0,
+                                              th=25., a_plus=0.003125, a_minus=0.00865625,
+                                              w_max=1.)
+        Sin = torch.zeros(T, N_in)
+        # Pre-procesamos PSpikes y NSpikes
+        dt_ltp = 5   # Cantidad de timesteps que miro hacia atras
+        dt_ltd = 10  # Cantidad de timesteps que miro hacia delante
+        PSpikes = preSpikes(T, dt_ltp, torch.zeros(T, N_in), Sin)
+        NSpikes = nextSpikes(T, dt_ltd, torch.zeros(T, N_in), Sin)
+
+        # Realizamos el entrenamiento STDP
+        Uprobe = np.empty([T, N_out])
+        Iprobe = np.empty([T, N_out])
+        Sprobe = np.empty([T, N_out])
+        for n in range(T):
+            state = singleNeuron.forward(Sin[n].unsqueeze(0), PSpikes[n], NSpikes[n-1])
+            Uprobe[n] = state.U.data.numpy()
+            Iprobe[n] = state.I.data.numpy()
+            Sprobe[n] = state.S.data.numpy()
+
+        return Sprobe, Uprobe
 
 if __name__ == '__main__':
     start = time.time()
