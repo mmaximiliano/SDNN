@@ -5,6 +5,7 @@ __email__ = maxii.martino@gmail.com
 
 from SDNN_cuda import SDNN
 from Classifier import Classifier
+from singleNeuron import SingleNeuron
 import numpy as np
 from os.path import dirname, realpath
 from math import floor
@@ -139,6 +140,9 @@ def main():
 
     else:
         print("Pattern classification - NOT IMPLEMENTED YET")
+        stdp_params = {'a_minus': 0.003, 'a_plus': 0.004}
+        finalSpikeTrain = SingleNeuron(X_train, weight_params, stdp_params)
+        return finalSpikeTrain
 
 if __name__ == '__main__':
     start = time.time()
