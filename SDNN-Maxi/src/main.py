@@ -15,7 +15,7 @@ import time
 def main():
 
     # Flags
-    learn_SDNN = True  # This flag toggles between Learning STDP and classify features
+    learn_SDNN = False  # This flag toggles between Learning STDP and classify features
                         # or just classify by loading pretrained weights for the face/motor dataset
     SVM = True  # This flag toggles between using a max global pooling + linear SVM classifier
                 # or using a single nueron to detect patterns
@@ -122,20 +122,23 @@ def main():
         np.save(path_features + 'y_test', y_test)
 
     # ------------------------------- Classify -------------------------------#
-    classifier_params = {'C': 1.0, 'gamma': 'auto'}
-    train_mean = np.mean(X_train, axis=0)
-    train_std = np.std(X_train, axis=0)
-    X_train -= train_mean
-    X_test -= train_mean
-    X_train /= (train_std + 1e-5)
-    X_test /= (train_std + 1e-5)
-    svm = Classifier(X_train, y_train, X_test, y_test, classifier_params, classifier_type='SVM')
-    train_score, test_score = svm.run_classiffier()
-    print('Train Score: ' + str(train_score))
-    print('Test Score: ' + str(test_score))
+    if SVM:
+        classifier_params = {'C': 1.0, 'gamma': 'auto'}
+        train_mean = np.mean(X_train, axis=0)
+        train_std = np.std(X_train, axis=0)
+        X_train -= train_mean
+        X_test -= train_mean
+        X_train /= (train_std + 1e-5)
+        X_test /= (train_std + 1e-5)
+        svm = Classifier(X_train, y_train, X_test, y_test, classifier_params, classifier_type='SVM')
+        train_score, test_score = svm.run_classiffier()
+        print('Train Score: ' + str(train_score))
+        print('Test Score: ' + str(test_score))
 
-    print('DONE')
+        print('DONE')
 
+    else:
+        print("Pattern classification - NOT IMPLEMENTED YET")
 
 if __name__ == '__main__':
     start = time.time()

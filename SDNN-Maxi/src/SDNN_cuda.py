@@ -823,7 +823,8 @@ class SDNN:
                     s = self.layers[i - 1]['S'][:, :, :, t - 1]  # Input spikes
                     s = np.pad(s, ((H_pad, H_pad), (W_pad, W_pad), (0, 0)), mode='constant')  # Pad the input
 
-                if (self.network_struc[i]['Type'] == 'P_conv') | (self.network_struc[i]['Type'] == 'P_pool'):
+                if (self.network_struc[i]['Type'] == 'P_conv') | (self.network_struc[i]['Type'] == 'P_pool') | \
+                        (self.network_struc[i]['Type'] == 'PG_pool'):
                     S = self.layers[i]['S']  # Output spikes
                     V = self.layers[i]['V']  # Output voltage before
 
@@ -973,10 +974,12 @@ class SDNN:
         else:
             self.network_struc[3]['th'] = 50.
 
-        if self.network_struc[5]['Type'] == 'P_conv':
-            self.network_struc[5]['th'] = (100000., 100000.)  # Set threshold of last layer to inf
+        if (self.network_struc[self.num_layers-1]['Type'] == 'P_conv') | \
+                (self.network_struc[self.num_layers-1]['Type'] == 'P_pool') | \
+                (self.network_struc[self.num_layers-1]['Type'] == 'PG_pool'):
+            self.network_struc[self.num_layers-1]['th'] = (100000., 100000.)  # Set threshold of last layer to inf
         else:
-            self.network_struc[5]['th'] = 100000  # Set threshold of last layer to inf
+            self.network_struc[self.num_layers-1]['th'] = 100000  # Set threshold of last layer to inf
         print("-----------------------------------------------------------")
         print("----------- EXTRACTING TRAINING FEATURES ------------------")
         print("-----------------------------------------------------------")
@@ -999,19 +1002,22 @@ class SDNN:
             self.layers[0]['S'] = st  # (H, W, M, time)
             self.prop_step()
 
-            # Obtain maximum potential per map in last layer
-            if (self.network_struc[self.num_layers-1]['Type'] == 'P_conv') | \
-                    (self.network_struc[self.num_layers-1]['Type'] == 'PG_pool'):
-                V_0 = self.layers[self.num_layers-1]['V'][0]
-                V_1 = self.layers[self.num_layers-1]['V'][1]
-                features_0 = np.max(np.max(V_0, axis=0), axis=0)
-                features_1 = np.max(np.max(V_1, axis=0), axis=0)
-                features = np.concatenate((features_0, features_1), axis=None)
-                print("Cantidad de max potential per map (Parallel)" + str(features.shape))
+            if self.svm:
+                # Obtain maximum potential per map in last layer
+                if (self.network_struc[self.num_layers-1]['Type'] == 'P_conv') | \
+                        (self.network_struc[self.num_layers-1]['Type'] == 'PG_pool'):
+                    V_0 = self.layers[self.num_layers-1]['V'][0]
+                    V_1 = self.layers[self.num_layers-1]['V'][1]
+                    features_0 = np.max(np.max(V_0, axis=0), axis=0)
+                    features_1 = np.max(np.max(V_1, axis=0), axis=0)
+                    features = np.concatenate((features_0, features_1), axis=None)
+                    print("Cantidad de max potential per map (Parallel)" + str(features.shape))
+                else:
+                    V = self.layers[self.num_layers-1]['V']
+                    features = np.max(np.max(V, axis=0), axis=0)
+                    print("Cantidad de max potential per map (Seq)" + str(features.shape))
             else:
-                V = self.layers[self.num_layers-1]['V']
-                features = np.max(np.max(V, axis=0), axis=0)
-                print("Cantidad de max potential per map (Seq)" + str(features.shape))
+                print("Pattern classification - NOT IMPLEMENTED YET")
             self.features_train.append(features)
 
 
@@ -1019,9 +1025,12 @@ class SDNN:
             print(dt)
 
         # Transform features to numpy array
-        n_features = self.features_train[0].shape[0]
-        n_train_samples = len(self.features_train)
-        X_train = np.concatenate(self.features_train).reshape((n_train_samples, n_features))
+        if self.svm:
+            n_features = self.features_train[0].shape[0]
+            n_train_samples = len(self.features_train)
+            X_train = np.concatenate(self.features_train).reshape((n_train_samples, n_features))
+        else:
+            print("Pattern classification - NOT IMPLEMENTED YET")
         print("------------ Train features Extraction Progress  {}%----------------".format(str(self.num_img_train)
                                                                                             + '/'
                                                                                             + str(self.num_img_train)
@@ -1050,10 +1059,12 @@ class SDNN:
         else:
             self.network_struc[3]['th'] = 50.
 
-        if self.network_struc[5]['Type'] == 'P_conv':
-            self.network_struc[5]['th'] = (100000., 100000.)  # Set threshold of last layer to inf
+        if (self.network_struc[self.num_layers-1]['Type'] == 'P_conv') | \
+                (self.network_struc[self.num_layers-1]['Type'] == 'P_pool') | \
+                (self.network_struc[self.num_layers-1]['Type'] == 'PG_pool'):
+            self.network_struc[self.num_layers-1]['th'] = (100000., 100000.)  # Set threshold of last layer to inf
         else:
-            self.network_struc[5]['th'] = 100000  # Set threshold of last layer to inf
+            self.network_struc[self.num_layers-1]['th'] = 100000  # Set threshold of last layer to inf
         print("-----------------------------------------------------------")
         print("---------------- EXTRACTING TEST FEATURES -----------------")
         print("-----------------------------------------------------------")
@@ -1074,19 +1085,22 @@ class SDNN:
             self.layers[0]['S'] = st  # (H, W, M, time)
             self.prop_step()
 
-            # Obtain maximum potential per map in last layer
-            if (self.network_struc[self.num_layers-1]['Type'] == 'P_conv') | \
-                    (self.network_struc[self.num_layers-1]['Type'] == 'PG_pool'):
-                V_0 = self.layers[self.num_layers-1]['V'][0]
-                V_1 = self.layers[self.num_layers-1]['V'][1]
-                features_0 = np.max(np.max(V_0, axis=0), axis=0)
-                features_1 = np.max(np.max(V_1, axis=0), axis=0)
-                features = np.concatenate((features_0, features_1), axis=None)
-                print("Cantidad de max potential per map (Parallel)" + str(features.shape))
+            if self.svm:
+                # Obtain maximum potential per map in last layer
+                if (self.network_struc[self.num_layers-1]['Type'] == 'P_conv') | \
+                        (self.network_struc[self.num_layers-1]['Type'] == 'PG_pool'):
+                    V_0 = self.layers[self.num_layers-1]['V'][0]
+                    V_1 = self.layers[self.num_layers-1]['V'][1]
+                    features_0 = np.max(np.max(V_0, axis=0), axis=0)
+                    features_1 = np.max(np.max(V_1, axis=0), axis=0)
+                    features = np.concatenate((features_0, features_1), axis=None)
+                    print("Cantidad de max potential per map (Parallel)" + str(features.shape))
+                else:
+                    V = self.layers[self.num_layers-1]['V']
+                    features = np.max(np.max(V, axis=0), axis=0)
+                    print("Cantidad de max potential per map (Seq)" + str(features.shape))
             else:
-                V = self.layers[self.num_layers-1]['V']
-                features = np.max(np.max(V, axis=0), axis=0)
-                print("Cantidad de max potential per map (Seq)" + str(features.shape))
+                print("Pattern classification - NOT IMPLEMENTED YET")
             self.features_test.append(features)
 
         # Transform features to numpy array
