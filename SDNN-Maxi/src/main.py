@@ -16,7 +16,7 @@ import time
 def main():
 
     # Flags
-    learn_SDNN = False  # This flag toggles between Learning STDP and classify features
+    learn_SDNN = True  # This flag toggles between Learning STDP and classify features
                         # or just classify by loading pretrained weights for the face/motor dataset
     SVM = True  # This flag toggles between using a max global pooling + linear SVM classifier
                 # or using a single nueron to detect patterns
