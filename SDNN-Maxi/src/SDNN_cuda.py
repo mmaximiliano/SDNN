@@ -1021,7 +1021,8 @@ class SDNN:
                         (self.network_struc[self.num_layers-1]['Type'] == 'PG_pool'):
                     S_0 = self.layers[self.num_layers-1]['S'][0]
                     S_1 = self.layers[self.num_layers-1]['S'][1]
-                    print(str(S_0.shape))
+                    print("S_0 shape: " + str(S_0.shape))
+                    print("S_0: " + S_0)
                     S = np.concatenate((S_0, S_1), axis=None)
                     print(str(S.shape))
                 else:
@@ -1036,12 +1037,12 @@ class SDNN:
             print(dt)
 
         # Transform features to numpy array
-        if self.svm:
-            n_features = self.features_train[0].shape[0]
-            n_train_samples = len(self.features_train)
-            X_train = np.concatenate(self.features_train).reshape((n_train_samples, n_features))
-        else:
-            print("Pattern classification - NOT IMPLEMENTED YET")
+        #if self.svm:
+            #n_features = self.features_train[0].shape[0]
+            #n_train_samples = len(self.features_train)
+            #X_train = np.concatenate(self.features_train).reshape((n_train_samples, n_features))
+        #else:
+            #print("Pattern classification - NOT IMPLEMENTED YET")
         print("------------ Train features Extraction Progress  {}%----------------".format(str(self.num_img_train)
                                                                                             + '/'
                                                                                             + str(self.num_img_train)
