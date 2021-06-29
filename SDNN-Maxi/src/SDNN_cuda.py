@@ -867,8 +867,8 @@ class SDNN:
                 elif self.network_struc[i]['Type'] == 'P_conv':
                     I = self.layers[i]['I']  # Output voltage before
                     if t == 14:
-                        print("Pre P_conv - S_0 " + " Nonzero Values:" + str(np.count_nonzero(s[0])))
-                    if np.count_nonzero(s[0]):
+                        print("Pre P_conv - S_0 " + " Nonzero Values:" + str(np.count_nonzero(s[0][:, :, :, :])))
+                    if np.count_nonzero(s[0][:, :, :, :]):
                         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
                     for p in {0, 1}:
@@ -961,7 +961,7 @@ class SDNN:
 
                 elif self.network_struc[i]['Type'] == 'PG_pool':
                     if t == 14:
-                        print("Pre - S_0 " + " Nonzero Values:" + str(np.count_nonzero(s[0])))
+                        print("Pre - S_0 " + " Nonzero Values:" + str(np.count_nonzero(s[0][:, :, :, :])))
                     if np.count_nonzero(s[0][:, :, :, :]):
                         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                     for p in {0, 1}:
@@ -973,7 +973,7 @@ class SDNN:
                             S_tmp = self.pooling(S_tmp, s, w[p], stride, th[p], blockdim, griddim)
                         self.layers[i]['S'][p][:, :, :, t] = S_tmp
                     if t == 14:
-                        print("Post - S_0 " + " Nonzero Values:" + str(np.count_nonzero(S[0])))
+                        print("Post - S_0 " + " Nonzero Values:" + str(np.count_nonzero(S[0][:, :, :, :])))
                         if np.count_nonzero(S[0][:, :, :, :]):
                             print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
