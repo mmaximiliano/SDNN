@@ -953,11 +953,13 @@ class SDNN:
                 elif self.network_struc[i]['Type'] == 'PG_pool':
                     for p in {0, 1}:
                         S_tmp = S[p][:, :, :, t]  # Output spikes
+                        print("Pre - S_tmp " + str(p) + " Nonzero Values:" + str(np.count_nonzero(S_tmp)))
                         if (self.network_struc[i-1]['Type'] == 'P_conv') | \
                                 (self.network_struc[i-1]['Type'] == 'P_pool'):
                             S_tmp = self.pooling(S_tmp, s[p], w[p], stride, th[p], blockdim, griddim)
                         else:
                             S_tmp = self.pooling(S_tmp, s, w[p], stride, th[p], blockdim, griddim)
+                        print("Post - S_tmp " + str(p) + " Nonzero Values:" + str(np.count_nonzero(S_tmp)))
                         self.layers[i]['S'][p][:, :, :, t] = S_tmp
 
     # Get training features
@@ -1016,6 +1018,7 @@ class SDNN:
                     V = self.layers[self.num_layers-1]['V']
                     features = np.max(np.max(V, axis=0), axis=0)
                     print("Cantidad de max potential per map (Seq)" + str(features.shape))
+                self.features_test.append(features)
             else:
                 if (self.network_struc[self.num_layers-1]['Type'] == 'P_conv') | \
                         (self.network_struc[self.num_layers-1]['Type'] == 'PG_pool'):
@@ -1042,7 +1045,6 @@ class SDNN:
         else:
             X_train = np.concatenate(self.features_train, axis=0)
             print("X_train Shape:" + str(X_train.shape))
-            print("Pattern classification - NOT IMPLEMENTED YET")
         print("------------ Train features Extraction Progress  {}%----------------".format(str(self.num_img_train)
                                                                                             + '/'
                                                                                             + str(self.num_img_train)
@@ -1111,14 +1113,30 @@ class SDNN:
                     V = self.layers[self.num_layers-1]['V']
                     features = np.max(np.max(V, axis=0), axis=0)
                     print("Cantidad de max potential per map (Seq)" + str(features.shape))
+                self.features_test.append(features)
             else:
-                print("Pattern classification - NOT IMPLEMENTED YET")
-            self.features_test.append(features)
+                if (self.network_struc[self.num_layers-1]['Type'] == 'P_conv') | \
+                        (self.network_struc[self.num_layers-1]['Type'] == 'PG_pool'):
+                    S_0 = np.transpose(np.squeeze(self.layers[self.num_layers-1]['S'][0]))
+                    S_1 = np.transpose(np.squeeze(self.layers[self.num_layers-1]['S'][1]))
+                    S = np.concatenate((S_0, S_1), axis=1)
+                    print(str(S.shape))
+                    print("Valores Nonzero: " + str(np.count_nonzero(S)))
+                else:
+                    S = np.transpose(np.squeeze(self.layers[self.num_layers-1]['S']))
+                    print(str(S.shape))
+
+                self.features_test.append(S)
 
         # Transform features to numpy array
-        n_features = self.features_test[0].shape[0]
-        n_train_samples = len(self.features_test)
-        X_test = np.concatenate(self.features_test).reshape((n_train_samples, n_features))
+        if self.svm:
+            n_features = self.features_test[0].shape[0]
+            n_train_samples = len(self.features_test)
+            X_test = np.concatenate(self.features_test).reshape((n_train_samples, n_features))
+        else:
+            X_test = np.concatenate(self.features_test, axis=0)
+            print("X_train Shape:" + str(X_test.shape))
+
         print("------------ Test features Extraction Progress  {}%----------------".format(str(self.num_img_test)
                                                                                            + '/'
                                                                                            + str(self.num_img_test)
