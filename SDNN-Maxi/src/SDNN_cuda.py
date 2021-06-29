@@ -813,6 +813,10 @@ class SDNN:
                 w = self.weights[i-1]
                 if (self.network_struc[i-1]['Type'] == 'P_conv') | (self.network_struc[i-1]['Type'] == 'P_pool'):
                     s_0 = self.layers[i - 1]['S'][0][:, :, :, t - 1]  # Input spikes
+                    if t == 14:
+                        print("P_conv Out - s_0 " + " Nonzero Values:" + str(np.count_nonzero(self.layers[i - 1]['S'][0])))
+                        if np.count_nonzero(self.layers[i - 1]['S'][0]):
+                            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                     s_0 = np.pad(s_0, ((H_pad, H_pad), (W_pad, W_pad), (0, 0)), mode='constant')  # Pad the input
 
                     s_1 = self.layers[i - 1]['S'][1][:, :, :, t - 1]  # Input spikes
@@ -906,6 +910,10 @@ class SDNN:
                             S_tmp, K_inh_tmp = self.lateral_inh_CPU(S_tmp, V_tmp, K_inh_tmp)
                         self.layers[i]['S'][p][:, :, :, t] = S_tmp
                         self.layers[i]['K_inh'][p] = K_inh_tmp
+                    if t == 14:
+                        print("Post P_conv - S_0 " + " Nonzero Values:" + str(np.count_nonzero(self.layers[i]['S'][0][:, :, :, :])))
+                        if np.count_nonzero(self.layers[i]['S'][p][:, :, :, :]):
+                            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
                 elif self.network_struc[i]['Type'] == 'P_pool':
                     for p in {0, 1}:
@@ -952,6 +960,10 @@ class SDNN:
                     self.layers[i]['S'][:, :, :, t] = S
 
                 elif self.network_struc[i]['Type'] == 'PG_pool':
+                    if t == 14:
+                        print("Pre - S_0 " + " Nonzero Values:" + str(np.count_nonzero(s[0])))
+                        if np.count_nonzero(s[0]):
+                            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                     for p in {0, 1}:
                         S_tmp = S[p][:, :, :, t]  # Output spikes
                         if (self.network_struc[i-1]['Type'] == 'P_conv') | \
@@ -960,6 +972,10 @@ class SDNN:
                         else:
                             S_tmp = self.pooling(S_tmp, s, w[p], stride, th[p], blockdim, griddim)
                         self.layers[i]['S'][p][:, :, :, t] = S_tmp
+                    if t == 14:
+                        print("Post - S_0 " + " Nonzero Values:" + str(np.count_nonzero(S[0])))
+                        if np.count_nonzero(S[0][:, :, :, :]):
+                            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
     # Get training features
     def train_features(self):
