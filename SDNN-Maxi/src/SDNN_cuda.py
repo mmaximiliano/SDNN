@@ -1034,7 +1034,7 @@ class SDNN:
                     print(str(S.shape))
 
                 print("Pattern classification - NOT IMPLEMENTED YET")
-            self.features_train.append(features)
+            #self.features_train.append(features)
 
 
             dt = timer() - start
