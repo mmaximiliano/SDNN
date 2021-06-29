@@ -953,13 +953,11 @@ class SDNN:
                 elif self.network_struc[i]['Type'] == 'PG_pool':
                     for p in {0, 1}:
                         S_tmp = S[p][:, :, :, t]  # Output spikes
-                        print("Pre - S_tmp " + str(p) + " Nonzero Values:" + str(np.count_nonzero(S_tmp)))
                         if (self.network_struc[i-1]['Type'] == 'P_conv') | \
                                 (self.network_struc[i-1]['Type'] == 'P_pool'):
                             S_tmp = self.pooling(S_tmp, s[p], w[p], stride, th[p], blockdim, griddim)
                         else:
                             S_tmp = self.pooling(S_tmp, s, w[p], stride, th[p], blockdim, griddim)
-                        print("Post - S_tmp " + str(p) + " Nonzero Values:" + str(np.count_nonzero(S_tmp)))
                         self.layers[i]['S'][p][:, :, :, t] = S_tmp
 
     # Get training features
@@ -975,13 +973,13 @@ class SDNN:
             self.network_struc[3]['th'] = (50., 50.)
         else:
             self.network_struc[3]['th'] = 50.
-
-        if (self.network_struc[self.num_layers-1]['Type'] == 'P_conv') | \
-                (self.network_struc[self.num_layers-1]['Type'] == 'P_pool') | \
-                (self.network_struc[self.num_layers-1]['Type'] == 'PG_pool'):
-            self.network_struc[self.num_layers-1]['th'] = (100000., 100000.)  # Set threshold of last layer to inf
-        else:
-            self.network_struc[self.num_layers-1]['th'] = 100000  # Set threshold of last layer to inf
+        if self.svm:  # If SVM -> Set threshold of last layer to inf
+            if (self.network_struc[self.num_layers-1]['Type'] == 'P_conv') | \
+                    (self.network_struc[self.num_layers-1]['Type'] == 'P_pool') | \
+                    (self.network_struc[self.num_layers-1]['Type'] == 'PG_pool'):
+                self.network_struc[self.num_layers-1]['th'] = (100000., 100000.)
+            else:
+                self.network_struc[self.num_layers-1]['th'] = 100000  # Set threshold of last layer to inf
         print("-----------------------------------------------------------")
         print("----------- EXTRACTING TRAINING FEATURES ------------------")
         print("-----------------------------------------------------------")
@@ -1026,10 +1024,10 @@ class SDNN:
                     S_1 = np.transpose(np.squeeze(self.layers[self.num_layers-1]['S'][1]))
                     S = np.concatenate((S_0, S_1), axis=1)
                     print(str(S.shape))
-                    print("Valores Nonzero: " + str(np.count_nonzero(S)))
                 else:
+                    print("S shape (conv) Before: " + str(S.shape))
                     S = np.transpose(np.squeeze(self.layers[self.num_layers-1]['S']))
-                    print(str(S.shape))
+                    print("S shape (conv) After: " + str(S.shape))
 
                 self.features_train.append(S)
 
@@ -1135,7 +1133,7 @@ class SDNN:
             X_test = np.concatenate(self.features_test).reshape((n_train_samples, n_features))
         else:
             X_test = np.concatenate(self.features_test, axis=0)
-            print("X_train Shape:" + str(X_test.shape))
+            print("X_test Shape:" + str(X_test.shape))
 
         print("------------ Test features Extraction Progress  {}%----------------".format(str(self.num_img_test)
                                                                                            + '/'
