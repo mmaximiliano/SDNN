@@ -1024,7 +1024,7 @@ class SDNN:
                     print("S_0 shape: " + str(S_0.shape))
                     print("S_0: ")
                     print(S_0)
-                    S = np.concatenate((S_0, S_1), axis=None)
+                    S = np.concatenate((S_0, S_1), axis=0)
                     print(str(S.shape))
                 else:
                     S = np.transpose(np.squeeze(self.layers[self.num_layers-1]['S']))
