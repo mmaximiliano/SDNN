@@ -1020,7 +1020,9 @@ class SDNN:
                 if (self.network_struc[self.num_layers-1]['Type'] == 'P_conv') | \
                         (self.network_struc[self.num_layers-1]['Type'] == 'PG_pool'):
                     S_0 = self.layers[self.num_layers-1]['S'][0]
+                    np.squeeze(S_0)
                     S_1 = self.layers[self.num_layers-1]['S'][1]
+                    np.squeeze(S_0)
                     print("S_0 shape: " + str(S_0.shape))
                     print("S_0: ")
                     print(S_0)
@@ -1028,6 +1030,7 @@ class SDNN:
                     print(str(S.shape))
                 else:
                     S = self.layers[self.num_layers-1]['S']
+                    np.squeeze(S)
                     print(str(S.shape))
 
                 print("Pattern classification - NOT IMPLEMENTED YET")
