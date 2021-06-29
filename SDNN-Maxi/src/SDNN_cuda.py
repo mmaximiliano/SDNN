@@ -1021,13 +1021,10 @@ class SDNN:
                         (self.network_struc[self.num_layers-1]['Type'] == 'PG_pool'):
                     S_0 = np.transpose(np.squeeze(self.layers[self.num_layers-1]['S'][0]))
                     S_1 = np.transpose(np.squeeze(self.layers[self.num_layers-1]['S'][1]))
-                    print("S_0 shape: " + str(S_0.shape))
-                    print("S_0: ")
                     print(S_0)
                     S = np.concatenate((S_0, S_1), axis=1)
                     print(str(S.shape))
-                    print("S: ")
-                    print(S)
+                    print("Valores Nonzero: " + str(np.count_nonzero(S)))
                 else:
                     S = np.transpose(np.squeeze(self.layers[self.num_layers-1]['S']))
                     print(str(S.shape))
