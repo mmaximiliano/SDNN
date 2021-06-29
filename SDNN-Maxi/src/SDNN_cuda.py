@@ -1040,7 +1040,7 @@ class SDNN:
             n_train_samples = len(self.features_train)
             X_train = np.concatenate(self.features_train).reshape((n_train_samples, n_features))
         else:
-            X_train = np.concatenate(self.features_train, axis=1)
+            X_train = np.concatenate(self.features_train, axis=0)
             print("X_train Shape:" + str(X_train.shape))
             print("Pattern classification - NOT IMPLEMENTED YET")
         print("------------ Train features Extraction Progress  {}%----------------".format(str(self.num_img_train)
