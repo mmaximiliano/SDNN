@@ -962,7 +962,7 @@ class SDNN:
                 elif self.network_struc[i]['Type'] == 'PG_pool':
                     if t == 14:
                         print("Pre - S_0 " + " Nonzero Values:" + str(np.count_nonzero(s[0])))
-                    if np.count_nonzero(s[0][:, :, :, :]):
+                    if np.count_nonzero(s[0]):
                         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                     for p in {0, 1}:
                         S_tmp = S[p][:, :, :, t]  # Output spikes
