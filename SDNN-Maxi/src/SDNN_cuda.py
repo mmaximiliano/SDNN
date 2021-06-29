@@ -1028,20 +1028,21 @@ class SDNN:
                     S = np.transpose(np.squeeze(self.layers[self.num_layers-1]['S']))
                     print(str(S.shape))
 
-                print("Pattern classification - NOT IMPLEMENTED YET")
-            #self.features_train.append(features)
+                self.features_train.append(S)
 
 
             dt = timer() - start
             print(dt)
 
         # Transform features to numpy array
-        #if self.svm:
-            #n_features = self.features_train[0].shape[0]
-            #n_train_samples = len(self.features_train)
-            #X_train = np.concatenate(self.features_train).reshape((n_train_samples, n_features))
-        #else:
-            #print("Pattern classification - NOT IMPLEMENTED YET")
+        if self.svm:
+            n_features = self.features_train[0].shape[0]
+            n_train_samples = len(self.features_train)
+            X_train = np.concatenate(self.features_train).reshape((n_train_samples, n_features))
+        else:
+            X_train = np.concatenate(self.features_train, axis=1)
+            print("X_train Shape:" + str(X_train.shape))
+            print("Pattern classification - NOT IMPLEMENTED YET")
         print("------------ Train features Extraction Progress  {}%----------------".format(str(self.num_img_train)
                                                                                             + '/'
                                                                                             + str(self.num_img_train)
