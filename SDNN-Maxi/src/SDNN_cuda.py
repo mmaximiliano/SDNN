@@ -813,6 +813,10 @@ class SDNN:
                 w = self.weights[i-1]
                 if (self.network_struc[i-1]['Type'] == 'P_conv') | (self.network_struc[i-1]['Type'] == 'P_pool'):
                     s_0 = self.layers[i - 1]['S'][0][:, :, :, t - 1]  # Input spikes
+                    if t == 14:
+                        print("P_conv Out - s_0 " + " Nonzero Values:" + str(np.count_nonzero(self.layers[i - 1]['S'][0])))
+                        if np.count_nonzero(self.layers[i - 1]['S'][0]):
+                            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                     s_0 = np.pad(s_0, ((H_pad, H_pad), (W_pad, W_pad), (0, 0)), mode='constant')  # Pad the input
 
                     s_1 = self.layers[i - 1]['S'][1][:, :, :, t - 1]  # Input spikes
@@ -866,10 +870,6 @@ class SDNN:
 
                 elif self.network_struc[i]['Type'] == 'P_conv':
                     I = self.layers[i]['I']  # Output voltage before
-                    if t == 14:
-                        print("Pre P_conv - S_0 " + " Nonzero Values:" + str(np.count_nonzero(s[0])))
-                        if np.count_nonzero(s[0]):
-                            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
                     for p in {0, 1}:
                         # Set Parallel conv params
