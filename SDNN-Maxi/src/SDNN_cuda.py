@@ -868,8 +868,8 @@ class SDNN:
                     I = self.layers[i]['I']  # Output voltage before
                     if t == 14:
                         print("Pre P_conv - S_0 " + " Nonzero Values:" + str(np.count_nonzero(s[0])))
-                    if np.count_nonzero(s[0]):
-                        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                        if np.count_nonzero(s[0]):
+                            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
                     for p in {0, 1}:
                         # Set Parallel conv params
@@ -912,8 +912,8 @@ class SDNN:
                         self.layers[i]['K_inh'][p] = K_inh_tmp
                     if t == 14:
                         print("Post P_conv - S_0 " + " Nonzero Values:" + str(np.count_nonzero(self.layers[i]['S'][0][:, :, :, :])))
-                    if np.count_nonzero(self.layers[i]['S'][p][:, :, :, :]):
-                        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                        if np.count_nonzero(self.layers[i]['S'][p][:, :, :, :]):
+                            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
                 elif self.network_struc[i]['Type'] == 'P_pool':
                     for p in {0, 1}:
@@ -962,8 +962,8 @@ class SDNN:
                 elif self.network_struc[i]['Type'] == 'PG_pool':
                     if t == 14:
                         print("Pre - S_0 " + " Nonzero Values:" + str(np.count_nonzero(s[0])))
-                    if np.count_nonzero(s[0]):
-                        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                        if np.count_nonzero(s[0]):
+                            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                     for p in {0, 1}:
                         S_tmp = S[p][:, :, :, t]  # Output spikes
                         if (self.network_struc[i-1]['Type'] == 'P_conv') | \
