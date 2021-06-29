@@ -1017,6 +1017,17 @@ class SDNN:
                     features = np.max(np.max(V, axis=0), axis=0)
                     print("Cantidad de max potential per map (Seq)" + str(features.shape))
             else:
+                if (self.network_struc[self.num_layers-1]['Type'] == 'P_conv') | \
+                        (self.network_struc[self.num_layers-1]['Type'] == 'PG_pool'):
+                    S_0 = self.layers[self.num_layers-1]['S'][0]
+                    S_1 = self.layers[self.num_layers-1]['S'][1]
+                    print(str(S_0.shape))
+                    S = np.concatenate((S_0, S_1), axis=None)
+                    print(str(S.shape))
+                else:
+                    S = self.layers[self.num_layers-1]['S']
+                    print(str(S.shape))
+
                 print("Pattern classification - NOT IMPLEMENTED YET")
             self.features_train.append(features)
 
