@@ -951,7 +951,8 @@ class SDNN:
                     self.layers[i]['S'][:, :, :, t] = S
 
                 elif self.network_struc[i]['Type'] == 'PG_pool':
-                    print("Pre - S_0 " + " Nonzero Values:" + str(np.count_nonzero(S[0][:, :, :, :])))
+                    if t == 14:
+                        print("Pre - S_0 " + " Nonzero Values:" + str(np.count_nonzero(S[0][:, :, :, :])))
                     if np.count_nonzero(S[0][:, :, :, :]):
                         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                     for p in {0, 1}:
