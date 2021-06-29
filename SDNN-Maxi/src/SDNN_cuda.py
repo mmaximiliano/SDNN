@@ -968,7 +968,7 @@ class SDNN:
                         S_tmp = S[p][:, :, :, t]  # Output spikes
                         if (self.network_struc[i-1]['Type'] == 'P_conv') | \
                                 (self.network_struc[i-1]['Type'] == 'P_pool'):
-                            S_tmp = self.pooling(S_tmp, s[p], w[p], stride, th[p], blockdim, griddim)
+                            S_tmp = self.pooling(S_tmp, self.layers[i - 1]['S'][p][:, :, :, t - 1], w[p], stride, th[p], blockdim, griddim)
                         else:
                             S_tmp = self.pooling(S_tmp, s, w[p], stride, th[p], blockdim, griddim)
                         self.layers[i]['S'][p][:, :, :, t] = S_tmp
