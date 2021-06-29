@@ -56,9 +56,8 @@ def main():
                       {'Type': 'conv', 'num_filters': 20, 'filter_size': 17, 'th': 60.,
                        'alpha': 1., 'beta': 1., 'delay': 0},
                       {'Type': 'pool', 'num_filters': 20, 'filter_size': 5, 'th': 0., 'stride': 5},
-                      {'Type': 'P_conv', 'num_filters': 20, 'filter_size': 5, 'th': (2., 2.),
-                       'alpha': (.95, .95), 'beta': (.95, .95), 'delay': (0, 1)},
-                      {'Type': 'PG_pool', 'th': (0., 0.)}]
+                      {'Type': 'conv', 'num_filters': 20, 'filter_size': 5, 'th': 2.,
+                       'alpha': .95, 'beta': .95, 'delay': 0}]
 
     weight_params = {'mean': 0.8, 'std': 0.01}
 
