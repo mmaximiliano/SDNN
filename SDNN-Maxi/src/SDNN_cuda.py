@@ -1025,7 +1025,8 @@ class SDNN:
                     S = np.concatenate((S_0, S_1), axis=1)
                     print(str(S.shape))
                 else:
-                    print("S shape (conv) Before: " + str(S.shape))
+                    S_tmp = self.layers[self.num_layers-1]['S']
+                    print("S shape (conv) Before: " + str(S_tmp.shape))
                     S = np.transpose(np.squeeze(self.layers[self.num_layers-1]['S']))
                     print("S shape (conv) After: " + str(S.shape))
 
