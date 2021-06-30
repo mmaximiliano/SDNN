@@ -1033,7 +1033,7 @@ class SDNN:
                         S_tmp = self.layers[self.num_layers-1]['S']
                         print("S shape (conv) Before: " + str(S_tmp.shape))
                         S = np.reshape(S_tmp, (S_tmp.shape[0]*S_tmp.shape[1]*S_tmp.shape[2], self.total_time))
-                        print("Despues: " + str(np.count_nonzero(S)))
+                        S = np.transpose(S)
                         print("S shape (conv) After: " + str(S.shape))
 
                 self.features_train.append(S)
