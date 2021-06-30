@@ -1013,28 +1013,30 @@ class SDNN:
                     features_0 = np.max(np.max(V_0, axis=0), axis=0)
                     features_1 = np.max(np.max(V_1, axis=0), axis=0)
                     features = np.concatenate((features_0, features_1), axis=None)
-                    print("Cantidad de max potential per map (Parallel)" + str(features.shape))
                 else:
                     V = self.layers[self.num_layers-1]['V']
                     features = np.max(np.max(V, axis=0), axis=0)
-                    print("Cantidad de max potential per map (Seq)" + str(features.shape))
                 self.features_test.append(features)
             else:
-                if (self.network_struc[self.num_layers-1]['Type'] == 'P_conv') | \
-                        (self.network_struc[self.num_layers-1]['Type'] == 'PG_pool'):
+                if self.network_struc[self.num_layers-1]['Type'] == 'PG_pool':
                     S_0 = np.transpose(np.squeeze(self.layers[self.num_layers-1]['S'][0]))
                     S_1 = np.transpose(np.squeeze(self.layers[self.num_layers-1]['S'][1]))
                     S = np.concatenate((S_0, S_1), axis=1)
-                    print(str(S.shape))
-                else:
-                    if self.network_struc[self.num_layers-1]['Type'] == 'G_pool':
-                        S = np.transpose(np.squeeze(self.layers[self.num_layers-1]['S']))
-                    else:
-                        S_tmp = self.layers[self.num_layers-1]['S']
-                        print("S shape (conv) Before: " + str(S_tmp.shape))
-                        S = np.reshape(S_tmp, (S_tmp.shape[0]*S_tmp.shape[1]*S_tmp.shape[2], self.total_time))
-                        S = np.transpose(S)
-                        print("S shape (conv) After: " + str(S.shape))
+                elif self.network_struc[self.num_layers-1]['Type'] == 'P_conv':
+                    S_tmp_0 = self.layers[self.num_layers-1]['S'][0]
+                    S_tmp_1 = self.layers[self.num_layers-1]['S'][1]
+                    S_0 = np.reshape(S_tmp_0, (S_tmp_0.shape[0]*S_tmp_0.shape[1]*S_tmp_0.shape[2], self.total_time))
+                    S_1 = np.reshape(S_tmp_1, (S_tmp_1.shape[0]*S_tmp_1.shape[1]*S_tmp_1.shape[2], self.total_time))
+                    S_0 = np.transpose(S_0)
+                    S_1 = np.transpose(S_1)
+                    S = np.concatenate((S_0, S_1), axis=1)
+                    print("S shape from P_conv: " + str(S.shape))
+                elif self.network_struc[self.num_layers-1]['Type'] == 'G_pool':
+                    S = np.transpose(np.squeeze(self.layers[self.num_layers-1]['S']))
+                else:  # If Type = conv
+                    S_tmp = self.layers[self.num_layers-1]['S']
+                    S = np.reshape(S_tmp, (S_tmp.shape[0]*S_tmp.shape[1]*S_tmp.shape[2], self.total_time))
+                    S = np.transpose(S)
 
                 self.features_train.append(S)
 
@@ -1113,23 +1115,30 @@ class SDNN:
                     features_0 = np.max(np.max(V_0, axis=0), axis=0)
                     features_1 = np.max(np.max(V_1, axis=0), axis=0)
                     features = np.concatenate((features_0, features_1), axis=None)
-                    print("Cantidad de max potential per map (Parallel)" + str(features.shape))
                 else:
                     V = self.layers[self.num_layers-1]['V']
                     features = np.max(np.max(V, axis=0), axis=0)
-                    print("Cantidad de max potential per map (Seq)" + str(features.shape))
                 self.features_test.append(features)
             else:
-                if (self.network_struc[self.num_layers-1]['Type'] == 'P_conv') | \
-                        (self.network_struc[self.num_layers-1]['Type'] == 'PG_pool'):
+                if self.network_struc[self.num_layers-1]['Type'] == 'PG_pool':
                     S_0 = np.transpose(np.squeeze(self.layers[self.num_layers-1]['S'][0]))
                     S_1 = np.transpose(np.squeeze(self.layers[self.num_layers-1]['S'][1]))
                     S = np.concatenate((S_0, S_1), axis=1)
-                    print(str(S.shape))
-                    print("Valores Nonzero: " + str(np.count_nonzero(S)))
-                else:
+                elif self.network_struc[self.num_layers-1]['Type'] == 'P_conv':
+                    S_tmp_0 = self.layers[self.num_layers-1]['S'][0]
+                    S_tmp_1 = self.layers[self.num_layers-1]['S'][1]
+                    S_0 = np.reshape(S_tmp_0, (S_tmp_0.shape[0]*S_tmp_0.shape[1]*S_tmp_0.shape[2], self.total_time))
+                    S_1 = np.reshape(S_tmp_1, (S_tmp_1.shape[0]*S_tmp_1.shape[1]*S_tmp_1.shape[2], self.total_time))
+                    S_0 = np.transpose(S_0)
+                    S_1 = np.transpose(S_1)
+                    S = np.concatenate((S_0, S_1), axis=1)
+                    print("S shape from P_conv: " + str(S.shape))
+                elif self.network_struc[self.num_layers-1]['Type'] == 'G_pool':
                     S = np.transpose(np.squeeze(self.layers[self.num_layers-1]['S']))
-                    print(str(S.shape))
+                else:  # If Type = conv
+                    S_tmp = self.layers[self.num_layers-1]['S']
+                    S = np.reshape(S_tmp, (S_tmp.shape[0]*S_tmp.shape[1]*S_tmp.shape[2], self.total_time))
+                    S = np.transpose(S)
 
                 self.features_test.append(S)
 
