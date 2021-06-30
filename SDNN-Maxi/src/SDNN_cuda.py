@@ -1004,8 +1004,6 @@ class SDNN:
             self.layers[0]['S'] = st  # (H, W, M, time)
             self.prop_step()
 
-            print("Despues: " + str(np.count_nonzero(self.layers[-1]['S'][:, :, :, :])))
-
             if self.svm:
                 # Obtain maximum potential per map in last layer
                 if (self.network_struc[self.num_layers-1]['Type'] == 'P_conv') | \
@@ -1029,9 +1027,10 @@ class SDNN:
                     S = np.concatenate((S_0, S_1), axis=1)
                     print(str(S.shape))
                 else:
-                    if self.network_struc[self.num_layers-1]['Type'] == 'conv':
+                    if self.network_struc[self.num_layers-1]['Type'] == 'G_pool':
                         S = np.transpose(np.squeeze(self.layers[self.num_layers-1]['S']))
                     else:
+                        print("Despues: " + str(np.count_nonzero(self.layers[-1]['S'][:, :, :, :])))
                         S_tmp = self.layers[self.num_layers-1]['S']
                         print("S shape (conv) Before: " + str(S_tmp.shape))
                         S = np.reshape(S_tmp, (S_tmp.shape[0]*S_tmp.shape[1]*S_tmp.shape[2], self.total_time))
