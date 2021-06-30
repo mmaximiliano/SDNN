@@ -863,6 +863,8 @@ class SDNN:
                         S, K_inh = self.lateral_inh_CPU(S, V, K_inh)
                     self.layers[i]['S'][:, :, :, t] = S
                     self.layers[i]['K_inh'] = K_inh
+                    if t == 14:
+                        print("Antes: " + str(np.count_nonzero(self.layers[i]['S'][:, :, :, :])))
 
                 elif self.network_struc[i]['Type'] == 'P_conv':
                     I = self.layers[i]['I']  # Output voltage before
@@ -1002,6 +1004,8 @@ class SDNN:
             self.layers[0]['S'] = st  # (H, W, M, time)
             self.prop_step()
 
+            print("Despues: " + str(np.count_nonzero(self.layers[-1]['S'][:, :, :, :])))
+
             if self.svm:
                 # Obtain maximum potential per map in last layer
                 if (self.network_struc[self.num_layers-1]['Type'] == 'P_conv') | \
@@ -1025,12 +1029,15 @@ class SDNN:
                     S = np.concatenate((S_0, S_1), axis=1)
                     print(str(S.shape))
                 else:
-                    S_tmp = self.layers[self.num_layers-1]['S']
-                    print("S shape (conv) Before: " + str(S_tmp.shape))
-                    print(S_tmp)
-                    S = np.reshape(S_tmp, (S_tmp.shape[0]*S_tmp.shape[1]*S_tmp.shape[2], self.total_time))
-                    print("S shape (conv) After: " + str(S.shape))
-                    print(S)
+                    if self.network_struc[self.num_layers-1]['Type'] == 'conv':
+                        S = np.transpose(np.squeeze(self.layers[self.num_layers-1]['S']))
+                    else:
+                        S_tmp = self.layers[self.num_layers-1]['S']
+                        print("S shape (conv) Before: " + str(S_tmp.shape))
+                        print(S_tmp)
+                        S = np.reshape(S_tmp, (S_tmp.shape[0]*S_tmp.shape[1]*S_tmp.shape[2], self.total_time))
+                        print("S shape (conv) After: " + str(S.shape))
+                        print(S)
 
                 self.features_train.append(S)
 
