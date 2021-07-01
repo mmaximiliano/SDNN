@@ -1044,14 +1044,6 @@ class SDNN:
             dt = timer() - start
             print(dt)
 
-        # Transform features to numpy array
-        if self.svm:
-            n_features = self.features_train[0].shape[0]
-            n_train_samples = len(self.features_train)
-            X_train = np.concatenate(self.features_train).reshape((n_train_samples, n_features))
-        else:
-            X_train = np.concatenate(self.features_train, axis=0)
-            print("X_train Shape:" + str(X_train.shape))
         print("------------ Train features Extraction Progress  {}%----------------".format(str(self.num_img_train)
                                                                                             + '/'
                                                                                             + str(self.num_img_train)
@@ -1062,9 +1054,22 @@ class SDNN:
         print("------------- TRAINING FEATURES EXTRACTED -----------------")
         print("-----------------------------------------------------------")
 
-        # Clear Features
-        self.features_train = []
-        return X_train, self.y_train
+        # Transform features to numpy array
+        if self.svm:
+            n_features = self.features_train[0].shape[0]
+            n_train_samples = len(self.features_train)
+            X_train = np.concatenate(self.features_train).reshape((n_train_samples, n_features))
+            # Clear Features
+            self.features_train = []
+            return X_train, self.y_train
+        else:
+            Sin = np.concatenate(self.features_train, axis=0)
+            print("Sin Shape:" + str(Sin.shape))
+            # Clear Features
+            self.features_train = []
+            return Sin
+
+
 
     # Get test features
     def test_features(self):

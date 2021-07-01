@@ -111,19 +111,20 @@ def main():
             else:
                 np.save(path_save_weigths + 'weight_'+str(i), weights[i])
 
-    # Get features
-    X_train, y_train = first_net.train_features()
-    X_test, y_test = first_net.test_features()
-
-    # Save X_train and X_test
-    if save_features:
-        np.save(path_features + 'X_train', X_train)
-        np.save(path_features + 'y_train', y_train)
-        np.save(path_features + 'X_test', X_test)
-        np.save(path_features + 'y_test', y_test)
 
     # ------------------------------- Classify -------------------------------#
     if SVM:
+        # Get features
+        X_train, y_train = first_net.train_features()
+        X_test, y_test = first_net.test_features()
+
+        # Save X_train and X_test
+        if save_features:
+            np.save(path_features + 'X_train', X_train)
+            np.save(path_features + 'y_train', y_train)
+            np.save(path_features + 'X_test', X_test)
+            np.save(path_features + 'y_test', y_test)
+
         classifier_params = {'C': 1.0, 'gamma': 'auto'}
         train_mean = np.mean(X_train, axis=0)
         train_std = np.std(X_train, axis=0)
@@ -140,15 +141,16 @@ def main():
 
     else:
         print("Pattern classification - NOT IMPLEMENTED YET")
-        T = X_train.size
-        N_in = X_train.size
+        Sin_tmp = first_net.train_features()
         N_out = 1
+        N_in = Sin_tmp[0]
+        T = Sin_tmp.shape[1]
         singleNeuron = STDPLIFDensePopulation(in_channels=N_in, out_channels=N_out,
                                               weight=0.7, alpha=float(np.exp(-1e-3/10e-3)),
                                               beta=float(np.exp(-1e-3/2e-5)), delay=0,
                                               th=25., a_plus=0.003125, a_minus=0.00865625,
                                               w_max=1.)
-        Sin = torch.zeros(T, N_in)
+        Sin = torch.tensor(Sin_tmp)
         # Pre-procesamos PSpikes y NSpikes
         dt_ltp = 5   # Cantidad de timesteps que miro hacia atras
         dt_ltd = 10  # Cantidad de timesteps que miro hacia delante
