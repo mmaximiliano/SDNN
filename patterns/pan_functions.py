@@ -82,7 +82,7 @@ def read_dataset(filename):
     height = data.y.max() + 1
     data.ts = all_ts[td_indices]
     data.p = all_p[td_indices]
-    return data, width, height
+    return data, width, height  
 
 class seqPatternNMNIST(Dataset):
     def __init__(self, root, nframes=5, patt=[1,2,3], qsmp=3000, qrep=250):
@@ -94,6 +94,7 @@ class seqPatternNMNIST(Dataset):
         self.pattern_list = []
         self.patt = patt
         nros = os.listdir(root)
+        nros.sort()
         for nro in nros:
             # get file list
             files = os.listdir(os.path.join(root,nro))
