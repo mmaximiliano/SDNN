@@ -79,7 +79,6 @@ def main():
                      spike_times_train=spike_times_train, spike_times_test=spike_times_test,
                      svm=SVM, device='GPU')
 
-
     # Set the weights or learn STDP
     if set_weights:
         weight_path_list = []
@@ -110,7 +109,6 @@ def main():
                 np.save(path_save_weigths + 'weight_P1_' + str(i), weights[i][1])
             else:
                 np.save(path_save_weigths + 'weight_'+str(i), weights[i])
-
 
     # ------------------------------- Classify -------------------------------#
     if SVM:
@@ -145,7 +143,7 @@ def main():
         T = Sin_tmp.shape[0]
         N_out = 1
         N_in = Sin_tmp.shape[1]
-        
+
         singleNeuron = STDPLIFDensePopulation(in_channels=N_in, out_channels=N_out,
                                               weight=0.7, alpha=float(np.exp(-1e-3/10e-3)),
                                               beta=float(np.exp(-1e-3/2e-5)), delay=0,
