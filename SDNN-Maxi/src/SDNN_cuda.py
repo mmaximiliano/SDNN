@@ -863,8 +863,6 @@ class SDNN:
                         S, K_inh = self.lateral_inh_CPU(S, V, K_inh)
                     self.layers[i]['S'][:, :, :, t] = S
                     self.layers[i]['K_inh'] = K_inh
-                    if (t == 14) & (i == (self.num_layers-1)):
-                        print("Antes: " + str(np.count_nonzero(self.layers[i]['S'][:, :, :, :])))
 
                 elif self.network_struc[i]['Type'] == 'P_conv':
                     I = self.layers[i]['I']  # Output voltage before
