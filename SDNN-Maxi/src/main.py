@@ -142,9 +142,10 @@ def main():
     else:
         print("Pattern classification - NOT IMPLEMENTED YET")
         Sin_tmp = first_net.train_features()
+        T = Sin_tmp.shape[0]
         N_out = 1
-        N_in = Sin_tmp.shape[0]
-        T = Sin_tmp.shape[1]
+        N_in = Sin_tmp.shape[1]
+        
         singleNeuron = STDPLIFDensePopulation(in_channels=N_in, out_channels=N_out,
                                               weight=0.7, alpha=float(np.exp(-1e-3/10e-3)),
                                               beta=float(np.exp(-1e-3/2e-5)), delay=0,
