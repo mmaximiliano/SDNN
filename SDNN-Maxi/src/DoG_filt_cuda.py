@@ -24,12 +24,14 @@ def DoG_normalization(img):
 
     return img_out
 
+
 def DoG_normalization_CPU(img):
     img = img.astype(np.float32)
     img_out = np.zeros(img.shape).astype(np.float32)
     img_sz = np.array([img.shape[0], img.shape[1]], dtype=np.uint8)
     img_out = DoG_norm_CPU(img_out, img, img_sz, 8)
     return img_out
+
 
 def DoG_filter(path_img, filt, img_size, total_time, num_layers):
     """
@@ -71,6 +73,7 @@ def DoG_filter(path_img, filt, img_size, total_time, num_layers):
     spike_times[II] = 1
 
     return spike_times
+
 
 def DoG(size, s1, s2):
     """
