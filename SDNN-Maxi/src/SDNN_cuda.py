@@ -1035,7 +1035,7 @@ class SDNN:
                     S_tmp = self.layers[self.num_layers-1]['S']
                     S = np.reshape(S_tmp, (S_tmp.shape[0]*S_tmp.shape[1]*S_tmp.shape[2], self.total_time))
                     S = np.transpose(S)
-                    S = S.astype(np.float)
+                    S = S.astype(np.float32)
 
                 self.features_train.append(S)
 
