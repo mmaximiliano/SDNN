@@ -73,8 +73,8 @@ def main():
                                        floor(network_params[5]['filter_size'])]}
         weight_params = {'mean': 0.8, 'std': 0.01}
 
-        # Create network
-        first_net = SDNN(network_params, weight_params, stdp_params, total_time,
+        # Create network -> TENER EN CUENTA EL TOTAL TIME (BUSCAR LA FORMA DE ESTANDARIZARLO)
+        first_net = SDNN(network_params, weight_params, stdp_params, 295,
                          DoG_params=DoG_params, spike_times_learn=spike_times_learn,
                          spike_times_train=spike_times_train, spike_times_test=spike_times_test,
                          svm=SVM, device='GPU')

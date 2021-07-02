@@ -739,7 +739,7 @@ class SDNN:
                 st = self.spike_times_learn[self.curr_img, :, :, :, :]  # (Image_number, H, W, M, time) to (H, W, M, time)
             else:
                 st = np.load(self.spike_times_pat_seq + "seq_0.npy")
-                self.total_time = st.shape[2]  # Seteo como tiempo el largo de la secuencia
+                #self.total_time = st.shape[2]  # Seteo como tiempo el largo de la secuencia
                 st = np.expand_dims(st, axis=2)
             self.layers[0]['S'] = st  # (H, W, M, time)
             self.train_step()
