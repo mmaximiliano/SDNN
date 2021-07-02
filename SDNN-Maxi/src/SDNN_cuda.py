@@ -183,6 +183,8 @@ class SDNN:
         else:
             self.spike_times_pat_seq = spike_times_pat_seq
             self.num_img_learn = len(listdir(spike_times_pat_seq))
+            # Quizas en el futuro esto haya que cambiarlo
+            self.num_img_train = self.num_img_learn  # Usamos las misma cantidad de entrenamiento
 
         # --------------------------- Output features -------------------#
         self.features_train = []
@@ -1010,8 +1012,12 @@ class SDNN:
                 path_img = next(self.spike_times_train)
                 st = DoG_filter(path_img, self.filt, self.img_size, self.total_time, self.num_layers)
                 st = np.expand_dims(st, axis=2)
-            else:
+            elif self.svm:
                 st = self.spike_times_train[i, :, :, :, :]  # (Image_number, H, W, M, time) to (H, W, M, time)
+            else:
+                st = np.load(self.spike_times_pat_seq + "seq_0.npy")
+                #self.total_time = st.shape[2]  # Seteo como tiempo el largo de la secuencia
+                st = np.expand_dims(st, axis=2)
             self.layers[0]['S'] = st  # (H, W, M, time)
             self.prop_step()
 
@@ -1050,7 +1056,7 @@ class SDNN:
                     S = np.transpose(S)
                     S = S.astype(np.float32)
 
-                self.features_train.append(S)
+                self.features_test.append(S)
 
 
             dt = timer() - start
