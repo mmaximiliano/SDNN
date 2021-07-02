@@ -737,7 +737,7 @@ class SDNN:
             elif self.svm:
                 st = self.spike_times_learn[self.curr_img, :, :, :, :]  # (Image_number, H, W, M, time) to (H, W, M, time)
             else:
-                st = np.load(self.spike_times_pat_seq + "seq0.npy")
+                st = np.load(self.spike_times_pat_seq + "seq_0.npy")
                 st = np.expand_dims(st, axis=2)
             self.layers[0]['S'] = st  # (H, W, M, time)
             self.train_step()
