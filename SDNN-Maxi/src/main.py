@@ -81,7 +81,7 @@ def main():
     else:
         # Seteo Total time de las secuencias
         # Potencialmente esto hay que cambiarlo, o buscar la forma de automatizarlo
-        total_time = 295  
+        total_time = 295
         network_params = [{'Type': 'input', 'num_filters': 1, 'pad': (0, 0), 'H_layer': 34,
                            'W_layer': 34},
                           {'Type': 'conv', 'num_filters': 4, 'filter_size': 5, 'th': 10.,
@@ -92,7 +92,7 @@ def main():
                           {'Type': 'pool', 'num_filters': 20, 'filter_size': 4, 'th': 0., 'stride': 2},
                           {'Type': 'conv', 'num_filters': 20, 'filter_size': 2, 'th': 2.,
                            'alpha': .95, 'beta': .95, 'delay': 0}]
-        max_learn_iter = [0, 3000, 0, 5000, 0, 6000, 0]
+        max_learn_iter = [0, 300, 0, 500, 0, 600, 0]
         stdp_params = {'max_learn_iter': max_learn_iter,
                        'stdp_per_layer': [0, 10, 0, 4, 0, 2],
                        'max_iter': sum(max_learn_iter),
