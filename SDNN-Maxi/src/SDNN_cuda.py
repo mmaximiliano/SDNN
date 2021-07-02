@@ -172,9 +172,8 @@ class SDNN:
             self.num_img_test = self.y_test.size
             self.spike_times_train, self.learn_buffer = tee(self.spike_times_train)
         elif self.svm:
-            self.spike_times_learn = None
+            self.spike_times_learn = spike_times_learn
             self.num_img_learn = len(os.listdir(spike_times_pat_seq))
-            print(self.num_img_learn)
             self.spike_times_train = spike_times_train
             self.num_img_train = spike_times_train.shape[0]
             self.spike_times_test = spike_times_test
@@ -183,6 +182,7 @@ class SDNN:
             self.y_test = y_test
         else:
             self.spike_times_pat_seq = spike_times_pat_seq
+            self.num_img_learn = len(os.listdir(spike_times_pat_seq))
 
         # --------------------------- Output features -------------------#
         self.features_train = []
