@@ -57,7 +57,7 @@ class SDNN:
 
     def __init__(self, network_params, weight_params, stdp_params, total_time, DoG_params=None,
                  spike_times_learn=None, spike_times_train=None, spike_times_test=None,
-                 y_train=None, y_test=None, svm=True, device='GPU'):
+                 y_train=None, y_test=None, svm=True, spike_times_pat_seq=None, device='GPU'):
         """
             Initialisaition of SDNN
 
@@ -97,7 +97,9 @@ class SDNN:
             - spike_times_test: A list of strings with a valid absolute or relative path to the folders with 
                                  the testing .jpg images OR 
                                  An uint8 array with the testing spike times of shape (N_ts, H_in, W_in, M_in). 
-                                 Axis 0 is each of the images   
+                                 Axis 0 is each of the images
+            - spike_times_pat_seq: A string with a valid absolute or relative path to the folders with
+                                 an uint8 array with the spike times of shape (N_ts, H_in, W_in, M_in).
             - DoG_params: None OR A dictionary with the following keys:
                 -'img_size': A tuple of integers with the dimensions to which the images are to be resized 
                 -'DoG_size': An int with the size of the DoG filter window size
@@ -115,6 +117,7 @@ class SDNN:
             self.filt = DoG(DoG_params['DoG_size'], DoG_params['std1'], DoG_params['std2'])
         else:
             self.DoG = False
+            self.img_size = (28, 28)  # Size of the MNIST digit image
 
         # --------------------------- Network Initialisation -------------------#
         # Type of classification
@@ -168,15 +171,17 @@ class SDNN:
             self.num_img_train = self.y_train.size
             self.num_img_test = self.y_test.size
             self.spike_times_train, self.learn_buffer = tee(self.spike_times_train)
-        else:
-            self.spike_times_learn = spike_times_learn
-            self.num_img_learn = spike_times_learn.shape[0]
+        elif self.svm:
+            self.spike_times_learn = None
+            self.num_img_learn = len(os.listdir(spike_times_pat_seq))
             self.spike_times_train = spike_times_train
             self.num_img_train = spike_times_train.shape[0]
             self.spike_times_test = spike_times_test
             self.num_img_test = spike_times_test.shape[0]
             self.y_train = y_train
             self.y_test = y_test
+        else:
+            self.spike_times_pat_seq = spike_times_pat_seq
 
         # --------------------------- Output features -------------------#
         self.features_train = []
@@ -711,13 +716,15 @@ class SDNN:
                                                                                           + ' ('
                                                                                           + str(100 * i / self.max_iter)
                                                                                           + ')'))
+            # Dentro del total de iteraciones veo cuantas le corresponden a cada layer
+            # Me fijo si ya realice todas las iteraciones de este layer
             if self.counter > self.max_learn_iter[self.learning_layer]:
-                self.curr_lay_idx += 1
-                self.learning_layer = self.learnable_layers[self.curr_lay_idx]
-                self.counter = 0
-            self.counter += 1
+                self.curr_lay_idx += 1  # Paso al siguiente layer
+                self.learning_layer = self.learnable_layers[self.curr_lay_idx]  # Magia (nose xq lo hace)
+                self.counter = 0  # Reseteo el contador para este layer
+            self.counter += 1  # Caso contrario aumento el contador
 
-            self.reset_layers()  # Reset all layers for the new image
+            self.reset_layers()  # Reset all layers for the new image/sequence
             if self.DoG:
                 try:
                     path_img = next(self.learn_buffer)
@@ -727,8 +734,11 @@ class SDNN:
                 # Obtengo los spike times
                 st = DoG_filter(path_img, self.filt, self.img_size, self.total_time, self.num_layers)
                 st = np.expand_dims(st, axis=2)
-            else:
+            elif self.svm:
                 st = self.spike_times_learn[self.curr_img, :, :, :, :]  # (Image_number, H, W, M, time) to (H, W, M, time)
+            else:
+                st = np.load(self.spike_times_pat_seq + "seq0.npy")
+                st = np.expand_dims(st, axis=2)
             self.layers[0]['S'] = st  # (H, W, M, time)
             self.train_step()
 
@@ -736,6 +746,7 @@ class SDNN:
                 self.stdp_a_plus[self.learning_layer] = min(2.*self.stdp_a_plus[self.learning_layer], 0.15)
                 self.stdp_a_minus[self.learning_layer] = 0.75*self.stdp_a_plus[self.learning_layer]
 
+            # Miro la cantidad de img/seq que tengo por procesar
             if self.curr_img+1 < self.num_img_learn:
                 self.curr_img += 1
             else:
