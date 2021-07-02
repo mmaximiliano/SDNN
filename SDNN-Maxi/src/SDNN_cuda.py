@@ -1033,7 +1033,7 @@ class SDNN:
                 else:
                     V = self.layers[self.num_layers-1]['V']
                     features = np.max(np.max(V, axis=0), axis=0)
-                self.features_test.append(features)
+                self.features_train.append(features)
             else:
                 if self.network_struc[self.num_layers-1]['Type'] == 'PG_pool':
                     S_0 = np.transpose(np.squeeze(self.layers[self.num_layers-1]['S'][0]))
@@ -1056,7 +1056,7 @@ class SDNN:
                     S = np.transpose(S)
                     S = S.astype(np.float32)
 
-                self.features_test.append(S)
+                self.features_train.append(S)
 
 
             dt = timer() - start
