@@ -17,7 +17,7 @@ import time
 def main():
 
     # Flags
-    learn_SDNN = False  # This flag toggles between Learning STDP and classify features
+    learn_SDNN = True  # This flag toggles between Learning STDP and classify features
                         # or just classify by loading pretrained weights for the face/motor dataset
     SVM = False  # This flag toggles between using a max global pooling + linear SVM classifier
                 # or using a single nueron to detect patterns
@@ -79,7 +79,9 @@ def main():
                          spike_times_train=spike_times_train, spike_times_test=spike_times_test,
                          svm=SVM, device='GPU')
     else:
-        total_time = 15
+        # Seteo Total time de las secuencias
+        # Potencialmente esto hay que cambiarlo, o buscar la forma de automatizarlo
+        total_time = 295  
         network_params = [{'Type': 'input', 'num_filters': 1, 'pad': (0, 0), 'H_layer': 34,
                            'W_layer': 34},
                           {'Type': 'conv', 'num_filters': 4, 'filter_size': 5, 'th': 10.,
