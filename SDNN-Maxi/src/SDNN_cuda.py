@@ -174,6 +174,7 @@ class SDNN:
         elif self.svm:
             self.spike_times_learn = None
             self.num_img_learn = len(os.listdir(spike_times_pat_seq))
+            print(self.num_img_learn)
             self.spike_times_train = spike_times_train
             self.num_img_train = spike_times_train.shape[0]
             self.spike_times_test = spike_times_test
