@@ -746,7 +746,7 @@ class SDNN:
             self.layers[0]['S'] = st  # (H, W, M, time)
             self.train_step()
 
-            if i % 500 == 0:
+            if i % 50 == 0:  # REVISAR CADA CUANTO AJUSTAMOS EL LEARNING
                 self.stdp_a_plus[self.learning_layer] = min(2.*self.stdp_a_plus[self.learning_layer], 0.15)
                 self.stdp_a_minus[self.learning_layer] = 0.75*self.stdp_a_plus[self.learning_layer]
 
