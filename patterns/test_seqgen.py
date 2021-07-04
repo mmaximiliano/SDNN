@@ -34,6 +34,7 @@ train_loader = DataLoader(train_seq, batch_size=1, shuffle=False)
 # Calculate total time
 time = (nframes*len(patt)*qrep) + (10*qsmp*nframes)
 spike_times = np.zeros([34, 34, time]) # Create matrix of spike times
+pat_times = np.zeros(time) # Indicator of the pattern in the sequence
 
 for ts,x,y,p, target, digit in train_loader:
     x = torch.squeeze(x)
@@ -45,7 +46,10 @@ for ts,x,y,p, target, digit in train_loader:
         if p[i]:  # if polarity is positive
             index = (y[i], x[i], ts[i])
             spike_times[index] = 1
+        if target[0]:
+            pat_times[ts[i]] = 1
     print('%s -> sq [ %d, %d ] -> size %d -> t: %d' % (digit[0], ts.min(), ts.max(), 
                                                        ts.shape[0], target[0]))
 
 np.save(path_seq_pat + 'seq_0', spike_times)
+np.save(path_seq_pat + 'pat_i_0', pat_times)
