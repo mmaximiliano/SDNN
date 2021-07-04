@@ -212,7 +212,7 @@ class SDNN:
                 d_tmp['th'] = network_params[i]['th']
                 d_tmp['filter_size'] = network_params[i]['filter_size']
                 d_tmp['num_filters'] = network_params[i]['num_filters']
-                d_tmp['pad'] = np.array([int(floor(d_tmp['filter_size']/2)), int(floor(d_tmp['filter_size']/2))])
+                d_tmp['pad'] = np.array([0, 0])
                 d_tmp['stride'] = 1
                 d_tmp['offset'] = floor(d_tmp['filter_size']/2)
                 d_tmp['H_layer'] = int(1 + floor((self.network_struc[i-1]['H_layer']+2*d_tmp['pad'][0]-d_tmp['filter_size'])/d_tmp['stride']))
@@ -227,7 +227,7 @@ class SDNN:
                 d_tmp['th'] = network_params[i]['th']
                 d_tmp['filter_size'] = network_params[i]['filter_size']
                 d_tmp['num_filters'] = network_params[i]['num_filters']
-                d_tmp['pad'] = [int(floor(d_tmp['filter_size']/2)), int(floor(d_tmp['filter_size']/2))]
+                d_tmp['pad'] = np.array([0, 0])
                 d_tmp['stride'] = network_params[i]['stride']
                 d_tmp['offset'] = floor(d_tmp['filter_size']/2)
                 d_tmp['H_layer'] = int(1 + floor((self.network_struc[i-1]['H_layer']+2*d_tmp['pad'][0]-d_tmp['filter_size'])/d_tmp['stride']))
@@ -1039,6 +1039,8 @@ class SDNN:
                     S_0 = np.transpose(np.squeeze(self.layers[self.num_layers-1]['S'][0]))
                     S_1 = np.transpose(np.squeeze(self.layers[self.num_layers-1]['S'][1]))
                     S = np.concatenate((S_0, S_1), axis=1)
+                elif self.network_struc[self.num_layers-1]['Type'] == 'G_pool':
+                    S = np.transpose(np.squeeze(self.layers[self.num_layers-1]['S']))
                 elif self.network_struc[self.num_layers-1]['Type'] == 'P_conv':
                     S_tmp_0 = self.layers[self.num_layers-1]['S'][0]
                     S_tmp_1 = self.layers[self.num_layers-1]['S'][1]
@@ -1047,9 +1049,8 @@ class SDNN:
                     S_0 = np.transpose(S_0)
                     S_1 = np.transpose(S_1)
                     S = np.concatenate((S_0, S_1), axis=1)
+                    S = S.astype(np.float32)
                     print("S shape from P_conv: " + str(S.shape))
-                elif self.network_struc[self.num_layers-1]['Type'] == 'G_pool':
-                    S = np.transpose(np.squeeze(self.layers[self.num_layers-1]['S']))
                 else:  # If Type = conv
                     S_tmp = self.layers[self.num_layers-1]['S']
                     S = np.reshape(S_tmp, (S_tmp.shape[0]*S_tmp.shape[1]*S_tmp.shape[2], self.total_time))
