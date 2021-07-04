@@ -38,7 +38,7 @@ def main():
         spike_times_train = [path + '/datasets/TrainingSet/Face/', path + '/datasets/TrainingSet/Motor/']
         spike_times_test = [path + '/datasets/TestingSet/Face/', path + '/datasets/TestingSet/Motor/']
     else:
-        spike_times_pat_seq = path + '/datasets/PatternSequences/'
+        spike_times_pat_seq = '../../patterns/sequences/'
 
     # Results directories
     path_set_weights = path + '/results/weights/'
