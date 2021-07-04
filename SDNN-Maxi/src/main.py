@@ -92,7 +92,7 @@ def main():
                           {'Type': 'pool', 'num_filters': 20, 'filter_size': 2, 'th': 0., 'stride': 2},
                           {'Type': 'conv', 'num_filters': 20, 'filter_size': 2, 'th': 2.,
                            'alpha': .95, 'beta': .95, 'delay': 0}]
-        max_learn_iter = [0, 300, 0, 500, 0, 600, 0]
+        max_learn_iter = [0, 30, 0, 50, 0, 60, 0]
         stdp_params = {'max_learn_iter': max_learn_iter,
                        'stdp_per_layer': [0, 10, 0, 4, 0, 2],
                        'max_iter': sum(max_learn_iter),
