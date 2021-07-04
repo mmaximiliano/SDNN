@@ -13,7 +13,7 @@ def spikes_to_evlist(spikes):
     n = np.tile(np.arange(spikes.shape[1]), [spikes.shape[0],1]).T  
     return t[spikes.astype('bool').T], n[spikes.astype('bool').T]
 
-def plotLIF(U, S, Vplot = 'all', staggering= 1, ax1=None, ax2=None, p_len=None, fr=None, th=None, **kwargs):
+def plotLIF(U, S, Vplot = 'all', staggering= 1, ax1=None, ax2=None, pat_times=None, th=None, **kwargs):
     '''
     This function plots the output of the function LIF.
     
@@ -61,9 +61,10 @@ def plotLIF(U, S, Vplot = 'all', staggering= 1, ax1=None, ax2=None, p_len=None, 
         plt.xlabel('time [ms]')
         plt.ylabel('u [au]')
 
-    if p_len is not None:
-      for i in range(0, spikes.shape[0], fr):
-        plt.axvspan(i, i+p_len, facecolor='lightgray')
+    if pat_times is not None:
+      for i in range(0, spikes.shape[0]):
+        if pat_times[i]:
+            plt.axvspan(i, i+1, facecolor='lightgray')
 
     if th is not None:
       plt.hlines(th, 0, spikes.shape[0], 'red', 'dashed')
