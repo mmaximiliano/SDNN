@@ -86,10 +86,10 @@ def main():
         print("ARREGLAR TIME, XQ 1 Neurona solo puede disparar una vez por frame")
         network_params = [{'Type': 'input', 'num_filters': 1, 'pad': (0, 0), 'H_layer': 34,
                            'W_layer': 34},
-                          {'Type': 'conv', 'num_filters': 4, 'filter_size': 3, 'th': 10.,
+                          {'Type': 'conv', 'num_filters': 4, 'filter_size': 5, 'th': 10.,
                            'alpha': .95, 'beta': .95, 'delay': 0},
-                          {'Type': 'pool', 'num_filters': 4, 'filter_size': 4, 'th': 0., 'stride': 2},
-                          {'Type': 'conv', 'num_filters': 20, 'filter_size': 4, 'th': 60.,
+                          {'Type': 'pool', 'num_filters': 4, 'filter_size': 6, 'th': 0., 'stride': 3},
+                          {'Type': 'conv', 'num_filters': 20, 'filter_size': 6, 'th': 60.,
                            'alpha': .95, 'beta': .95, 'delay': 0},
                           {'Type': 'pool', 'num_filters': 20, 'filter_size': 2, 'th': 0., 'stride': 2},
                           {'Type': 'conv', 'num_filters': 20, 'filter_size': 2, 'th': 0.,
