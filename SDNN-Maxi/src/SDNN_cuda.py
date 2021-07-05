@@ -778,7 +778,7 @@ class SDNN:
                 st = np.expand_dims(st, axis=2)
             self.layers[0]['S'] = st  # (H, W, M, time)
             self.train_step()
-            if frame >= 34000:
+            if frame >= 33990:
                 frame = 0
             else:
                 frame += 5
@@ -1070,7 +1070,7 @@ class SDNN:
             self.layers[0]['S'] = st  # (H, W, M, time)
             self.prop_step()
 
-            if frame >= 34000:
+            if frame >= 33990:
                 frame = 0
             else:
                 frame += 5
