@@ -81,7 +81,7 @@ def main():
     else:
         # Seteo Total time de las secuencias
         # Potencialmente esto hay que cambiarlo, o buscar la forma de automatizarlo
-        total_time = 295
+        total_time = 3250
         network_params = [{'Type': 'input', 'num_filters': 1, 'pad': (0, 0), 'H_layer': 34,
                            'W_layer': 34},
                           {'Type': 'conv', 'num_filters': 4, 'filter_size': 5, 'th': 10.,
