@@ -206,7 +206,7 @@ if __name__ == '__main__':
     start = time.time()
     main()
     end = time.time()
-    print("Total Time: " + end-start)
+    print("Total Time: " + str(end-start))
                                                         
 
 

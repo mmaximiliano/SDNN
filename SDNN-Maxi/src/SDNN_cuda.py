@@ -1065,7 +1065,7 @@ class SDNN:
 
 
             dt = timer() - start
-            print("Time: " + dt)
+            print("Time: " + str(dt))
 
         print("------------ Train features Extraction Progress  {}%----------------".format(str(self.num_img_train)
                                                                                             + '/'
