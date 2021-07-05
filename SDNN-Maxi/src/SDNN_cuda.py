@@ -184,7 +184,7 @@ class SDNN:
             self.spike_times_pat_seq = spike_times_pat_seq
             self.num_img_learn = len(listdir(spike_times_pat_seq))
             # Quizas en el futuro esto haya que cambiarlo
-            self.num_img_train = int(3250/5)  # duration of sequences divided by duration of frame = Number of frames
+            self.num_img_train = int(34000/5)  # duration of sequences divided by duration of frame = Number of frames
 
         # --------------------------- Output features -------------------#
         self.features_train = []
@@ -735,8 +735,9 @@ class SDNN:
                 self.counter = 0  # Reseteo el contador para este layer
             self.counter += 1  # Caso contrario aumento el contador
 
-            if not self.svm:
+            if self.svm:
                 self.reset_layers()  # Reset all layers for the new image/frame/sequence
+                
             if self.DoG:
                 try:
                     path_img = next(self.learn_buffer)
@@ -754,7 +755,7 @@ class SDNN:
                 st = np.expand_dims(st, axis=2)
             self.layers[0]['S'] = st  # (H, W, M, time)
             self.train_step()
-            if frame > (3250/5):
+            if frame >= 34000:
                 frame = 0
             else:
                 frame += 5
@@ -1028,8 +1029,9 @@ class SDNN:
 
             start = timer()
 
-            if not self.svm:
+            if self.svm:
                 self.reset_layers()  # Reset all layers for the new image/frame/sequence
+
             if self.DoG:
                 path_img = next(self.spike_times_train)
                 st = DoG_filter(path_img, self.filt, self.img_size, self.total_time, self.num_layers)
@@ -1043,7 +1045,7 @@ class SDNN:
             self.layers[0]['S'] = st  # (H, W, M, time)
             self.prop_step()
 
-            if frame > (3250/5):
+            if frame >= 34000:
                 frame = 0
             else:
                 frame += 5
