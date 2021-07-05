@@ -84,10 +84,10 @@ def main():
         total_time = 3250
         network_params = [{'Type': 'input', 'num_filters': 1, 'pad': (0, 0), 'H_layer': 34,
                            'W_layer': 34},
-                          {'Type': 'conv', 'num_filters': 4, 'filter_size': 5, 'th': 10.,
+                          {'Type': 'conv', 'num_filters': 4, 'filter_size': 5, 'th': 1.,
                            'alpha': .95, 'beta': .95, 'delay': 0},
                           {'Type': 'pool', 'num_filters': 4, 'filter_size': 6, 'th': 0., 'stride': 3},
-                          {'Type': 'conv', 'num_filters': 20, 'filter_size': 6, 'th': 60.,
+                          {'Type': 'conv', 'num_filters': 20, 'filter_size': 6, 'th': 6.,
                            'alpha': .95, 'beta': .95, 'delay': 0},
                           {'Type': 'pool', 'num_filters': 20, 'filter_size': 2, 'th': 0., 'stride': 2},
                           {'Type': 'conv', 'num_filters': 20, 'filter_size': 2, 'th': 2.,
@@ -205,7 +205,7 @@ if __name__ == '__main__':
     start = time.time()
     main()
     end = time.time()
-    print(end-start)
+    print("Total Time: " + end-start)
                                                         
 
 

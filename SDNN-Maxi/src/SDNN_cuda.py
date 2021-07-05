@@ -1065,7 +1065,7 @@ class SDNN:
 
 
             dt = timer() - start
-            print(dt)
+            print("Time: " + dt)
 
         print("------------ Train features Extraction Progress  {}%----------------".format(str(self.num_img_train)
                                                                                             + '/'
@@ -1087,8 +1087,8 @@ class SDNN:
             return X_train, self.y_train
         else:
             Sin = np.concatenate(self.features_train, axis=0)
-            print("Sin Shape:" + str(Sin.shape))
-            print("Sin Spikes:" + str(np.count_nonzero(Sin)))
+            print("Sin Shape: " + str(Sin.shape))
+            print("Sin Spikes: " + str(np.count_nonzero(Sin)))
             # Clear Features
             self.features_train = []
             return Sin
