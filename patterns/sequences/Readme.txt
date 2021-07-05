@@ -1,0 +1,1 @@
+This folder is to store different sequences. The idea is access them by scp due to its weigth.
