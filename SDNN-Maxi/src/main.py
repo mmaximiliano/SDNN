@@ -92,8 +92,8 @@ def main():
                           {'Type': 'conv', 'num_filters': 20, 'filter_size': 6, 'th': 60.,
                            'alpha': .95, 'beta': .95, 'delay': 0},
                           {'Type': 'pool', 'num_filters': 20, 'filter_size': 2, 'th': 0., 'stride': 2},
-                          {'Type': 'conv', 'num_filters': 20, 'filter_size': 2, 'th': 2.,
-                           'alpha': .95, 'beta': .95, 'delay': 0}]
+                          {'Type': 'conv', 'num_filters': 20, 'filter_size': 2, 'th': 1.,
+                           'alpha': 1., 'beta': 1., 'delay': 0}]
         max_learn_iter = [0, 3000, 0, 5000, 0, 6000, 0]
         stdp_params = {'max_learn_iter': max_learn_iter,
                        'stdp_per_layer': [0, 10, 0, 4, 0, 2],
