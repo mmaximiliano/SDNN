@@ -86,15 +86,15 @@ def main():
         print("ARREGLAR TIME, XQ 1 Neurona solo puede disparar una vez por frame")
         network_params = [{'Type': 'input', 'num_filters': 1, 'pad': (0, 0), 'H_layer': 34,
                            'W_layer': 34},
-                          {'Type': 'conv', 'num_filters': 4, 'filter_size': 5, 'th': 10.,
+                          {'Type': 'conv', 'num_filters': 4, 'filter_size': 3, 'th': 10.,
                            'alpha': .95, 'beta': .95, 'delay': 0},
-                          {'Type': 'pool', 'num_filters': 4, 'filter_size': 6, 'th': 0., 'stride': 3},
-                          {'Type': 'conv', 'num_filters': 20, 'filter_size': 6, 'th': 60.,
+                          {'Type': 'pool', 'num_filters': 4, 'filter_size': 4, 'th': 0., 'stride': 2},
+                          {'Type': 'conv', 'num_filters': 20, 'filter_size': 4, 'th': 60.,
                            'alpha': .95, 'beta': .95, 'delay': 0},
                           {'Type': 'pool', 'num_filters': 20, 'filter_size': 2, 'th': 0., 'stride': 2},
                           {'Type': 'conv', 'num_filters': 20, 'filter_size': 2, 'th': 1.,
                            'alpha': 1., 'beta': 1., 'delay': 0}]
-        max_learn_iter = [0, 3000, 0, 5000, 0, 6000, 0]
+        max_learn_iter = [0, 0, 0, 0, 0, 14000, 0]
         stdp_params = {'max_learn_iter': max_learn_iter,
                        'stdp_per_layer': [0, 10, 0, 4, 0, 2],
                        'max_iter': sum(max_learn_iter),
