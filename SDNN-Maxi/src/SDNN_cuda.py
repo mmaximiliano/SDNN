@@ -759,7 +759,7 @@ class SDNN:
             else:
                 frame += 5
 
-            if i % 3 == 0:  # REVISAR CADA CUANTO AJUSTAMOS EL LEARNING
+            if i % 500 == 0:  # REVISAR CADA CUANTO AJUSTAMOS EL LEARNING
                 self.stdp_a_plus[self.learning_layer] = min(2.*self.stdp_a_plus[self.learning_layer], 0.15)
                 self.stdp_a_minus[self.learning_layer] = 0.75*self.stdp_a_plus[self.learning_layer]
 
