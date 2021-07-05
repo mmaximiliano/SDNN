@@ -17,7 +17,7 @@ import time
 def main():
 
     # Flags
-    learn_SDNN = False  # This flag toggles between Learning STDP and classify features
+    learn_SDNN = True  # This flag toggles between Learning STDP and classify features
                         # or just classify by loading pretrained weights for the face/motor dataset
     SVM = False  # This flag toggles between using a max global pooling + linear SVM classifier
                 # or using a single nueron to detect patterns
@@ -86,10 +86,10 @@ def main():
         print("ARREGLAR TIME, XQ 1 Neurona solo puede disparar una vez por frame")
         network_params = [{'Type': 'input', 'num_filters': 1, 'pad': (0, 0), 'H_layer': 34,
                            'W_layer': 34},
-                          {'Type': 'conv', 'num_filters': 4, 'filter_size': 5, 'th': 1.,
+                          {'Type': 'conv', 'num_filters': 4, 'filter_size': 5, 'th': 10.,
                            'alpha': .95, 'beta': .95, 'delay': 0},
                           {'Type': 'pool', 'num_filters': 4, 'filter_size': 6, 'th': 0., 'stride': 3},
-                          {'Type': 'conv', 'num_filters': 20, 'filter_size': 6, 'th': 6.,
+                          {'Type': 'conv', 'num_filters': 20, 'filter_size': 6, 'th': 60.,
                            'alpha': .95, 'beta': .95, 'delay': 0},
                           {'Type': 'pool', 'num_filters': 20, 'filter_size': 2, 'th': 0., 'stride': 2},
                           {'Type': 'conv', 'num_filters': 20, 'filter_size': 2, 'th': 2.,
