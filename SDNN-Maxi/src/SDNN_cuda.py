@@ -394,7 +394,7 @@ class SDNN:
             self.layers.append(d_tmp)
         return
 
-    # Layers reset
+    # Layers reset everything
     def reset_layers(self):
         """
             Reset layers         
@@ -422,6 +422,27 @@ class SDNN:
                 if self.network_struc[i]['Type'] == 'conv':
                     self.layers[i]['I'] = np.zeros((H, W, D)).astype(np.float32)
                     self.layers[i]['C'] = np.zeros((H, W, D)).astype(np.float32)  # Reset delay counter
+                self.layers[i]['K_STDP'] = np.ones((H, W, D)).astype(np.uint8)
+                self.layers[i]['K_inh'] = np.ones((H, W)).astype(np.uint8)
+        return
+
+    # Layers reset only spikes
+    def reset_layers_spikes(self):
+        """
+            Reset layers
+        """
+        for i in range(self.num_layers):
+            H, W, D = self.network_struc[i]['shape']
+            if (self.network_struc[i]['Type'] == 'P_conv') | (self.network_struc[i]['Type'] == 'P_pool') | \
+                    (self.network_struc[i]['Type'] == 'PG_pool'):
+                self.layers[i]['S'] = np.array([np.zeros((H, W, D, self.total_time)).astype(np.uint8),
+                                                np.zeros((H, W, D, self.total_time)).astype(np.uint8)])
+                self.layers[i]['K_STDP'] = np.array([np.ones((H, W, D)).astype(np.uint8),
+                                                     np.ones((H, W, D)).astype(np.uint8)])
+                self.layers[i]['K_inh'] = np.array([np.ones((H, W)).astype(np.uint8),
+                                                    np.ones((H, W)).astype(np.uint8)])
+            else:
+                self.layers[i]['S'] = np.zeros((H, W, D, self.total_time)).astype(np.uint8)
                 self.layers[i]['K_STDP'] = np.ones((H, W, D)).astype(np.uint8)
                 self.layers[i]['K_inh'] = np.ones((H, W)).astype(np.uint8)
         return
@@ -736,7 +757,9 @@ class SDNN:
             self.counter += 1  # Caso contrario aumento el contador
 
             if self.svm:
-                self.reset_layers()  # Reset all layers for the new image/frame/sequence
+                self.reset_layers()  # Reset all layers values for the new image/frame/sequence
+            else:
+                self.reset_layers_spikes()  # Reset all layers spikes for the new image/frame/sequence
                 
             if self.DoG:
                 try:
@@ -1031,6 +1054,8 @@ class SDNN:
 
             if self.svm:
                 self.reset_layers()  # Reset all layers for the new image/frame/sequence
+            else:
+                self.reset_layers_spikes()  # Reset all layers spikes for the new image/frame/sequence
 
             if self.DoG:
                 path_img = next(self.spike_times_train)
