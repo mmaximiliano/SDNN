@@ -184,7 +184,7 @@ class SDNN:
             self.spike_times_pat_seq = spike_times_pat_seq
             self.num_img_learn = len(listdir(spike_times_pat_seq))
             # Quizas en el futuro esto haya que cambiarlo
-            self.num_img_train = 3250/5  # duration of sequences divided by duration of frame = Number of frames
+            self.num_img_train = int(3250/5)  # duration of sequences divided by duration of frame = Number of frames
 
         # --------------------------- Output features -------------------#
         self.features_train = []
