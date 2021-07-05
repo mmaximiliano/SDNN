@@ -612,6 +612,8 @@ class SDNN:
                         else:
                             S_tmp = self.pooling(S_tmp, s, w[p], stride, th[p], blockdim, griddim)
                         self.layers[i]['S'][p][:, :, :, t] = S_tmp
+                if t == 3249:
+                    print("Layer " + str(i) + " spikes: " + str(np.count_nonzero(self.layers[i]['S'])))
 
             # STDP learning
             lay = self.learning_layer
@@ -974,6 +976,8 @@ class SDNN:
                         else:
                             S_tmp = self.pooling(S_tmp, s, w[p], stride, th[p], blockdim, griddim)
                         self.layers[i]['S'][p][:, :, :, t] = S_tmp
+                if t == 3249:
+                    print("Layer " + str(i) + " spikes: " + str(np.count_nonzero(self.layers[i]['S'])))
 
     # Get training features
     def train_features(self):
@@ -1084,6 +1088,7 @@ class SDNN:
         else:
             Sin = np.concatenate(self.features_train, axis=0)
             print("Sin Shape:" + str(Sin.shape))
+            print("Sin Spikes:" + str(np.count_nonzero(Sin)))
             # Clear Features
             self.features_train = []
             return Sin
