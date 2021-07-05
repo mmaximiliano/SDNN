@@ -634,7 +634,7 @@ class SDNN:
                             S_tmp = self.pooling(S_tmp, s, w[p], stride, th[p], blockdim, griddim)
                         self.layers[i]['S'][p][:, :, :, t] = S_tmp
                 if t == (self.total_time-1):
-                    print("Layer " + str(i) + " spikes: " + str(np.count_nonzero(self.layers[i]['S'])))
+                    print("Layer " + str(i) + ' ' + str(self.network_struc[i]['Type']) +" spikes: " + str(np.count_nonzero(self.layers[i]['S'])))
 
             # STDP learning
             lay = self.learning_layer
