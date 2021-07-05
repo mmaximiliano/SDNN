@@ -546,6 +546,11 @@ class SDNN:
                     delay = self.network_struc[i]['delay']
                     C = self.layers[i]['C'][:, :, :]  # Output delay counter before
                     I = self.layers[i]['I'][:, :, :]  # Output voltage before
+                    if (i == 5) & (t == self.total_time-1):
+                        print("I antes:")
+                        print(I)
+                        print("V antes:")
+                        print(V)
 
                     if (self.network_struc[i-1]['Type'] == 'P_conv') | (self.network_struc[i-1]['Type'] == 'P_pool'):
                         V, I, S, C = self.parallel_convolution(S, I, V, C, s[0], s[1], w[0], w[1], stride, th, alpha,
@@ -556,6 +561,12 @@ class SDNN:
                     self.layers[i]['V'][:, :, :] = V
                     self.layers[i]['I'][:, :, :] = I
                     self.layers[i]['C'][:, :, :] = C
+
+                    if (i == 5) & (t == self.total_time-1):
+                        print("I despues:")
+                        print(I)
+                        print("V despues:")
+                        print(V)
 
                     S, K_inh = self.lateral_inh(S, V, K_inh, blockdim, griddim)
                     self.layers[i]['S'][:, :, :, t] = S
@@ -634,7 +645,7 @@ class SDNN:
                             S_tmp = self.pooling(S_tmp, s, w[p], stride, th[p], blockdim, griddim)
                         self.layers[i]['S'][p][:, :, :, t] = S_tmp
                 if t == (self.total_time-1):
-                    print("Layer " + str(i) + ' ' + str(self.network_struc[i]['Type']) +" spikes: " + str(np.count_nonzero(self.layers[i]['S'])))
+                    print("Layer " + str(i) + ' ' + str(self.network_struc[i]['Type']) + " spikes: " + str(np.count_nonzero(self.layers[i]['S'])))
 
             # STDP learning
             lay = self.learning_layer
