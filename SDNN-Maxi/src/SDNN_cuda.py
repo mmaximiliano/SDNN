@@ -184,7 +184,7 @@ class SDNN:
             self.spike_times_pat_seq = spike_times_pat_seq
             self.num_img_learn = len(listdir(spike_times_pat_seq))
             # Quizas en el futuro esto haya que cambiarlo
-            self.num_img_train = 1  # Usamos las misma cantidad de entrenamiento
+            self.num_img_train = 3250/5  # duration of sequences divided by duration of frame = Number of frames
 
         # --------------------------- Output features -------------------#
         self.features_train = []
@@ -612,7 +612,7 @@ class SDNN:
                         else:
                             S_tmp = self.pooling(S_tmp, s, w[p], stride, th[p], blockdim, griddim)
                         self.layers[i]['S'][p][:, :, :, t] = S_tmp
-                if t == 3249:
+                if t == (self.total_time-1):
                     print("Layer " + str(i) + " spikes: " + str(np.count_nonzero(self.layers[i]['S'])))
 
             # STDP learning
@@ -715,6 +715,12 @@ class SDNN:
         print("-----------------------------------------------------------")
         print("-------------------- STARTING LEARNING---------------------")
         print("-----------------------------------------------------------")
+
+        # Levanto la secuencia entera, para luego procesarla de a frames de 5 t
+        if not self.svm:
+            sequence = np.load(self.spike_times_pat_seq + "seq_0.npy")
+            frame = 0
+
         for i in range(self.max_iter):
             print("----------------- Learning Progress  {}%----------------------".format(str(i) + '/'
                                                                                           + str(self.max_iter)
@@ -729,7 +735,8 @@ class SDNN:
                 self.counter = 0  # Reseteo el contador para este layer
             self.counter += 1  # Caso contrario aumento el contador
 
-            self.reset_layers()  # Reset all layers for the new image/sequence
+            if not self.svm:
+                self.reset_layers()  # Reset all layers for the new image/frame/sequence
             if self.DoG:
                 try:
                     path_img = next(self.learn_buffer)
@@ -742,11 +749,15 @@ class SDNN:
             elif self.svm:
                 st = self.spike_times_learn[self.curr_img, :, :, :, :]  # (Image_number, H, W, M, time) to (H, W, M, time)
             else:
-                st = np.load(self.spike_times_pat_seq + "seq_0.npy")
+                st = sequence[:, :, frame:frame+5]  # Agarro un frame de 5 timestep
                 #self.total_time = st.shape[2]  # Seteo como tiempo el largo de la secuencia
                 st = np.expand_dims(st, axis=2)
             self.layers[0]['S'] = st  # (H, W, M, time)
             self.train_step()
+            if frame > (3250/5):
+                frame = 0
+            else:
+                frame += 5
 
             if i % 3 == 0:  # REVISAR CADA CUANTO AJUSTAMOS EL LEARNING
                 self.stdp_a_plus[self.learning_layer] = min(2.*self.stdp_a_plus[self.learning_layer], 0.15)
@@ -976,7 +987,7 @@ class SDNN:
                         else:
                             S_tmp = self.pooling(S_tmp, s, w[p], stride, th[p], blockdim, griddim)
                         self.layers[i]['S'][p][:, :, :, t] = S_tmp
-                if t == 3249:
+                if t == (self.total_time-1):
                     print("Layer " + str(i) + " spikes: " + str(np.count_nonzero(self.layers[i]['S'])))
 
     # Get training features
@@ -1002,6 +1013,12 @@ class SDNN:
         print("-----------------------------------------------------------")
         print("----------- EXTRACTING TRAINING FEATURES ------------------")
         print("-----------------------------------------------------------")
+
+        # Levanto la secuencia entera, para luego procesarla de a frames de 5 t
+        if not self.svm:
+            sequence = np.load(self.spike_times_pat_seq + "seq_0.npy")
+            frame = 0
+
         for i in range(self.num_img_train):
             print("------------ Train features Extraction Progress  {}%----------------".format(str(i) + '/'
                                                                                                 + str(self.num_img_train)
@@ -1011,7 +1028,8 @@ class SDNN:
 
             start = timer()
 
-            self.reset_layers()  # Reset all layers for the new image
+            if not self.svm:
+                self.reset_layers()  # Reset all layers for the new image/frame/sequence
             if self.DoG:
                 path_img = next(self.spike_times_train)
                 st = DoG_filter(path_img, self.filt, self.img_size, self.total_time, self.num_layers)
@@ -1019,11 +1037,16 @@ class SDNN:
             elif self.svm:
                 st = self.spike_times_train[i, :, :, :, :]  # (Image_number, H, W, M, time) to (H, W, M, time)
             else:
-                st = np.load(self.spike_times_pat_seq + "seq_0.npy")
+                st = sequence[:, :, frame:frame+5]  # Agarro un frame de 5 timestep
                 #self.total_time = st.shape[2]  # Seteo como tiempo el largo de la secuencia
                 st = np.expand_dims(st, axis=2)
             self.layers[0]['S'] = st  # (H, W, M, time)
             self.prop_step()
+
+            if frame > (3250/5):
+                frame = 0
+            else:
+                frame += 5
 
             if self.svm:
                 # Obtain maximum potential per map in last layer
