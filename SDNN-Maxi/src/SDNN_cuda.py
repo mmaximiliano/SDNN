@@ -770,7 +770,7 @@ class SDNN:
             if self.svm:
                 self.reset_layers()  # Reset all layers values for the new image/frame/sequence
             else:
-                self.reset_layers_spikes()  # Reset all layers spikes for the new image/frame/sequence
+                self.reset_layers_spikes()  # Reset all spikes for the new image/frame/sequence
                 
             if self.DoG:
                 try:
