@@ -85,12 +85,12 @@ def main():
         seq_frames = 3250/5
         network_params = [{'Type': 'input', 'num_filters': 1, 'pad': (0, 0), 'H_layer': 34,
                            'W_layer': 34},
-                          {'Type': 'conv', 'num_filters': 4, 'filter_size': 3, 'th': 10.,
+                          {'Type': 'conv', 'num_filters': 4, 'filter_size': 2, 'th': 10.,
                            'alpha': .95, 'beta': .95, 'delay': 0},
-                          {'Type': 'pool', 'num_filters': 4, 'filter_size': 4, 'th': 0., 'stride': 2},
-                          {'Type': 'conv', 'num_filters': 20, 'filter_size': 4, 'th': 60.,
+                          {'Type': 'pool', 'num_filters': 4, 'filter_size': 2, 'th': 0., 'stride': 1},
+                          {'Type': 'conv', 'num_filters': 20, 'filter_size': 2, 'th': 60.,
                            'alpha': .95, 'beta': .95, 'delay': 0},
-                          {'Type': 'pool', 'num_filters': 20, 'filter_size': 2, 'th': 0., 'stride': 2},
+                          {'Type': 'pool', 'num_filters': 20, 'filter_size': 2, 'th': 0., 'stride': 1},
                           {'Type': 'conv', 'num_filters': 20, 'filter_size': 2, 'th': 0.,
                            'alpha': 1., 'beta': 1., 'delay': 0}]
         max_learn_iter = [0, 0, 0, 0, 0, 13600, 0]
