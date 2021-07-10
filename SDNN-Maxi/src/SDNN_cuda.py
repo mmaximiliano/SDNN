@@ -274,9 +274,15 @@ class SDNN:
                     self.weights.append(weights_tmp)
                     continue
                 else:
-                    weights_tmp = (mean + std * np.random.normal(size=w_shape))
-                    weights_tmp[weights_tmp >= 1.] = 0.99
-                    weights_tmp[weights_tmp <= 0.] = 0.01
+                    if i == (self.num_layers-1):
+                        print("Pesos maximos para layer " + str(i) + " Type " + str(self.network_struc[i]['Type']))
+                        weights_tmp = (99999 + std * np.random.normal(size=w_shape))
+                        weights_tmp[weights_tmp >= 1.] = 0.99
+                        weights_tmp[weights_tmp <= 0.] = 0.01
+                    else:
+                        weights_tmp = (mean + std * np.random.normal(size=w_shape))
+                        weights_tmp[weights_tmp >= 1.] = 0.99
+                        weights_tmp[weights_tmp <= 0.] = 0.01
             elif self.network_struc[i]['Type'] == 'P_conv':
                 weights_tmp_0 = (mean + std * np.random.normal(size=w_shape))
                 weights_tmp_0[weights_tmp_0 >= 1.] = 0.99
