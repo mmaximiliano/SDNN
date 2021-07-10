@@ -19,10 +19,10 @@ path_seq_pat = path + '/sequences/'
 pan_functions.seed_torch(seed=0)
 
 # parameters of the dataset - this are only have the purpose of testing - use defaults
-nframes=5 # number of frames to divide the event stream
+nframes=10 # number of frames to divide the event stream
 patt=[1,2,3] # pattern to copy throught the sequence
-qsmp=500 # number of samples of each digit to include in the sequence
-qrep=600 # number of times the patter is repeated on the sequence
+qsmp=250 # number of samples of each digit to include in the sequence
+qrep=330 # number of times the patter is repeated on the sequence
 
 train_seq = pan_functions.seqPatternNMNIST(root=root_dataset,nframes=nframes, 
                       patt=patt, qsmp=qsmp, qrep=qrep)
@@ -33,6 +33,8 @@ train_loader = DataLoader(train_seq, batch_size=1, shuffle=False)
 
 # Calculate total time
 time = (nframes*len(patt)*qrep) + (10*qsmp*nframes)
+print(str(time))
+
 spike_times = np.zeros([34, 34, time]) # Create matrix of spike times
 pat_times = np.zeros(time) # Indicator of the pattern in the sequence
 
