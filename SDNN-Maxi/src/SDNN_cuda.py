@@ -565,7 +565,7 @@ class SDNN:
                         V, I, S, C = self.parallel_convolution(S, I, V, C, s[0], s[1], w[0], w[1], stride, th, alpha,
                                                                beta, delay, blockdim, griddim)
                     else:
-                        V, I, S, C = self.convolution(S, I, V, C, s, w, stride, th, alpha, beta, delay,
+                        V, I, S, C = self.convolution(S, I, V, C, s, w, stride, 0., alpha, beta, delay,
                                                       blockdim, griddim)
                     self.layers[i]['V'][:, :, :] = V
                     self.layers[i]['I'][:, :, :] = I
