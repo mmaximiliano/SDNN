@@ -795,7 +795,7 @@ class SDNN:
             elif self.svm:
                 st = self.spike_times_learn[self.curr_img, :, :, :, :]  # (Image_number, H, W, M, time) to (H, W, M, time)
             else:
-                st = sequence[:, :, frame:frame+5]  # Agarro un frame de 5 timestep
+                st = sequence[:, :, frame:frame+10]  # Agarro un frame de 10 timestep
                 #self.total_time = st.shape[2]  # Seteo como tiempo el largo de la secuencia
                 st = np.expand_dims(st, axis=2)
             self.layers[0]['S'] = st  # (H, W, M, time)
@@ -803,7 +803,7 @@ class SDNN:
             if frame >= 33990:
                 frame = 0
             else:
-                frame += 5
+                frame += 10
 
             if i % 500 == 0:  # REVISAR CADA CUANTO AJUSTAMOS EL LEARNING
                 self.stdp_a_plus[self.learning_layer] = min(2.*self.stdp_a_plus[self.learning_layer], 0.15)
