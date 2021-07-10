@@ -576,8 +576,8 @@ class SDNN:
                               " spikes: " + str(np.count_nonzero(self.layers[i - 1]['S'][:, :, :, :])))
                         #print("I despues:")
                         #print(I)
-                        print("V despues:")
-                        print(V)
+                        #print("V despues:")
+                        #print(V)
 
                     S, K_inh = self.lateral_inh(S, V, K_inh, blockdim, griddim)
                     self.layers[i]['S'][:, :, :, t] = S
