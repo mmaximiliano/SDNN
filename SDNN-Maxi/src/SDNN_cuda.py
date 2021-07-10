@@ -284,7 +284,7 @@ class SDNN:
                         weights_tmp[weights_tmp >= 1.] = 0.99
                         weights_tmp[weights_tmp <= 0.] = 0.01
             elif self.network_struc[i]['Type'] == 'P_conv':
-                weights_tmp_0 = (mean + std * np.random.normal(size=w_shape))
+                weights_tmp_0 = (mean + std * np.random.normal(w_shape))
                 weights_tmp_0[weights_tmp_0 >= 1.] = 0.99
                 weights_tmp_0[weights_tmp_0 <= 0.] = 0.01
 
