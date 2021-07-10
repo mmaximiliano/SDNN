@@ -366,6 +366,9 @@ class SDNN:
                         S, K_inh = self.lateral_inh(S, V, K_inh, blockdim, griddim)
                         self.layers[i]['S'][:, :, :, t] = S
                         self.layers[i]['K_inh'] = K_inh
+                        
+                if t == (self.total_time-1):
+                    print("Layer " + str(i) + ' ' + str(self.network_struc[i]['Type']) + " spikes: " + str(np.count_nonzero(self.layers[i]['S'])))
 
             # STDP learning
             lay = self.learning_layer
