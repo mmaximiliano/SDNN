@@ -92,21 +92,16 @@ def main():
                            'alpha': .95, 'beta': .95, 'delay': 0},
                           {'Type': 'pool', 'num_filters': 20, 'filter_size': 2, 'th': 0., 'stride': 1},
                           {'Type': 'conv', 'num_filters': 20, 'filter_size': 2, 'th': 0.,
-                           'alpha': 1., 'beta': 1., 'delay': 0},
-                          {'Type': 'pool', 'num_filters': 20, 'filter_size': 2, 'th': 0., 'stride': 1},
-                          {'Type': 'conv', 'num_filters': 20, 'filter_size': 2, 'th': 0.,
                            'alpha': 1., 'beta': 1., 'delay': 0}]
-        max_learn_iter = [0, 0, 0, 0, 0, 0, 0, 13600, 0]
+        max_learn_iter = [0, 0, 0, 0, 0, 13600, 0]
         stdp_params = {'max_learn_iter': max_learn_iter,
-                       'stdp_per_layer': [0, 10, 0, 4, 0, 2, 0, 2],
+                       'stdp_per_layer': [0, 10, 0, 4, 0, 2],
                        'max_iter': sum(max_learn_iter),
-                       'a_minus': np.array([0, .003, 0, .0003, 0, .0003, 0, .0003], dtype=np.float32),
-                       'a_plus': np.array([0, .004, 0, .0004, 0, .0004, 0, .0004], dtype=np.float32),
+                       'a_minus': np.array([0, .003, 0, .0003, 0, .0003], dtype=np.float32),
+                       'a_plus': np.array([0, .004, 0, .0004, 0, .0004], dtype=np.float32),
                        'offset_STDP': [0, floor(network_params[1]['filter_size']),
                                        0,
                                        floor(network_params[3]['filter_size']/8),
-                                       0,
-                                       floor(network_params[5]['filter_size']),
                                        0,
                                        floor(network_params[5]['filter_size'])]}
         weight_params = {'mean': 0.8, 'std': 0.01}
