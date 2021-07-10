@@ -554,6 +554,8 @@ class SDNN:
                     C = self.layers[i]['C'][:, :, :]  # Output delay counter before
                     I = self.layers[i]['I'][:, :, :]  # Output voltage before
                     if (i == 5) & (t == self.total_time-1):
+                        print("Layer anterior (pre) " + str(i-1) + ' ' + str(self.network_struc[i-1]['Type']) +
+                              " spikes: " + str(np.count_nonzero(self.layers[i - 1]['S'][:, :, :, :])))
                         print("I antes:")
                         #print(I)
                         print("V antes:")
@@ -570,7 +572,8 @@ class SDNN:
                     self.layers[i]['C'][:, :, :] = C
 
                     if (i == 5) & (t == self.total_time-1):
-                        print("Layer anterior" + str(i-1) + ' ' + str(self.network_struc[i-1]['Type']) + " spikes: " + str(np.count_nonzero(s)))
+                        print("Layer anterior (post) " + str(i-1) + ' ' + str(self.network_struc[i-1]['Type']) +
+                              " spikes: " + str(np.count_nonzero(self.layers[i - 1]['S'][:, :, :, :])))
                         print("I despues:")
                         #print(I)
                         print("V despues:")
