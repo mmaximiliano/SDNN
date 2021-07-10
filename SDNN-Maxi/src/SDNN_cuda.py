@@ -260,6 +260,8 @@ class SDNN:
             MM = self.network_struc[i - 1]['num_filters']
             DD = self.network_struc[i]['num_filters']
             w_shape = (HH, WW, MM, DD)
+            if i == (self.num_layers-1):
+                print("Last layer is " + str(i) + " Type " + str(self.network_struc[i]['Type']))
             if self.network_struc[i]['Type'] == 'conv':
                 if self.network_struc[i-1]['Type'] == 'P_pool':
                     weights_tmp_0 = (mean + std * np.random.normal(size=w_shape))
@@ -554,9 +556,9 @@ class SDNN:
                     I = self.layers[i]['I'][:, :, :]  # Output voltage before
                     if (i == 5) & (t == self.total_time-1):
                         print("I antes:")
-                        print(I)
+                        #print(I)
                         print("V antes:")
-                        print(V)
+                        #print(V)
 
                     if (self.network_struc[i-1]['Type'] == 'P_conv') | (self.network_struc[i-1]['Type'] == 'P_pool'):
                         V, I, S, C = self.parallel_convolution(S, I, V, C, s[0], s[1], w[0], w[1], stride, th, alpha,
@@ -570,9 +572,9 @@ class SDNN:
 
                     if (i == 5) & (t == self.total_time-1):
                         print("I despues:")
-                        print(I)
+                        #print(I)
                         print("V despues:")
-                        print(V)
+                        #print(V)
 
                     S, K_inh = self.lateral_inh(S, V, K_inh, blockdim, griddim)
                     self.layers[i]['S'][:, :, :, t] = S
