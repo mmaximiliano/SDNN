@@ -260,8 +260,6 @@ class SDNN:
             MM = self.network_struc[i - 1]['num_filters']
             DD = self.network_struc[i]['num_filters']
             w_shape = (HH, WW, MM, DD)
-            if i == (self.num_layers-1):
-                print("Last layer is " + str(i) + " Type " + str(self.network_struc[i]['Type']))
             if self.network_struc[i]['Type'] == 'conv':
                 if self.network_struc[i-1]['Type'] == 'P_pool':
                     weights_tmp_0 = (mean + std * np.random.normal(size=w_shape))
@@ -278,7 +276,7 @@ class SDNN:
                 else:
                     if i == (self.num_layers-1):
                         print("Pesos maximos para layer " + str(i) + " Type " + str(self.network_struc[i]['Type']))
-                        weights_tmp = (99999 + std * np.random.normal(size=w_shape))
+                        weights_tmp = (99999 + std * np.ones(size=w_shape))
                         weights_tmp[weights_tmp >= 1.] = 0.99
                         weights_tmp[weights_tmp <= 0.] = 0.01
                     else:
