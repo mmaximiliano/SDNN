@@ -1079,7 +1079,7 @@ class SDNN:
             elif self.svm:
                 st = self.spike_times_train[i, :, :, :, :]  # (Image_number, H, W, M, time) to (H, W, M, time)
             else:
-                st = sequence[:, :, frame:frame+5]  # Agarro un frame de 5 timestep
+                st = sequence[:, :, frame:frame+10]  # Agarro un frame de 5 timestep
                 #self.total_time = st.shape[2]  # Seteo como tiempo el largo de la secuencia
                 st = np.expand_dims(st, axis=2)
             self.layers[0]['S'] = st  # (H, W, M, time)
@@ -1088,7 +1088,7 @@ class SDNN:
             if frame >= 33990:
                 frame = 0
             else:
-                frame += 5
+                frame += 10
 
             if self.svm:
                 # Obtain maximum potential per map in last layer
