@@ -85,25 +85,20 @@ def main():
         seq_frames = 3250/5
         network_params = [{'Type': 'input', 'num_filters': 1, 'pad': (0, 0), 'H_layer': 34,
                            'W_layer': 34},
-                          {'Type': 'conv', 'num_filters': 4, 'filter_size': 3, 'th': 10.,
+                          {'Type': 'conv', 'num_filters': 4, 'filter_size': 5, 'th': 10.,
                            'alpha': .95, 'beta': .95, 'delay': 0},
-                          {'Type': 'pool', 'num_filters': 4, 'filter_size': 4, 'th': 0., 'stride': 2},
-                          {'Type': 'conv', 'num_filters': 20, 'filter_size': 4, 'th': 60.,
-                           'alpha': .95, 'beta': .95, 'delay': 0},
-                          {'Type': 'pool', 'num_filters': 20, 'filter_size': 2, 'th': 0., 'stride': 2},
-                          {'Type': 'conv', 'num_filters': 20, 'filter_size': 2, 'th': 0.,
-                           'alpha': 1., 'beta': 1., 'delay': 0}]
-        max_learn_iter = [0, 0, 0, 0, 0, 13600, 0]
+                          {'Type': 'pool', 'num_filters': 4, 'filter_size': 6, 'th': 0., 'stride': 3},
+                          {'Type': 'conv', 'num_filters': 20, 'filter_size': 6, 'th': 60.,
+                           'alpha': .95, 'beta': .95, 'delay': 0}]
+        max_learn_iter = [0, 1745, 0, 1745, 0]
         stdp_params = {'max_learn_iter': max_learn_iter,
-                       'stdp_per_layer': [0, 10, 0, 4, 0, 2],
+                       'stdp_per_layer': [0, 10, 0, 4],
                        'max_iter': sum(max_learn_iter),
-                       'a_minus': np.array([0, .003, 0, .0003, 0, .0003], dtype=np.float32),
-                       'a_plus': np.array([0, .004, 0, .0004, 0, .0004], dtype=np.float32),
+                       'a_minus': np.array([0, .003, 0, .0003], dtype=np.float32),
+                       'a_plus': np.array([0, .004, 0, .0004], dtype=np.float32),
                        'offset_STDP': [0, floor(network_params[1]['filter_size']),
                                        0,
-                                       floor(network_params[3]['filter_size']/8),
-                                       0,
-                                       floor(network_params[5]['filter_size'])]}
+                                       floor(network_params[3]['filter_size']/8)]}
         weight_params = {'mean': 0.8, 'std': 0.01}
 
         # Create network

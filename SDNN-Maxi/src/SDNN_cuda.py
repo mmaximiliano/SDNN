@@ -274,16 +274,9 @@ class SDNN:
                     self.weights.append(weights_tmp)
                     continue
                 else:
-                    if i == (self.num_layers-1):
-                        print("Pesos maximos para layer " + str(i) + " Type " + str(self.network_struc[i]['Type']))
-                        weights_tmp = (99999 + std * np.ones(w_shape))
-                        weights_tmp[weights_tmp >= 1.] = 0.99
-                        weights_tmp[weights_tmp <= 0.] = 0.01
-                        print(weights_tmp)
-                    else:
-                        weights_tmp = (mean + std * np.random.normal(size=w_shape))
-                        weights_tmp[weights_tmp >= 1.] = 0.99
-                        weights_tmp[weights_tmp <= 0.] = 0.01
+                    weights_tmp = (mean + std * np.random.normal(size=w_shape))
+                    weights_tmp[weights_tmp >= 1.] = 0.99
+                    weights_tmp[weights_tmp <= 0.] = 0.01
             elif self.network_struc[i]['Type'] == 'P_conv':
                 weights_tmp_0 = (mean + std * np.random.normal(size=w_shape))
                 weights_tmp_0[weights_tmp_0 >= 1.] = 0.99
@@ -553,9 +546,9 @@ class SDNN:
                     delay = self.network_struc[i]['delay']
                     C = self.layers[i]['C'][:, :, :]  # Output delay counter before
                     I = self.layers[i]['I'][:, :, :]  # Output voltage before
-                    if (i == 5) & (t == self.total_time-1):
-                        print("Layer anterior (pre) " + str(i-1) + ' ' + str(self.network_struc[i-1]['Type']) +
-                              " spikes: " + str(np.count_nonzero(self.layers[i - 1]['S'][:, :, :, :])))
+                    #if (i == 5) & (t == self.total_time-1):
+                    #    print("Layer anterior (pre) " + str(i-1) + ' ' + str(self.network_struc[i-1]['Type']) +
+                    #          " spikes: " + str(np.count_nonzero(self.layers[i - 1]['S'][:, :, :, :])))
                         #print("I antes:")
                         #print(I)
                         #print("V antes:")
@@ -571,9 +564,9 @@ class SDNN:
                     self.layers[i]['I'][:, :, :] = I
                     self.layers[i]['C'][:, :, :] = C
 
-                    if (i == 5) & (t == self.total_time-1):
-                        print("Layer anterior (post) " + str(i-1) + ' ' + str(self.network_struc[i-1]['Type']) +
-                              " spikes: " + str(np.count_nonzero(self.layers[i - 1]['S'][:, :, :, :])))
+                    #if (i == 5) & (t == self.total_time-1):
+                    #    print("Layer anterior (post) " + str(i-1) + ' ' + str(self.network_struc[i-1]['Type']) +
+                    #          " spikes: " + str(np.count_nonzero(self.layers[i - 1]['S'][:, :, :, :])))
                         #print("I despues:")
                         #print(I)
                         #print("V despues:")
