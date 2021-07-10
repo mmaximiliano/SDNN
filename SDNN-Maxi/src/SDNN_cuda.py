@@ -567,7 +567,7 @@ class SDNN:
                     else:
                         V, I, S, C = self.convolution(S, I, V, C, s, w, stride, th, alpha, beta, delay,
                                                       blockdim, griddim)
-                    self.layers[i]['V'][:, :, :] = V + 1
+                    self.layers[i]['V'][:, :, :] = V
                     self.layers[i]['I'][:, :, :] = I
                     self.layers[i]['C'][:, :, :] = C
 

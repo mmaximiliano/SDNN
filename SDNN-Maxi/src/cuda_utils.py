@@ -54,6 +54,7 @@ def conv_step(S, I, V, C, s, w, stride, th, alpha, beta, delay):
             S[idx, idy, idz] = 0
     else:
         S[idx, idy, idz] = 0
+    S[idx, idy, idz] = 1
 
 @cuda.jit((uint8[:, :, :], float32[:, :, :], float32[:, :, :], float32[:, :, :], uint8[:, :, :], uint8[:, :, :],
            float32[:, :, :, :], float32[:, :, :, :], uint32, float32, float32, float32, uint32))
