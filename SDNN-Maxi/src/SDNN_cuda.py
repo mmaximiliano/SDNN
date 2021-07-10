@@ -556,7 +556,6 @@ class SDNN:
                     if (i == 5) & (t == self.total_time-1):
                         print("Layer anterior (pre) " + str(i-1) + ' ' + str(self.network_struc[i-1]['Type']) +
                               " spikes: " + str(np.count_nonzero(self.layers[i - 1]['S'][:, :, :, :])))
-                        print(w)
                         #print("I antes:")
                         #print(I)
                         #print("V antes:")
@@ -577,8 +576,8 @@ class SDNN:
                               " spikes: " + str(np.count_nonzero(self.layers[i - 1]['S'][:, :, :, :])))
                         #print("I despues:")
                         #print(I)
-                        #print("V despues:")
-                        #print(V)
+                        print("V despues:")
+                        print(V)
 
                     S, K_inh = self.lateral_inh(S, V, K_inh, blockdim, griddim)
                     self.layers[i]['S'][:, :, :, t] = S
