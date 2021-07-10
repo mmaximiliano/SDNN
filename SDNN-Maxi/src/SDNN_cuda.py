@@ -570,6 +570,7 @@ class SDNN:
                     self.layers[i]['C'][:, :, :] = C
 
                     if (i == 5) & (t == self.total_time-1):
+                        print("Layer anterior" + str(i-1) + ' ' + str(self.network_struc[i-1]['Type']) + " spikes: " + str(np.count_nonzero(s)))
                         print("I despues:")
                         #print(I)
                         print("V despues:")

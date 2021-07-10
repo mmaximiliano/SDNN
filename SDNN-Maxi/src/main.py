@@ -83,7 +83,6 @@ def main():
         # Potencialmente esto hay que cambiarlo, o buscar la forma de automatizarlo
         total_time = 5
         seq_frames = 3250/5
-        print("ARREGLAR TIME, XQ 1 Neurona solo puede disparar una vez por frame")
         network_params = [{'Type': 'input', 'num_filters': 1, 'pad': (0, 0), 'H_layer': 34,
                            'W_layer': 34},
                           {'Type': 'conv', 'num_filters': 4, 'filter_size': 3, 'th': 10.,
