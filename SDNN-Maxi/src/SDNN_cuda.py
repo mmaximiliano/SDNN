@@ -763,7 +763,7 @@ class SDNN:
             # Me fijo si ya realice todas las iteraciones de este layer
             if self.counter > self.max_learn_iter[self.learning_layer]:
                 self.curr_lay_idx += 1  # Paso al siguiente layer
-                self.learning_layer = self.learnable_layers[self.curr_lay_idx]  # Magia (nose xq lo hace)
+                self.learning_layer = self.learnable_layers[self.curr_lay_idx]  # Actualizo el learning layer actual
                 self.counter = 0  # Reseteo el contador para este layer
             self.counter += 1  # Caso contrario aumento el contador
 
