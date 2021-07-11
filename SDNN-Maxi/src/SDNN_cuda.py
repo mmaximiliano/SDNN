@@ -183,8 +183,9 @@ class SDNN:
         else:
             self.spike_times_pat_seq = spike_times_pat_seq
             self.num_img_learn = len(listdir(spike_times_pat_seq))
-            # Quizas en el futuro esto haya que cambiarlo
-            self.num_img_train = int(34000/5)  # duration of sequences divided by duration of frame = Number of frames
+            self.sequence = np.load(self.spike_times_pat_seq + "seq_0.npy")
+            # duration of sequences divided by duration of frame = Number of frames
+            self.num_img_train = int(self.sequence.shape[2]/self.total_time)
 
         # --------------------------- Output features -------------------#
         self.features_train = []
@@ -752,9 +753,8 @@ class SDNN:
         print("-------------------- STARTING LEARNING---------------------")
         print("-----------------------------------------------------------")
 
-        # Levanto la secuencia entera, para luego procesarla de a frames de 5 t
+        # Levanto la secuencia entera, para luego procesarla de a frames de total_time
         if not self.svm:
-            sequence = np.load(self.spike_times_pat_seq + "seq_0.npy")
             frame = 0
 
         for i in range(self.max_iter):
@@ -788,15 +788,14 @@ class SDNN:
             elif self.svm:
                 st = self.spike_times_learn[self.curr_img, :, :, :, :]  # (Image_number, H, W, M, time) to (H, W, M, time)
             else:
-                st = sequence[:, :, frame:frame+10]  # Agarro un frame de 10 timestep
-                #self.total_time = st.shape[2]  # Seteo como tiempo el largo de la secuencia
+                st = self.sequence[:, :, frame:frame+self.total_time]  # Agarro un frame de 10 timestep
                 st = np.expand_dims(st, axis=2)
             self.layers[0]['S'] = st  # (H, W, M, time)
             self.train_step()
-            if frame >= 33990:
+            if frame >= (self.sequence.shape[2] - (2*self.total_time)):
                 frame = 0
             else:
-                frame += 10
+                frame += self.total_time
 
             if i % 500 == 0:  # REVISAR CADA CUANTO AJUSTAMOS EL LEARNING
                 self.stdp_a_plus[self.learning_layer] = min(2.*self.stdp_a_plus[self.learning_layer], 0.15)
@@ -1055,7 +1054,6 @@ class SDNN:
 
         # Levanto la secuencia entera, para luego procesarla de a frames de 5 t
         if not self.svm:
-            sequence = np.load(self.spike_times_pat_seq + "seq_0.npy")
             frame = 0
 
         for i in range(self.num_img_train):
@@ -1079,16 +1077,15 @@ class SDNN:
             elif self.svm:
                 st = self.spike_times_train[i, :, :, :, :]  # (Image_number, H, W, M, time) to (H, W, M, time)
             else:
-                st = sequence[:, :, frame:frame+10]  # Agarro un frame de 5 timestep
-                #self.total_time = st.shape[2]  # Seteo como tiempo el largo de la secuencia
+                st = self.sequence[:, :, frame:frame+self.total_time]  # Agarro un frame de 10 timestep
                 st = np.expand_dims(st, axis=2)
             self.layers[0]['S'] = st  # (H, W, M, time)
             self.prop_step()
 
-            if frame >= 33990:
+            if frame >= (self.sequence.shape[2] - (2*self.total_time)):
                 frame = 0
             else:
-                frame += 10
+                frame += self.total_time
 
             if self.svm:
                 # Obtain maximum potential per map in last layer
