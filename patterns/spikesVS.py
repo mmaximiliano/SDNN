@@ -34,16 +34,15 @@ sequence = sequence.numpy()
 sequence = np.transpose(sequence)
 sequence = np.reshape(sequence, (height, width, depth, sequence.shape[1]))
 
-# Elijo un mapa de activacion (El primero)
-sequence = np.squeeze(sequence[:,:,:1, :])
-
-# Obtengo los indices de los spikes
-sequence = np.argwhere(sequence>0)
-
-# Le doy formato para mostrar el frame
+# Obtengo los mapas de activacion
 data = []
-for s in sequence:
-	data.append( (s[0], s[1], 1, s[2]) )
+for i in range(depth):
+	activation_map = np.squeeze(sequence[:,:,i:i+1, :])
+	# Obtengo los indices de los spikes
+	activation_map = np.argwhere(activation_map>0)
+	# Le doy formato para mostrar el frame
+	for m in activation_map:
+		data.append( (m[0], m[1], 1, m[2]) )
 
 data = np.array(data, np.dtype('uint16, uint16, uint8, uint64'))
 
