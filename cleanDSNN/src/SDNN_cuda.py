@@ -6,7 +6,6 @@ from itertools import chain, tee
 from numba import cuda
 from cuda_utils import *
 from DoG_filt_cuda import *
-from cpu_utils import *
 
 from timeit import default_timer as timer
 
@@ -707,39 +706,3 @@ class SDNN:
         d_w.copy_to_host(w_out)
         d_K_STDP.copy_to_host(K_STDP_out)
         return w_out, K_STDP_out
-
-
-# --------------------------- CPU interfacing functions ------------------------#
-    def convolution_CPU(self, S, V, s, w, stride, th):
-        """
-            CPU Convolution Function call
-            Returns the updated potentials and spike times
-        """
-        V_out, S_out = conv_step_CPU(S, V, s, w, stride, th)
-        return V_out, S_out
-
-    def lateral_inh_CPU(self, S, V, K_inh):
-        """
-            CPU Lateral Inhibition Function call
-            Returns the updated spike times and inhibition matrix
-        """
-        S_out, K_inh_out = lateral_inh_CPU(S, V, K_inh)
-        return S_out, K_inh_out
-
-    def pooling_CPU(self, S, s, w, stride, th):
-        """
-            CPU Pooling Function call
-            Returns the updated spike times
-        """
-        S_out = pool_CPU(S, s, w, stride, th)
-        return S_out
-
-    def STDP_CPU(self, S_sz, s, w, K_STDP, maxval, maxind1, maxind2, stride, offset, a_minus, a_plus):
-            """
-                CPU STDP-Update Function call
-                Returns the updated weight and STDP allowed matrix
-            """
-            w_out, K_STDP_out = STDP_learning_CPU(S_sz, s, w, K_STDP,  # Input arrays
-                                             maxval, maxind1, maxind2,  # Indices
-                                             stride, int(offset), a_minus, a_plus)  # Parameters
-            return w_out, K_STDP_out
