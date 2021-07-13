@@ -333,7 +333,7 @@ class SDNN:
 
 # --------------------------- STDP Learning functions ------------------------#
     # Propagate and STDP once
-    def train_step(self, nlayer, stdp=True):
+    def prop_step(self, nlayer, stdp=True):
         """
             Propagates one image through the SDNN network and carries out the STDP update on the learning layer
         """
@@ -457,7 +457,7 @@ class SDNN:
             else:
                 st = self.spike_times_learn[self.curr_img, :, :, :, :]  # (Image_number, H, W, M, time) to (H, W, M, time)
             self.layers[0]['S'] = st  # (H, W, M, time)
-            self.train_step(nlayer=self.learning_layer+1, stdp=True)
+            self.prop_step(nlayer=self.learning_layer+1, stdp=True)
 
             if i % 500 == 0:
                 self.stdp_a_plus[self.learning_layer] = min(2.*self.stdp_a_plus[self.learning_layer], 0.15)
@@ -555,7 +555,7 @@ class SDNN:
             self.layers[0]['S'] = st  # (H, W, M, time)
             # Propagates one image through the SDNN network.
             # Here no STDP takes place and we always reach the last layer.
-            self.train_step(nlayer=self.num_layers, stdp=True)
+            self.prop_step(nlayer=self.num_layers, stdp=True)
 
             # Obtain maximum potential per map in last layer
             V = self.layers[self.num_layers-1]['V']
@@ -614,7 +614,7 @@ class SDNN:
             self.layers[0]['S'] = st  # (H, W, M, time)
             # Propagates one image through the SDNN network.
             # Here no STDP takes place and we always reach the last layer.
-            self.train_step(nlayer=self.num_layers, stdp=True)
+            self.prop_step(nlayer=self.num_layers, stdp=True)
 
             # Obtain maximum potential per map in last layer
             V = self.layers[self.num_layers-1]['V']
