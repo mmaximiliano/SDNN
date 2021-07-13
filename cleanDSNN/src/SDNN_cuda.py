@@ -521,57 +521,6 @@ class SDNN:
         return maxval, maxind1, maxind2
 
 # --------------------------- Propagation functions ------------------------#
-    # Propagate once
-    def prop_step(self):
-        """
-            Propagates one image through the SDNN network. 
-            This function is identical to train_step() but here no STDP takes place and we always reach the last layer
-        """
-
-        # Propagate
-        for t in range(1, self.total_time):
-            for i in range(1, self.num_layers):
-                H, W, D = self.network_struc[i]['shape']
-                H_pad, W_pad = self.network_struc[i]['pad']
-                stride = self.network_struc[i]['stride']
-                th = self.network_struc[i]['th']
-
-                w = self.weights[i-1]
-                s = self.layers[i - 1]['S'][:, :, :, t - 1]  # Input spikes
-                s = np.pad(s, ((H_pad, H_pad), (W_pad, W_pad), (0, 0)), mode='constant')  # Pad the input
-                S = self.layers[i]['S'][:, :, :, t]  # Output spikes
-                V = self.layers[i]['V'][:, :, :, t - 1]  # Output voltage before
-                K_inh = self.layers[i]['K_inh']  # Lateral inhibition matrix
-
-                blockdim = (self.thds_per_dim, self.thds_per_dim, self.thds_per_dim)
-                griddim = (int(ceil(H / blockdim[0])) if int(ceil(H / blockdim[2])) != 0 else 1,
-                           int(ceil(W / blockdim[1])) if int(ceil(W / blockdim[2])) != 0 else 1,
-                           int(ceil(D / blockdim[2])) if int(ceil(D / blockdim[2])) != 0 else 1)
-
-                if self.network_struc[i]['Type'] == 'conv':
-                    alpha = self.network_struc[i]['alpha']
-                    beta = self.network_struc[i]['beta']
-                    delay = self.network_struc[i]['delay']
-                    C = self.layers[i]['C'][:, :, :]  # Output delay counter before
-                    I = self.layers[i]['I'][:, :, :, t - 1]  # Output voltage before
-                    V, I, S, C = self.convolution(S, I, V, C, s, w, stride, th, alpha, beta, delay, blockdim, griddim)
-
-                    self.layers[i]['V'][:, :, :, t] = V
-                    self.layers[i]['I'][:, :, :, t] = I
-                    self.layers[i]['C'][:, :, :] = C
-
-                    S, K_inh = self.lateral_inh(S, V, K_inh, blockdim, griddim)
-                    self.layers[i]['S'][:, :, :, t] = S
-                    self.layers[i]['K_inh'] = K_inh
-
-                elif self.network_struc[i]['Type'] == 'pool':
-                    S = self.pooling(S, s, w, stride, th, blockdim, griddim)
-                    self.layers[i]['S'][:, :, :, t] = S
-
-                    if i < 3:
-                        S, K_inh = self.lateral_inh(S, V, K_inh, blockdim, griddim)
-                        self.layers[i]['S'][:, :, :, t] = S
-                        self.layers[i]['K_inh'] = K_inh
 
     # Get training features
     def train_features(self):
@@ -604,6 +553,8 @@ class SDNN:
             else:
                 st = self.spike_times_train[i, :, :, :, :]  # (Image_number, H, W, M, time) to (H, W, M, time)
             self.layers[0]['S'] = st  # (H, W, M, time)
+            # Propagates one image through the SDNN network.
+            # Here no STDP takes place and we always reach the last layer.
             self.train_step(nlayer=self.num_layers, stdp=True)
 
             # Obtain maximum potential per map in last layer
@@ -661,6 +612,8 @@ class SDNN:
             else:
                 st = self.spike_times_test[i, :, :, :, :]  # (Image_number, H, W, M, time) to (H, W, M, time)
             self.layers[0]['S'] = st  # (H, W, M, time)
+            # Propagates one image through the SDNN network.
+            # Here no STDP takes place and we always reach the last layer.
             self.train_step(nlayer=self.num_layers, stdp=True)
 
             # Obtain maximum potential per map in last layer
