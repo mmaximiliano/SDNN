@@ -554,35 +554,22 @@ class SDNN:
                     delay = self.network_struc[i]['delay']
                     C = self.layers[i]['C'][:, :, :]  # Output delay counter before
                     I = self.layers[i]['I'][:, :, :, t - 1]  # Output voltage before
+                    V, I, S, C = self.convolution(S, I, V, C, s, w, stride, th, alpha, beta, delay, blockdim, griddim)
 
-                    if self.device == 'GPU':
-                        V, I, S, C = self.convolution(S, I, V, C, s, w, stride, th, alpha, beta, delay, blockdim, griddim)
-                    else:
-                        V, S = self.convolution_CPU(S, V, s, w, stride, th)
                     self.layers[i]['V'][:, :, :, t] = V
-                    self.layers[i]['S'][:, :, :, t] = S
                     self.layers[i]['I'][:, :, :, t] = I
                     self.layers[i]['C'][:, :, :] = C
 
-                    if self.device == 'GPU':
-                        S, K_inh = self.lateral_inh(S, V, K_inh, blockdim, griddim)
-                    else:
-                        S, K_inh = self.lateral_inh_CPU(S, V, K_inh)
+                    S, K_inh = self.lateral_inh(S, V, K_inh, blockdim, griddim)
                     self.layers[i]['S'][:, :, :, t] = S
                     self.layers[i]['K_inh'] = K_inh
 
                 elif self.network_struc[i]['Type'] == 'pool':
-                    if self.device == 'GPU':
-                        S = self.pooling(S, s, w, stride, th, blockdim, griddim)
-                    else:
-                        S = self.pooling_CPU(S, s, w, stride, th)
+                    S = self.pooling(S, s, w, stride, th, blockdim, griddim)
                     self.layers[i]['S'][:, :, :, t] = S
 
                     if i < 3:
-                        if self.device == 'GPU':
-                            S, K_inh = self.lateral_inh(S, V, K_inh, blockdim, griddim)
-                        else:
-                            S, K_inh = self.lateral_inh_CPU(S, V, K_inh)
+                        S, K_inh = self.lateral_inh(S, V, K_inh, blockdim, griddim)
                         self.layers[i]['S'][:, :, :, t] = S
                         self.layers[i]['K_inh'] = K_inh
 
@@ -617,7 +604,7 @@ class SDNN:
             else:
                 st = self.spike_times_train[i, :, :, :, :]  # (Image_number, H, W, M, time) to (H, W, M, time)
             self.layers[0]['S'] = st  # (H, W, M, time)
-            self.train_step(stdp=False)
+            self.prop_step()
 
             # Obtain maximum potential per map in last layer
             V = self.layers[self.num_layers-1]['V']
@@ -674,7 +661,7 @@ class SDNN:
             else:
                 st = self.spike_times_test[i, :, :, :, :]  # (Image_number, H, W, M, time) to (H, W, M, time)
             self.layers[0]['S'] = st  # (H, W, M, time)
-            self.train_step(stdp=False)
+            self.prop_step()
 
             # Obtain maximum potential per map in last layer
             V = self.layers[self.num_layers-1]['V']
