@@ -97,8 +97,7 @@ class SDNN:
                 -'img_size': A tuple of integers with the dimensions to which the images are to be resized 
                 -'DoG_size': An int with the size of the DoG filter window size
                 -'std1': A float with the standard deviation 1 for the DoG filter
-                -'std2': A float with the standard deviation 2 for the DoG filter                  
-                 
+                -'std2': A float with the standard deviation 2 for the DoG filter
         """
 
         # --------------------------- DoG Filter Parameters -------------------#
@@ -279,8 +278,8 @@ class SDNN:
             d_tmp['K_STDP'] = np.ones((H, W, D)).astype(np.uint8)
             d_tmp['K_inh'] = np.ones((H, W)).astype(np.uint8)
             if self.network_struc[i]['Type'] == 'conv':
-                    d_tmp['I'] = np.zeros((H, W, D, self.total_time)).astype(np.float32)
-                    d_tmp['C'] = np.zeros((H, W, D)).astype(np.float32)  # Delay counter
+                d_tmp['I'] = np.zeros((H, W, D, self.total_time)).astype(np.float32)
+                d_tmp['C'] = np.zeros((H, W, D)).astype(np.float32)  # Delay counter
             self.layers.append(d_tmp)
         return
 
@@ -296,8 +295,8 @@ class SDNN:
             self.layers[i]['K_STDP'] = np.ones((H, W, D)).astype(np.uint8)
             self.layers[i]['K_inh'] = np.ones((H, W)).astype(np.uint8)
             if self.network_struc[i]['Type'] == 'conv':
-                    self.layers[i]['I'] = np.zeros((H, W, D, self.total_time)).astype(np.float32)
-                    self.layers[i]['C'] = np.zeros((H, W, D)).astype(np.float32)  # Reset delay counter
+                self.layers[i]['I'] = np.zeros((H, W, D, self.total_time)).astype(np.float32)
+                self.layers[i]['C'] = np.zeros((H, W, D)).astype(np.float32)  # Reset delay counter
         return
 
     # Weights getter
