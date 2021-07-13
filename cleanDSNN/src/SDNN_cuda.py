@@ -2,18 +2,16 @@ import numpy as np
 from math import floor, ceil
 from os import listdir
 from sys import exit
-from itertools import chain, tee
 from numba import cuda
 from cuda_utils import *
-from DoG_filt_cuda import *
 
 from timeit import default_timer as timer
 
 
 class SDNN:
     """ 
-        __author__ = Nicolas Perez-Nieves
-        __email__ = nicolas.perez14@imperial.ac.uk
+        __author__ = Maximiliano Martino
+        __email__ = maxii.martino@gmail.com
         
         This class implements a STDP-based Spiking Convolutional Deep Neural Network 
         for image or video recognition. This implementation is based on the implementation on [1]
@@ -53,9 +51,8 @@ class SDNN:
             arXiv:1611.01421v1 (Nov, 2016)
     """
 
-    def __init__(self, network_params, weight_params, stdp_params, total_time, DoG_params=None,
-                 spike_times_learn=None, spike_times_train=None, spike_times_test=None,
-                 y_train=None, y_test=None, device='GPU'):
+    def __init__(self, network_params, weight_params, stdp_params, frame_time,
+                 spike_times_pat_seq=None, device='GPU'):
         """
             Initialisaition of SDNN
 
@@ -100,19 +97,11 @@ class SDNN:
                 -'std2': A float with the standard deviation 2 for the DoG filter
         """
 
-        # --------------------------- DoG Filter Parameters -------------------#
-        if DoG_params is not None:
-            self.DoG = True
-            self.img_size = DoG_params['img_size']
-            self.filt = DoG(DoG_params['DoG_size'], DoG_params['std1'], DoG_params['std2'])
-        else:
-            self.DoG = False
-
         # --------------------------- Network Initialisation -------------------#
-        # Total time and number of layers
+        # Frame time and number of layers
         self.num_layers = len(network_params)
         self.learnable_layers = []
-        self.total_time = total_time
+        self.frame_time = frame_time
 
         # Layers Initialisation
         self.network_struc = []
@@ -135,7 +124,7 @@ class SDNN:
         self.max_learn_iter = stdp_params['max_learn_iter']
         self.curr_lay_idx = 0
         self.counter = 0
-        self.curr_img = 0
+        self.curr_seq = 0
 
         #STDP params
         self.stdp_per_layer = stdp_params['stdp_per_layer']
@@ -150,27 +139,14 @@ class SDNN:
 
         # --------------------------- Input spike times -------------------#
         # Generate Iterators with the full path to the images in each set OR reference the spike times
-        if self.DoG:
-            self.spike_times_learn, self.y_learn = self.gen_iter_paths(spike_times_learn)
-            self.spike_times_train, self.y_train = self.gen_iter_paths(spike_times_train)
-            self.spike_times_test, self.y_test = self.gen_iter_paths(spike_times_test)
-            self.num_img_learn = self.y_learn.size
-            self.num_img_train = self.y_train.size
-            self.num_img_test = self.y_test.size
-            self.spike_times_train, self.learn_buffer = tee(self.spike_times_train)
-        else:
-            self.spike_times_learn = spike_times_learn
-            self.num_img_learn = spike_times_learn.shape[0]
-            self.spike_times_train = spike_times_train
-            self.num_img_train = spike_times_train.shape[0]
-            self.spike_times_test = spike_times_test
-            self.num_img_test = spike_times_test.shape[0]
-            self.y_train = y_train
-            self.y_test = y_test
+        self.spike_times_pat_seq = spike_times_pat_seq
+        self.num_img_learn = 1  # len(listdir(spike_times_pat_seq)) Ver como automatizar
+        self.sequence = np.load(self.spike_times_pat_seq + "seq_0.npy")
+        # duration of sequences divided by duration of frame = Number of frames
+        self.num_frame_train = int(self.sequence.shape[2] / self.frame_time)
 
         # --------------------------- Output features -------------------#
         self.features_train = []
-        self.features_test = []
 
 
 # --------------------------- Initialisation functions ------------------------#
@@ -273,12 +249,12 @@ class SDNN:
         for i in range(self.num_layers):
             d_tmp = {}
             H, W, D = self.network_struc[i]['shape']
-            d_tmp['S'] = np.zeros((H, W, D, self.total_time)).astype(np.uint8)
-            d_tmp['V'] = np.zeros((H, W, D, self.total_time)).astype(np.float32)
+            d_tmp['S'] = np.zeros((H, W, D, self.frame_time)).astype(np.uint8)
+            d_tmp['V'] = np.zeros((H, W, D, self.frame_time)).astype(np.float32)
             d_tmp['K_STDP'] = np.ones((H, W, D)).astype(np.uint8)
             d_tmp['K_inh'] = np.ones((H, W)).astype(np.uint8)
             if self.network_struc[i]['Type'] == 'conv':
-                d_tmp['I'] = np.zeros((H, W, D, self.total_time)).astype(np.float32)
+                d_tmp['I'] = np.zeros((H, W, D, self.frame_time)).astype(np.float32)
                 d_tmp['C'] = np.zeros((H, W, D)).astype(np.float32)  # Delay counter
             self.layers.append(d_tmp)
         return
@@ -290,13 +266,25 @@ class SDNN:
         """
         for i in range(self.num_layers):
             H, W, D = self.network_struc[i]['shape']
-            self.layers[i]['S'] = np.zeros((H, W, D, self.total_time)).astype(np.uint8)
-            self.layers[i]['V'] = np.zeros((H, W, D, self.total_time)).astype(np.float32)
+            self.layers[i]['S'] = np.zeros((H, W, D, self.frame_time)).astype(np.uint8)
+            self.layers[i]['V'] = np.zeros((H, W, D, self.frame_time)).astype(np.float32)
             self.layers[i]['K_STDP'] = np.ones((H, W, D)).astype(np.uint8)
             self.layers[i]['K_inh'] = np.ones((H, W)).astype(np.uint8)
             if self.network_struc[i]['Type'] == 'conv':
-                self.layers[i]['I'] = np.zeros((H, W, D, self.total_time)).astype(np.float32)
+                self.layers[i]['I'] = np.zeros((H, W, D, self.frame_time)).astype(np.float32)
                 self.layers[i]['C'] = np.zeros((H, W, D)).astype(np.float32)  # Reset delay counter
+        return
+
+    # Layers reset only spikes
+    def reset_layers_spikes(self):
+        """
+            Reset layers
+        """
+        for i in range(self.num_layers):
+            H, W, D = self.network_struc[i]['shape']
+            self.layers[i]['S'] = np.zeros((H, W, D, self.frame_time)).astype(np.uint8)
+            self.layers[i]['K_STDP'] = np.ones((H, W, D)).astype(np.uint8)
+            self.layers[i]['K_inh'] = np.ones((H, W)).astype(np.uint8)
         return
 
     # Weights getter
@@ -318,17 +306,6 @@ class SDNN:
             self.weights.append(weight_tmp.astype(np.float32))
         return
 
-    # Generates an iterator with the path to image sets
-    def gen_iter_paths(self, path_list):
-        labels = np.ones(len(listdir(path_list[0])))
-        paths_iter = iter([path_list[0] + listdir(path_list[0])[i] for i in range(labels.size)])
-        for idir in range(1, len(path_list)):
-            file_names = listdir(path_list[idir])
-            labels = np.append(labels, (idir+1)*np.ones(len(file_names)))
-            files_tmp = iter([path_list[idir] + file_names[i] for i in range(len(file_names))])
-            paths_iter = chain(paths_iter, files_tmp)
-        return paths_iter, labels
-
 # --------------------------- STDP Learning functions ------------------------#
     # Propagate and STDP once
     def prop_step(self, nlayer, stdp=True):
@@ -337,7 +314,7 @@ class SDNN:
         """
 
         # Propagate
-        for t in range(1, self.total_time):
+        for t in range(1, self.frame_time):
             for i in range(1, nlayer):
 
                 H, W, D = self.network_struc[i]['shape']
@@ -382,6 +359,9 @@ class SDNN:
                         S, K_inh = self.lateral_inh(S, V, K_inh, blockdim, griddim)
                         self.layers[i]['S'][:, :, :, t] = S
                         self.layers[i]['K_inh'] = K_inh
+                if t == (self.frame_time-1):
+                    print("Layer " + str(i) + ' ' + str(self.network_struc[i]['Type']) + " spikes: "
+                          + str(np.count_nonzero(self.layers[i]['S'])))
 
             if stdp:
                 # STDP learning
@@ -423,48 +403,51 @@ class SDNN:
     # Train all images in training set
     def train_SDNN(self):
         """
-            Trains the SDNN with the learning set of images
+            Trains the SDNN with the learning set of sequences
             
-            We iterate over the set of images a maximum of self.max_iter times
+            We iterate over the set of sequences a maximum of self.max_iter times
         """
 
         print("-----------------------------------------------------------")
         print("-------------------- STARTING LEARNING---------------------")
         print("-----------------------------------------------------------")
+
+        frame = 0
         for i in range(self.max_iter):
             print("----------------- Learning Progress  {}%----------------------".format(str(i) + '/'
                                                                                           + str(self.max_iter)
                                                                                           + ' ('
                                                                                           + str(100 * i / self.max_iter)
                                                                                           + ')'))
+            # Dentro del total de iteraciones veo cuantas le corresponden a cada layer
+            # Me fijo si ya realice todas las iteraciones de este layer
             if self.counter > self.max_learn_iter[self.learning_layer]:
-                self.curr_lay_idx += 1
-                self.learning_layer = self.learnable_layers[self.curr_lay_idx]
-                self.counter = 0
-            self.counter += 1
+                self.curr_lay_idx += 1  # Paso al siguiente layer
+                self.learning_layer = self.learnable_layers[self.curr_lay_idx]  # Actualizo el learning layer actual
+                self.counter = 0  # Reseteo el contador para este layer
+            self.counter += 1  # Caso contrario aumento el contador
 
-            self.reset_layers()  # Reset all layers for the new image
-            if self.DoG:
-                try:
-                    path_img = next(self.learn_buffer)
-                except:
-                    self.spike_times_train, self.learn_buffer = tee(self.spike_times_train)
-                    path_img = next(self.learn_buffer)
-                st = DoG_filter(path_img, self.filt, self.img_size, self.total_time, self.num_layers)
-                st = np.expand_dims(st, axis=2)
-            else:
-                st = self.spike_times_learn[self.curr_img, :, :, :, :]  # (Image_number, H, W, M, time) to (H, W, M, time)
+            self.reset_layers()  # Reset all layers for the new frame
+
+            st = self.sequence[:, :, frame:frame+self.frame_time]  # Agarro un frame de 10 timestep
+            st = np.expand_dims(st, axis=2)
             self.layers[0]['S'] = st  # (H, W, M, time)
             self.prop_step(nlayer=self.learning_layer+1, stdp=True)
+            # Tomo el siguiente frame de la secuencia
+            if frame >= (self.sequence.shape[2] - (2*self.frame_time)):
+                frame = 0
+            else:
+                frame += self.frame_time
 
             if i % 500 == 0:
                 self.stdp_a_plus[self.learning_layer] = min(2.*self.stdp_a_plus[self.learning_layer], 0.15)
                 self.stdp_a_minus[self.learning_layer] = 0.75*self.stdp_a_plus[self.learning_layer]
 
-            if self.curr_img+1 < self.num_img_learn:
-                self.curr_img += 1
+            # Miro la cantidad de img/seq que tengo por procesar
+            if self.curr_seq+1 < self.num_img_learn:
+                self.curr_seq += 1
             else:
-                self.curr_img = 0
+                self.curr_seq = 0
         print("----------------- Learning Progress  {}%----------------------".format(str(self.max_iter) + '/'
                                                                                       + str(self.max_iter)
                                                                                       + ' ('
@@ -530,46 +513,49 @@ class SDNN:
                             and M is the number of maps in the last layer
         """
         self.network_struc[3]['th'] = 50.
-        self.network_struc[5]['th'] = 100000  # Set threshold of last layer to inf
         print("-----------------------------------------------------------")
         print("----------- EXTRACTING TRAINING FEATURES ------------------")
         print("-----------------------------------------------------------")
-        for i in range(self.num_img_train):
+
+        frame = 0
+        for i in range(self.num_frame_train):
             print("------------ Train features Extraction Progress  {}%----------------".format(str(i) + '/'
-                                                                                                + str(self.num_img_train)
+                                                                                                + str(self.num_frame_train)
                                                                                                 + ' ('
-                                                                                                + str(100 * i / self.num_img_train)
+                                                                                                + str(100 * i / self.num_frame_train)
                                                                                                 + ')'))
 
             start = timer()
 
-            self.reset_layers()  # Reset all layers for the new image
-            if self.DoG:                
-                path_img = next(self.spike_times_train)
-                st = DoG_filter(path_img, self.filt, self.img_size, self.total_time, self.num_layers)
-                st = np.expand_dims(st, axis=2)
-            else:
-                st = self.spike_times_train[i, :, :, :, :]  # (Image_number, H, W, M, time) to (H, W, M, time)
+            self.reset_layers()  # Reset all layers for the new frame
+
+            st = self.sequence[:, :, frame:frame+self.frame_time]  # Agarro un frame de 10 timestep
+            st = np.expand_dims(st, axis=2)
             self.layers[0]['S'] = st  # (H, W, M, time)
             # Propagates one image through the SDNN network.
             # Here no STDP takes place and we always reach the last layer.
             self.prop_step(nlayer=self.num_layers, stdp=True)
 
-            # Obtain maximum potential per map in last layer
-            V = self.layers[self.num_layers-1]['V']
-            features = np.max(np.max(np.max(V, axis=0), axis=0), axis=1)
-            self.features_train.append(features)
+            # Tomo el siguiente frame de la secuencia
+            if frame >= (self.sequence.shape[2] - (2*self.frame_time)):
+                frame = 0
+            else:
+                frame += self.frame_time
+
+            S_tmp = self.layers[self.num_layers-1]['S']
+            S = np.reshape(S_tmp, (S_tmp.shape[0]*S_tmp.shape[1]*S_tmp.shape[2], self.frame_time))
+            S = np.transpose(S)
+            S = S.astype(np.float32)
+
+            self.features_train.append(S)
 
 
             dt = timer() - start
 
-        # Transform features to numpy array
-        n_features = self.features_train[0].shape[0]
-        n_train_samples = len(self.features_train)
-        X_train = np.concatenate(self.features_train).reshape((n_train_samples, n_features))
-        print("------------ Train features Extraction Progress  {}%----------------".format(str(self.num_img_train)
+
+        print("------------ Train features Extraction Progress  {}%----------------".format(str(self.num_frame_train)
                                                                                             + '/'
-                                                                                            + str(self.num_img_train)
+                                                                                            + str(self.num_frame_train)
                                                                                             + ' ('
                                                                                             + str(100)
                                                                                             + ')'))
@@ -577,65 +563,13 @@ class SDNN:
         print("------------- TRAINING FEATURES EXTRACTED -----------------")
         print("-----------------------------------------------------------")
 
+        # Transform features to numpy array
+        Sin = np.concatenate(self.features_train, axis=0)
+        print("Sin Shape: " + str(Sin.shape))
+        print("Sin Spikes: " + str(np.count_nonzero(Sin)))
         # Clear Features
         self.features_train = []
-        return X_train, self.y_train
-
-    # Get test features
-    def test_features(self):
-        """
-            Gets the test features by propagating the set of training images
-            Returns:
-                - X_test: Training features of size (N, M)
-                            where N is the number of training samples
-                            and M is the number of maps in the last layer
-        """
-        self.network_struc[3]['th'] = 50.
-        self.network_struc[5]['th'] = 100000  # Set threshold of last layer to inf
-        print("-----------------------------------------------------------")
-        print("---------------- EXTRACTING TEST FEATURES -----------------")
-        print("-----------------------------------------------------------")
-        for i in range(self.num_img_test):
-            print("------------ Test features Extraction Progress  {}%----------------".format(str(i) + '/'
-                                                                                               + str(self.num_img_test)
-                                                                                               + ' ('
-                                                                                               + str(100 * i / self.num_img_test)
-                                                                                               + ')'))
-
-            self.reset_layers()  # Reset all layers for the new image
-            if self.DoG:
-                path_img = next(self.spike_times_test)
-                st = DoG_filter(path_img, self.filt, self.img_size, self.total_time, self.num_layers)
-                st = np.expand_dims(st, axis=2)
-            else:
-                st = self.spike_times_test[i, :, :, :, :]  # (Image_number, H, W, M, time) to (H, W, M, time)
-            self.layers[0]['S'] = st  # (H, W, M, time)
-            # Propagates one image through the SDNN network.
-            # Here no STDP takes place and we always reach the last layer.
-            self.prop_step(nlayer=self.num_layers, stdp=True)
-
-            # Obtain maximum potential per map in last layer
-            V = self.layers[self.num_layers-1]['V']
-            features = np.max(np.max(np.max(V, axis=0), axis=0), axis=1)
-            self.features_test.append(features)
-
-        # Transform features to numpy array
-        n_features = self.features_test[0].shape[0]
-        n_train_samples = len(self.features_test)
-        X_test = np.concatenate(self.features_test).reshape((n_train_samples, n_features))
-        print("------------ Test features Extraction Progress  {}%----------------".format(str(self.num_img_test)
-                                                                                           + '/'
-                                                                                           + str(self.num_img_test)
-                                                                                           + ' ('
-                                                                                           + str(100)
-                                                                                           + ')'))
-        print("-----------------------------------------------------------")
-        print("---------------- TEST FEATURES EXTRACTED ------------------")
-        print("-----------------------------------------------------------")
-
-        # Clear Features
-        self.features_test = []
-        return X_test, self.y_test
+        return Sin
 
 # --------------------------- CUDA interfacing functions ------------------------#
     def convolution(self, S, I, V, C, s, w, stride, th, alpha, beta, delay, blockdim, griddim):
