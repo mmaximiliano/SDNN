@@ -146,3 +146,4 @@ patterns/sequences/pat_i_0.npy
 patterns/sequences/seq_0.npy
 patterns/sequences/data_0.npy
 Arquitecturas/*
+cleanDSNN/src/.idea/*
