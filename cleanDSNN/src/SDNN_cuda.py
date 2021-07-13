@@ -512,7 +512,7 @@ class SDNN:
                             where N is the number of training samples
                             and M is the number of maps in the last layer
         """
-        self.network_struc[3]['th'] = 50.
+        self.network_struc[3]['th'] = 7.
         print("-----------------------------------------------------------")
         print("----------- EXTRACTING TRAINING FEATURES ------------------")
         print("-----------------------------------------------------------")
