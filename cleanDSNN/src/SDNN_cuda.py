@@ -10,6 +10,7 @@ from DoG_filt_cuda import *
 from timeit import default_timer as timer
 
 
+
 class SDNN:
     """ 
         __author__ = Nicolas Perez-Nieves
@@ -364,22 +365,22 @@ class SDNN:
                     delay = self.network_struc[i]['delay']
                     C = self.layers[i]['C'][:, :, :]  # Output delay counter before
                     I = self.layers[i]['I'][:, :, :, t - 1]  # Output voltage before
-                    V, I, S, C = self.convolution(S, I, V, C, s, w, stride, th, alpha, beta, delay,
+                    V, I, S, C = convolution(S, I, V, C, s, w, stride, th, alpha, beta, delay,
                                                       blockdim, griddim)
                     self.layers[i]['V'][:, :, :, t] = V
                     self.layers[i]['I'][:, :, :, t] = I
                     self.layers[i]['C'][:, :, :] = C
 
-                    S, K_inh = self.lateral_inh(S, V, K_inh, blockdim, griddim)
+                    S, K_inh = lateral_inh(S, V, K_inh, blockdim, griddim)
                     self.layers[i]['S'][:, :, :, t] = S
                     self.layers[i]['K_inh'] = K_inh
 
                 elif self.network_struc[i]['Type'] == 'pool':
-                    S = self.pooling(S, s, w, stride, th, blockdim, griddim)
+                    S = pooling(S, s, w, stride, th, blockdim, griddim)
                     self.layers[i]['S'][:, :, :, t] = S
 
                     if i < 3:
-                        S, K_inh = self.lateral_inh(S, V, K_inh, blockdim, griddim)
+                        S, K_inh = lateral_inh(S, V, K_inh, blockdim, griddim)
                         self.layers[i]['S'][:, :, :, t] = S
                         self.layers[i]['K_inh'] = K_inh
 
@@ -414,7 +415,7 @@ class SDNN:
                                    int(ceil(W / blockdim[1])) if int(ceil(W / blockdim[2])) != 0 else 1,
                                    int(ceil(D / blockdim[2])) if int(ceil(D / blockdim[2])) != 0 else 1)
 
-                        w, K_STDP = self.STDP(S.shape, s, w, K_STDP,
+                        w, K_STDP = STDP(S.shape, s, w, K_STDP,
                                               maxval, maxind1, maxind2,
                                               stride, offset, a_minus, a_plus, blockdim, griddim)
                         self.weights[lay - 1] = w
@@ -638,70 +639,75 @@ class SDNN:
         return X_test, self.y_test
 
 # --------------------------- CUDA interfacing functions ------------------------#
-    def convolution(self, S, I, V, C, s, w, stride, th, alpha, beta, delay, blockdim, griddim):
-        """
-            Cuda Convolution Kernel call
-            Returns the updated potentials and spike times
-        """
-        d_S = cuda.to_device(np.ascontiguousarray(S).astype(np.uint8))
-        d_I = cuda.to_device(np.ascontiguousarray(I).astype(np.float32))
-        d_V = cuda.to_device(np.ascontiguousarray(V).astype(np.float32))
-        d_C = cuda.to_device(np.ascontiguousarray(C).astype(np.float32))
-        d_s = cuda.to_device(np.ascontiguousarray(s).astype(np.uint8))
-        d_w = cuda.to_device(np.ascontiguousarray(w).astype(np.float32))
-        V_out = np.empty(d_V.shape, dtype=d_V.dtype)
-        I_out = np.empty(d_I.shape, dtype=d_I.dtype)
-        S_out = np.empty(d_S.shape, dtype=d_S.dtype)
-        C_out = np.empty(d_C.shape, dtype=d_C.dtype)
-        conv_step[griddim, blockdim](d_S, d_I, d_V, d_C, d_s, d_w, stride, th, alpha, beta, delay)
-        d_V.copy_to_host(V_out)
-        d_I.copy_to_host(I_out)
-        d_S.copy_to_host(S_out)
-        d_C.copy_to_host(C_out)
-        return V_out, I_out, S_out, C_out
+def convolution(S, I, V, C, s, w, stride, th, alpha, beta, delay, blockdim, griddim):
+    """
+        Cuda Convolution Kernel call
+        Returns the updated potentials and spike times
+    """
+    d_S = cuda.to_device(np.ascontiguousarray(S).astype(np.uint8))
+    d_I = cuda.to_device(np.ascontiguousarray(I).astype(np.float32))
+    d_V = cuda.to_device(np.ascontiguousarray(V).astype(np.float32))
+    d_C = cuda.to_device(np.ascontiguousarray(C).astype(np.float32))
+    d_s = cuda.to_device(np.ascontiguousarray(s).astype(np.uint8))
+    d_w = cuda.to_device(np.ascontiguousarray(w).astype(np.float32))
+    V_out = np.empty(d_V.shape, dtype=d_V.dtype)
+    I_out = np.empty(d_I.shape, dtype=d_I.dtype)
+    S_out = np.empty(d_S.shape, dtype=d_S.dtype)
+    C_out = np.empty(d_C.shape, dtype=d_C.dtype)
+    conv_step[griddim, blockdim](d_S, d_I, d_V, d_C, d_s, d_w, stride, th, alpha, beta, delay)
+    d_V.copy_to_host(V_out)
+    d_I.copy_to_host(I_out)
+    d_S.copy_to_host(S_out)
+    d_C.copy_to_host(C_out)
+    return V_out, I_out, S_out, C_out
 
-    def lateral_inh(self, S, V, K_inh, blockdim, griddim):
-        """
-            Cuda Lateral Inhibition Kernel call
-            Returns the updated spike times and inhibition matrix
-        """
-        d_S = cuda.to_device(np.ascontiguousarray(S).astype(np.uint8))
-        d_V = cuda.to_device(np.ascontiguousarray(V).astype(np.float32))
-        d_K_inh = cuda.to_device(np.ascontiguousarray(K_inh).astype(np.uint8))
-        S_out = np.empty(d_S.shape, dtype=d_S.dtype)
-        K_inh_out = np.empty(d_K_inh.shape, dtype=d_K_inh.dtype)
-        lateral_inh[griddim, blockdim](d_S, d_V, d_K_inh)
-        d_S.copy_to_host(S_out)
-        d_K_inh.copy_to_host(K_inh_out)
-        return S_out, K_inh_out
 
-    def pooling(self, S, s, w, stride, th, blockdim, griddim):
-        """
-            Cuda Pooling Kernel call
-            Returns the updated spike times
-        """
-        d_S = cuda.to_device(np.ascontiguousarray(S).astype(np.uint8))
-        d_s = cuda.to_device(np.ascontiguousarray(s).astype(np.uint8))
-        d_w = cuda.to_device(np.ascontiguousarray(w).astype(np.float32))
-        S_out = np.empty(d_S.shape, dtype=d_S.dtype)
-        pool[griddim, blockdim](d_S, d_s, d_w, stride, th)
-        d_S.copy_to_host(S_out)
-        return S_out
+def lateral_inh(S, V, K_inh, blockdim, griddim):
+    """
+        Cuda Lateral Inhibition Kernel call
+        Returns the updated spike times and inhibition matrix
+    """
+    d_S = cuda.to_device(np.ascontiguousarray(S).astype(np.uint8))
+    d_V = cuda.to_device(np.ascontiguousarray(V).astype(np.float32))
+    d_K_inh = cuda.to_device(np.ascontiguousarray(K_inh).astype(np.uint8))
+    S_out = np.empty(d_S.shape, dtype=d_S.dtype)
+    K_inh_out = np.empty(d_K_inh.shape, dtype=d_K_inh.dtype)
+    lateral_inh[griddim, blockdim](d_S, d_V, d_K_inh)
+    d_S.copy_to_host(S_out)
+    d_K_inh.copy_to_host(K_inh_out)
+    return S_out, K_inh_out
 
-    def STDP(self, S_sz, s, w, K_STDP, maxval, maxind1, maxind2, stride, offset, a_minus, a_plus, blockdim, griddim):
-        """
-            Cuda STDP-Update Kernel call
-            Returns the updated weight and STDP allowed matrix
-        """
-        d_S_sz = cuda.to_device(np.ascontiguousarray(S_sz).astype(np.int32))
-        d_s = cuda.to_device(np.ascontiguousarray(s).astype(np.uint8))
-        d_w = cuda.to_device(w.astype(np.float32))
-        d_K_STDP = cuda.to_device(K_STDP.astype(np.uint8))
-        w_out = np.empty(d_w.shape, dtype=d_w.dtype)
-        K_STDP_out = np.empty(d_K_STDP.shape, dtype=d_K_STDP.dtype)
-        STDP_learning[griddim, blockdim](d_S_sz, d_s, d_w, d_K_STDP,  # Input arrays
-                      maxval, maxind1, maxind2,  # Indices
-                      stride, int(offset), a_minus, a_plus)  # Parameters
-        d_w.copy_to_host(w_out)
-        d_K_STDP.copy_to_host(K_STDP_out)
-        return w_out, K_STDP_out
+
+def pooling(S, s, w, stride, th, blockdim, griddim):
+    """
+        Cuda Pooling Kernel call
+        Returns the updated spike times
+    """
+    d_S = cuda.to_device(np.ascontiguousarray(S).astype(np.uint8))
+    d_s = cuda.to_device(np.ascontiguousarray(s).astype(np.uint8))
+    d_w = cuda.to_device(np.ascontiguousarray(w).astype(np.float32))
+    S_out = np.empty(d_S.shape, dtype=d_S.dtype)
+    pool[griddim, blockdim](d_S, d_s, d_w, stride, th)
+    d_S.copy_to_host(S_out)
+    return S_out
+
+
+def STDP(S_sz, s, w, K_STDP, maxval, maxind1, maxind2, stride, offset, a_minus, a_plus, blockdim, griddim):
+    """
+        Cuda STDP-Update Kernel call
+        Returns the updated weight and STDP allowed matrix
+    """
+    d_S_sz = cuda.to_device(np.ascontiguousarray(S_sz).astype(np.int32))
+    d_s = cuda.to_device(np.ascontiguousarray(s).astype(np.uint8))
+    d_w = cuda.to_device(w.astype(np.float32))
+    d_K_STDP = cuda.to_device(K_STDP.astype(np.uint8))
+    w_out = np.empty(d_w.shape, dtype=d_w.dtype)
+    K_STDP_out = np.empty(d_K_STDP.shape, dtype=d_K_STDP.dtype)
+    STDP_learning[griddim, blockdim](d_S_sz, d_s, d_w, d_K_STDP,  # Input arrays
+                                     maxval, maxind1, maxind2,  # Indices
+                                     stride, int(offset), a_minus, a_plus)  # Parameters
+    d_w.copy_to_host(w_out)
+    d_K_STDP.copy_to_host(K_STDP_out)
+    return w_out, K_STDP_out
+
+
