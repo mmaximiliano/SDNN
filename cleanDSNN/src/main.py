@@ -41,7 +41,7 @@ def main():
                       {'Type': 'conv', 'num_filters': 4, 'filter_size': 4, 'th': 10.,
                        'alpha': 1., 'beta': 0., 'delay': 0},
                       {'Type': 'pool', 'num_filters': 4, 'filter_size': 5, 'th': 0., 'stride': 2},
-                      {'Type': 'conv', 'num_filters': 4, 'filter_size': 3, 'th': 0.,
+                      {'Type': 'conv', 'num_filters': 4, 'filter_size': 3, 'th': 20.,
                        'alpha': 1., 'beta': 0., 'delay': 0},
                       {'Type': 'pool', 'num_filters': 4, 'filter_size': 2, 'th': 0., 'stride': 2},
                       {'Type': 'conv', 'num_filters': 4, 'filter_size': 4, 'th': 2.,
