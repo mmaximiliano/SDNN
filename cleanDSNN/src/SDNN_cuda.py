@@ -333,14 +333,14 @@ class SDNN:
 
 # --------------------------- STDP Learning functions ------------------------#
     # Propagate and STDP once
-    def train_step(self, stdp=True):
+    def train_step(self, nlayer, stdp=True):
         """
             Propagates one image through the SDNN network and carries out the STDP update on the learning layer
         """
 
         # Propagate
         for t in range(1, self.total_time):
-            for i in range(1, self.learning_layer+1):
+            for i in range(1, nlayer):
 
                 H, W, D = self.network_struc[i]['shape']
                 H_pad, W_pad = self.network_struc[i]['pad']
@@ -457,7 +457,7 @@ class SDNN:
             else:
                 st = self.spike_times_learn[self.curr_img, :, :, :, :]  # (Image_number, H, W, M, time) to (H, W, M, time)
             self.layers[0]['S'] = st  # (H, W, M, time)
-            self.train_step(stdp=True)
+            self.train_step(nlayer=self.learning_layer+1, stdp=True)
 
             if i % 500 == 0:
                 self.stdp_a_plus[self.learning_layer] = min(2.*self.stdp_a_plus[self.learning_layer], 0.15)
@@ -525,7 +525,7 @@ class SDNN:
     def prop_step(self):
         """
             Propagates one image through the SDNN network. 
-            This function is identical to train_step() but here  no STDP takes place and we always reach the last layer
+            This function is identical to train_step() but here no STDP takes place and we always reach the last layer
         """
 
         # Propagate
@@ -604,7 +604,7 @@ class SDNN:
             else:
                 st = self.spike_times_train[i, :, :, :, :]  # (Image_number, H, W, M, time) to (H, W, M, time)
             self.layers[0]['S'] = st  # (H, W, M, time)
-            self.prop_step()
+            self.train_step(nlayer=self.num_layers, stdp=True)
 
             # Obtain maximum potential per map in last layer
             V = self.layers[self.num_layers-1]['V']
@@ -661,7 +661,7 @@ class SDNN:
             else:
                 st = self.spike_times_test[i, :, :, :, :]  # (Image_number, H, W, M, time) to (H, W, M, time)
             self.layers[0]['S'] = st  # (H, W, M, time)
-            self.prop_step()
+            self.train_step(nlayer=self.num_layers, stdp=True)
 
             # Obtain maximum potential per map in last layer
             V = self.layers[self.num_layers-1]['V']
