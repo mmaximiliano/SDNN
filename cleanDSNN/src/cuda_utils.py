@@ -30,8 +30,8 @@ def conv_step(S, I, V, C, s, w, stride, th, alpha, beta, delay):
     for k in range(w.shape[2]):
         for j in range(w.shape[1]):
             for i in range(w.shape[0]):
-                U = (U*alpha) + (w[i, j, k, idz] * s[idx*stride + i, idy*stride+j, k])
-                #In = (In*beta) + (w[i, j, k, idz] * s[idx*stride + i, idy*stride+j, k])
+                U = (U*alpha) + In
+                In = (In*beta) + (w[i, j, k, idz] * s[idx*stride + i, idy*stride+j, k])
 
     # Calculate potential for this timestep
     #V_prev = V[idx, idy, idz]
