@@ -333,7 +333,7 @@ class SDNN:
 
 # --------------------------- STDP Learning functions ------------------------#
     # Propagate and STDP once
-    def train_step(self):
+    def train_step(self, stdp=True):
         """
             Propagates one image through the SDNN network and carries out the STDP update on the learning layer
         """
@@ -385,41 +385,49 @@ class SDNN:
                         self.layers[i]['S'][:, :, :, t] = S
                         self.layers[i]['K_inh'] = K_inh
 
-            # STDP learning
-            lay = self.learning_layer
-            if self.network_struc[lay]['Type'] == 'conv':
+            if stdp:
+                self.learn_stdp(t, H_pad, W_pad)
 
-                # valid are neurons in the learning layer that can do STDP and that have fired in the current t
-                S = self.layers[lay]['S'][:, :, :, t]  # Output spikes
-                V = self.layers[lay]['V'][:, :, :, t]  # Output voltage
-                K_STDP = self.layers[lay]['K_STDP']  # Lateral inhibition matrix
-                valid = S*V*K_STDP
+    # Learning STDP
+    def learn_stdp(self, t, H_pad, W_pad):
+        """
+            Propagates one image through the SDNN network and carries out the STDP update on the learning layer
+        """
+        # STDP learning
+        lay = self.learning_layer
+        if self.network_struc[lay]['Type'] == 'conv':
 
-                if np.count_nonzero(valid) > 0:
+            # valid are neurons in the learning layer that can do STDP and that have fired in the current t
+            S = self.layers[lay]['S'][:, :, :, t]  # Output spikes
+            V = self.layers[lay]['V'][:, :, :, t]  # Output voltage
+            K_STDP = self.layers[lay]['K_STDP']  # Lateral inhibition matrix
+            valid = S*V*K_STDP
 
-                    H, W, D = self.network_struc[lay]['shape']
-                    stride = self.network_struc[lay]['stride']
-                    offset = self.offsetSTDP[lay]
-                    a_minus = self.stdp_a_minus[lay]
-                    a_plus = self.stdp_a_plus[lay]
+            if np.count_nonzero(valid) > 0:
 
-                    s = self.layers[lay - 1]['S'][:, :, :, :t]  # Input spikes
-                    ssum = np.sum(s, axis=3)
-                    s = np.pad(ssum, ((H_pad, H_pad), (W_pad, W_pad), (0, 0)), mode='constant')  # Pad the input
-                    w = self.weights[lay - 1]
+                H, W, D = self.network_struc[lay]['shape']
+                stride = self.network_struc[lay]['stride']
+                offset = self.offsetSTDP[lay]
+                a_minus = self.stdp_a_minus[lay]
+                a_plus = self.stdp_a_plus[lay]
 
-                    maxval, maxind1, maxind2 = self.get_STDP_idxs(valid, H, W, D, lay)
+                s = self.layers[lay - 1]['S'][:, :, :, :t]  # Input spikes
+                ssum = np.sum(s, axis=3)
+                s = np.pad(ssum, ((H_pad, H_pad), (W_pad, W_pad), (0, 0)), mode='constant')  # Pad the input
+                w = self.weights[lay - 1]
 
-                    blockdim = (self.thds_per_dim, self.thds_per_dim, self.thds_per_dim)
-                    griddim = (int(ceil(H / blockdim[0])) if int(ceil(H / blockdim[2])) != 0 else 1,
-                               int(ceil(W / blockdim[1])) if int(ceil(W / blockdim[2])) != 0 else 1,
-                               int(ceil(D / blockdim[2])) if int(ceil(D / blockdim[2])) != 0 else 1)
+                maxval, maxind1, maxind2 = self.get_STDP_idxs(valid, H, W, D, lay)
 
-                    w, K_STDP = self.STDP(S.shape, s, w, K_STDP,
-                                          maxval, maxind1, maxind2,
-                                          stride, offset, a_minus, a_plus, blockdim, griddim)
-                    self.weights[lay - 1] = w
-                    self.layers[lay]['K_STDP'] = K_STDP
+                blockdim = (self.thds_per_dim, self.thds_per_dim, self.thds_per_dim)
+                griddim = (int(ceil(H / blockdim[0])) if int(ceil(H / blockdim[2])) != 0 else 1,
+                           int(ceil(W / blockdim[1])) if int(ceil(W / blockdim[2])) != 0 else 1,
+                           int(ceil(D / blockdim[2])) if int(ceil(D / blockdim[2])) != 0 else 1)
+
+                w, K_STDP = self.STDP(S.shape, s, w, K_STDP,
+                                      maxval, maxind1, maxind2,
+                                      stride, offset, a_minus, a_plus, blockdim, griddim)
+                self.weights[lay - 1] = w
+                self.layers[lay]['K_STDP'] = K_STDP
 
     # Train all images in training set
     def train_SDNN(self):
@@ -456,7 +464,7 @@ class SDNN:
             else:
                 st = self.spike_times_learn[self.curr_img, :, :, :, :]  # (Image_number, H, W, M, time) to (H, W, M, time)
             self.layers[0]['S'] = st  # (H, W, M, time)
-            self.train_step()
+            self.train_step(stdp=True)
 
             if i % 500 == 0:
                 self.stdp_a_plus[self.learning_layer] = min(2.*self.stdp_a_plus[self.learning_layer], 0.15)
@@ -616,7 +624,7 @@ class SDNN:
             else:
                 st = self.spike_times_train[i, :, :, :, :]  # (Image_number, H, W, M, time) to (H, W, M, time)
             self.layers[0]['S'] = st  # (H, W, M, time)
-            self.prop_step()
+            self.train_step(stdp=False)
 
             # Obtain maximum potential per map in last layer
             V = self.layers[self.num_layers-1]['V']
@@ -673,7 +681,7 @@ class SDNN:
             else:
                 st = self.spike_times_test[i, :, :, :, :]  # (Image_number, H, W, M, time) to (H, W, M, time)
             self.layers[0]['S'] = st  # (H, W, M, time)
-            self.prop_step()
+            self.train_step(stdp=False)
 
             # Obtain maximum potential per map in last layer
             V = self.layers[self.num_layers-1]['V']
