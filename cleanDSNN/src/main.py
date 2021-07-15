@@ -79,8 +79,10 @@ def main():
 
     # ------------------------------- Classify -------------------------------#
     Sin_tmp = first_net.train_features()
-    Sin = torch.tensor(Sin_tmp)
-    torch.save(Sin, path_spikes_out + 'Sin-out.pt')
+    for i in range(1, len(network_params)):
+        fname = 'layer_' + str(i) + '_' + str(network_params[i]['Type'])
+        Sin = torch.tensor(Sin_tmp[i])
+        torch.save(Sin, path_spikes_out + fname + '.pt')
 
     print('DONE')
 
