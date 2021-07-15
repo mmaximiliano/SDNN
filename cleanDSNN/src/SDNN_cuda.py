@@ -249,6 +249,8 @@ class SDNN:
         for i in range(self.num_layers):
             d_tmp = {}
             H, W, D = self.network_struc[i]['shape']
+            print("Layer " + str(i) + " Type: " + str(self.network_struc[i]['Type']) +
+                  " -> H: " + str(H) + " W: " + str(W) + " D: " + str(D))
             d_tmp['S'] = np.zeros((H, W, D, self.frame_time)).astype(np.uint8)
             d_tmp['V'] = np.zeros((H, W, D, self.frame_time)).astype(np.float32)
             d_tmp['K_STDP'] = np.ones((H, W, D)).astype(np.uint8)
