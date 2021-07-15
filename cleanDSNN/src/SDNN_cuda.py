@@ -147,6 +147,8 @@ class SDNN:
 
         # --------------------------- Output features -------------------#
         self.features_train = []
+        for i in range(self.num_layers):
+            self.features_train.append([])
 
 
 # --------------------------- Initialisation functions ------------------------#
@@ -544,12 +546,19 @@ class SDNN:
             else:
                 frame += self.frame_time
 
-            S_tmp = self.layers[self.num_layers-1]['S']
-            S = np.reshape(S_tmp, (S_tmp.shape[0]*S_tmp.shape[1]*S_tmp.shape[2], self.frame_time))
-            S = np.transpose(S)
-            S = S.astype(np.float32)
+            for i in range(1, self.num_layers):
+                s_tmp = self.layers[i]['S']
+                spikes = np.reshape(s_tmp, (s_tmp.shape[0]*s_tmp.shape[1]*s_tmp.shape[2], self.frame_time))
+                spikes = np.transpose(spikes)
+                spikes = spikes.astype(np.float32)
+                self.features_train[i].append(spikes)
 
-            self.features_train.append(S)
+            #S_tmp = self.layers[self.num_layers-1]['S']
+            #S = np.reshape(S_tmp, (S_tmp.shape[0]*S_tmp.shape[1]*S_tmp.shape[2], self.frame_time))
+            #S = np.transpose(S)
+            #S = S.astype(np.float32)
+
+            #self.features_train.append(S)
 
 
             dt = timer() - start
@@ -566,9 +575,11 @@ class SDNN:
         print("-----------------------------------------------------------")
 
         # Transform features to numpy array
-        Sin = np.concatenate(self.features_train, axis=0)
-        print("Sin Shape: " + str(Sin.shape))
-        print("Sin Spikes: " + str(np.count_nonzero(Sin)))
+        for i in range(1, self.num_layers):
+            Sin = np.concatenate(self.features_train[i], axis=0)
+            print("Sin Shape: " + str(Sin.shape))
+            print("Sin Spikes: " + str(np.count_nonzero(Sin)))
+            self.features_train[i] = Sin
         # Clear Features
         self.features_train = []
         return Sin
