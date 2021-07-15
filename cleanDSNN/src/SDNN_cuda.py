@@ -577,8 +577,8 @@ class SDNN:
         # Transform features to numpy array
         for i in range(1, self.num_layers):
             Sin = np.concatenate(self.features_train[i], axis=0)
-            print("Layer " + str(i) + " Type " + str(self.layers[i]['Type']) + " Shape: " + str(Sin.shape))
-            print("Layer " + str(i) + " Type " + str(self.layers[i]['Type']) + " Spikes: " + str(np.count_nonzero(Sin)))
+            print("Layer " + str(i) + " Type " + str(self.network_struc[i]['Type']) + " Shape: " + str(Sin.shape))
+            print("Layer " + str(i) + " Type " + str(self.network_struc[i]['Type']) + " Spikes: " + str(np.count_nonzero(Sin)))
             self.features_train[i] = Sin
 
         return self.features_train
