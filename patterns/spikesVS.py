@@ -24,7 +24,7 @@ fname = args.fname
 wait_delay = args.wait_delay
 
 # Obtengo dir del dataset
-root = '../SDNN-Maxi/results/'
+root = '../cleanDSNN/results/'
 
 # Obtengo la data de la secuencia
 sequence = torch.load(root + fname)
@@ -37,12 +37,13 @@ sequence = np.reshape(sequence, (height, width, depth, sequence.shape[1]))
 # Obtengo los mapas de activacion
 data = []
 for i in range(depth):
-	activation_map = np.squeeze(sequence[:,:,i:i+1, :])
+    activation_map = np.squeeze(sequence[:,:,i:i+1, :])
 	# Obtengo los indices de los spikes
-	activation_map = np.argwhere(activation_map>0)
+    activation_map = np.argwhere(activation_map>0)
+    print(activation_map.shape)
 	# Le doy formato para mostrar el frame
-	for m in activation_map:
-		data.append( (m[0], m[1], 1, m[2]) )
+    for m in activation_map:
+        data.append( (m[0], m[1], 1, m[2]) )
 
 data = np.array(data, np.dtype('uint16, uint16, uint8, uint64'))
 
