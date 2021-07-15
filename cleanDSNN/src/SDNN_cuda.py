@@ -580,9 +580,8 @@ class SDNN:
             print("Layer " + str(i) + " Type " + str(self.layers[i]['Type']) + " Shape: " + str(Sin.shape))
             print("Layer " + str(i) + " Type " + str(self.layers[i]['Type']) + " Spikes: " + str(np.count_nonzero(Sin)))
             self.features_train[i] = Sin
-        # Clear Features
-        self.features_train = []
-        return Sin
+
+        return self.features_train
 
 # --------------------------- CUDA interfacing functions ------------------------#
     def convolution(self, S, I, V, C, s, w, stride, th, alpha, beta, delay, blockdim, griddim):
