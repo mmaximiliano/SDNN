@@ -33,6 +33,8 @@ sample = os.path.join(root,nro,files[0])
 # Read sample
 data, width, height =  pan_functions.read_dataset(sample)
 
+print("Size of Data: " + str(data.shape))
+
 # transform data.ts into frames
 data.ts = np.round(data.ts / np.max(data.ts) * (nframes-1))
 
