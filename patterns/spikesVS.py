@@ -40,7 +40,6 @@ for i in range(depth):
     activation_map = np.squeeze(sequence[:,:,i:i+1, :])
 	# Obtengo los indices de los spikes
     activation_map = np.argwhere(activation_map>0)
-    print(activation_map.shape)
 	# Le doy formato para mostrar el frame
     for m in activation_map:
         data.append( (m[0], m[1], 1, m[2]) )
