@@ -36,7 +36,7 @@ def main():
 
     # ------------------------------- SDNN -------------------------------#
     # SDNN_cuda parameters
-    frame_time = 5
+    frame_time = 10
     network_params = [{'Type': 'input', 'num_filters': 1, 'pad': (0, 0), 'H_layer': 34, 'W_layer': 34},
                       {'Type': 'conv', 'num_filters': 8, 'filter_size': 7, 'th': 5.,
                        'alpha': 1., 'beta': 0., 'delay': 0},
