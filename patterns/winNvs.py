@@ -10,7 +10,7 @@ import cv2
 parser = argparse.ArgumentParser()
 
 parser.add_argument("-n", "--n", dest = "n", default= 0, action='store', help="Number to show", type=int)
-parser.add_argument("-w", "--w", dest = "wevents", default= 500, action='store', help="Number of events", type=int)
+parser.add_argument("-w", "--w", dest = "wevents", default= 100, action='store', help="Number of events", type=int)
 parser.add_argument("-f", "--f", dest = "nframes", default= 5, action='store', help="Number of frames", type=int)
 parser.add_argument("-wd", "--wd", dest = "wdelay", default= 5000, action='store', help="Wait Delay between frames", type=int)
 
@@ -38,16 +38,21 @@ sample = os.path.join(root,nro,files[0])
 # Read sample
 data, width, height =  pan_functions.read_dataset(sample)
 
-# transform data into windows of W events:
+# transform data into windows of Wevents:
 # Sort events by ts
 data = np.sort(data, order='ts')
-# Collapse W events to the same ts:
+# Collapse Wevents to the same ts:
 time = 0
 data[0].ts = 0
 for i in range(1, data.shape[0]):
 	if i % wevents == 0:
 		time+=1
 	data[i].ts = time
+
+print(data.shape)
+# Drop last events
+data = data[:wevents * nframes]
+print(data.shape)
 # transform data.ts into frames
 #data.ts = np.round(data.ts / np.max(data.ts) * (nframes-1))
 
@@ -60,9 +65,8 @@ t_max = data.ts[-1]
 frame_start = data[0].ts
 frame_end = data[0].ts + frame_length
 td_img = np.ones((height, width), dtype=np.uint8)
-while frame_start < t_max:
+while frame_start <= t_max:
     frame_data = data[(data.ts >= frame_start) & (data.ts < frame_end)]
-        
     if frame_data.size > 0:
         td_img.fill(128)
 
@@ -76,7 +80,7 @@ while frame_start < t_max:
         cv2.imshow('img', td_img)
         cv2.waitKey(wdelay)
 
-    frame_start = frame_end + 1
-    frame_end = frame_end + frame_length + 1
+    frame_start += frame_length
+    frame_end += frame_length
 
 cv2.destroyAllWindows()

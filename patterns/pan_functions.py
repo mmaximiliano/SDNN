@@ -146,3 +146,85 @@ class seqPatternNMNIST(Dataset):
         return np.array(data.ts, dtype=np.int64), np.array(data.x, dtype=np.int16), \
             np.array(data.y, dtype=np.int16), np.array(data.p, dtype=np.uint8), \
                 self.target_list[index], self.digit_list[index]
+
+class seqPatternEvents(Dataset):
+    def __init__(self, root, nframes=7, wevents=100, patt=[1,2,3], qsmp=3000, qrep=250):
+        # generate a random list of all the files in nmnist with qsmp
+        self.nframes = nframes
+        self.wevents = wevents
+        samples_list_tmp = []
+        target_list_tmp = []
+        digit_list_tmp = []
+        self.pattern_list = []
+        self.patt = patt
+        nros = os.listdir(root)
+        nros.sort()
+        for nro in nros:
+            # get file list
+            files = os.listdir(os.path.join(root,nro))
+            assert(len(files) > qsmp)
+            shuffle(files)
+            for i in range(qsmp):
+                samples_list_tmp.append(os.path.join(root,nro,files[i]))
+                target_list_tmp.append(0)
+                digit_list_tmp.append(nro)
+            if int(nro) in self.patt:
+                #print('%s in patt' % nro)
+                shuffle(files)
+                cumpatt = []
+                for i in range(qrep):
+                    cumpatt.append(os.path.join(root,nro,files[i]))
+                self.pattern_list.append((cumpatt,nro))
+        # now I need to shuffle the lists together
+        c = list(zip(samples_list_tmp, target_list_tmp, digit_list_tmp))
+        shuffle(c)
+        samples_list_tmp, target_list_tmp, digit_list_tmp = zip(*c)
+        self.samples_list, self.target_list, self.digit_list = list(samples_list_tmp), list(target_list_tmp), list(digit_list_tmp)
+        #print(self.samples_list[0])
+        #print('length of pattern lists ', len(self.pattern_list))
+        # now, insert qrep times the pattern in samples list
+        nsmp_tmp = len(self.samples_list)
+        gap = int(nsmp_tmp / (qrep))
+        #print('gap', gap)
+        dx = int(0.1 * gap)
+        #print('dx', dx)
+        for k in range(1,qrep+1):
+            kind = k*gap + randint(-dx,dx)
+            #print('kind', kind)
+            for i in range(len(self.pattern_list)):
+                #print(self.pattern_list[i][0])
+                self.samples_list.insert(kind+i,self.pattern_list[i][0][k-1])
+                self.target_list.insert(kind+i,1)
+                self.digit_list.insert(kind+i, self.pattern_list[i][1])
+                
+    def __len__(self):
+        return len(self.samples_list)
+    
+    def __getitem__(self, index):
+        #print('loading ',os.path.join(self.samples_list[index]))
+        data, width, height =  read_dataset(self.samples_list[index])
+
+        # transform data into windows of Wevents:
+        # Sort events by ts
+        data = np.sort(data, order='ts')
+        # Collapse Wevents to the same ts:
+        time = 0
+        data[0].ts = 0
+        for i in range(1, data.shape[0]):
+            if i % self.wevents == 0:
+                time+=1
+            data[i].ts = time
+
+        # Drop last events
+        data = data[:self.wevents * self.nframes]
+
+
+        # add relative index of the sequence
+        data.ts = data.ts + index * self.nframes
+        return np.array(data.ts, dtype=np.int64), np.array(data.x, dtype=np.int16), \
+            np.array(data.y, dtype=np.int16), np.array(data.p, dtype=np.uint8), \
+                self.target_list[index], self.digit_list[index]
+
+
+
+

@@ -28,12 +28,12 @@ height = data.y.max() + 1
 
 # Displays the TD events (change detection ATIS or DVS events) waitDelay: milliseconds
 
-frame_length = 10
+frame_length = 1
 t_max = data.ts[-1]
 frame_start = data[0].ts
 frame_end = data[0].ts + frame_length
 td_img = np.ones((height, width), dtype=np.uint8)
-while frame_start < t_max:
+while frame_start <= t_max:
     frame_data = data[(data.ts >= frame_start) & (data.ts < frame_end)]
         
     if frame_data.size > 0:
@@ -49,7 +49,7 @@ while frame_start < t_max:
         cv2.imshow('img', td_img)
         cv2.waitKey(wait_delay)
 
-    frame_start = frame_end + 1
-    frame_end = frame_end + frame_length + 1
+    frame_start += frame_length
+    frame_end += frame_length
 
 cv2.destroyAllWindows()
