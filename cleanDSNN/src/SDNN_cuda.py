@@ -142,7 +142,7 @@ class SDNN:
         self.spike_times_pat_seq = spike_times_pat_seq
         self.num_img_learn = 1  # len(listdir(spike_times_pat_seq)) Ver como automatizar
         self.sequence = np.load(self.spike_times_pat_seq + "seq_0.npy")
-        # duration of sequences divided by duration of frame = Number of frames
+        # duration of sequence divided by duration of frame = Number of digits
         self.num_frame_train = int(self.sequence.shape[2] / self.frame_time)
 
         # --------------------------- Output features -------------------#
