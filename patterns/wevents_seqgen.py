@@ -18,23 +18,33 @@ path_seq_pat = path + '/sequences/'
 # seed random for same sequence
 pan_functions.seed_torch(seed=0)
 
-# parameters of the dataset - this are only have the purpose of testing - use defaults
-nframes=10 # frames per digit
-wevents=120 # number of events to take show per ts
-patt=[1,2,3] # pattern to copy throught the sequence
-qsmp=27 # number of samples of each digit to include in the sequence
-qrep=30 # number of times the patter is repeated on the sequence
+# parameters of the dataset
+nframes = 15    # frames per digit
+wevents = 120   # number of events to take per ts
+patt = [1,2,3]  # pattern to copy throught the sequence
+nDigits = 1000  # Amount of digits to include in the random sequence
+pfreq = 5      # Every 'pfreq' digits, I insert the pattern
+qsmp=27         # number of samples of each digit to include in the sequence
+qrep=30         # number of times the patter is repeated on the sequence
 
-train_seq = pan_functions.seqPatternEvents(root=root_dataset,nframes=nframes, 
-                      wevents=wevents, patt=patt, qsmp=qsmp, qrep=qrep)
+# Pablo's function
+#train_seq = pan_functions.seqPatternEvents(root=root_dataset,nframes=nframes, 
+#                      wevents=wevents, patt=patt, qsmp=qsmp, qrep=qrep)
+#time = (nframes*len(patt)*qrep) + (10*qsmp*nframes)
+#print(str(time))
+
+# Maxi's function
+train_seq = pan_functions.fixedPattern(root=root_dataset, nframes=nframes, 
+                      wevents=wevents, patt=patt, nDigits=nDigits, pfreq=pfreq)
+
+# Calculate total time
+time = len(train_seq) * nframes
+print("timesteps: " + str(time))
+
 print('Dataset reading resulting on %d samples' % len(train_seq))
 # the train loader should have batch_size equal 1 and shuffle equal False 
 # to conserve the structure of the sequence
 train_loader = DataLoader(train_seq, batch_size=1, shuffle=False)
-
-# Calculate total time
-time = (nframes*len(patt)*qrep) + (10*qsmp*nframes)
-print(str(time))
 
 spike_times = np.zeros([34, 34, time]) # Create matrix of spike times
 pat_times = np.zeros(time) # Indicator of the pattern in the sequence

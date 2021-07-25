@@ -225,6 +225,80 @@ class seqPatternEvents(Dataset):
             np.array(data.y, dtype=np.int16), np.array(data.p, dtype=np.uint8), \
                 self.target_list[index], self.digit_list[index]
 
+class fixedPattern(Dataset):
+    def __init__(self, root, nframes=7, wevents=100, patt=[1,2,3], nDigits=3000, pfreq=10):
+        """ 
+            root    = dataset dir
+            nframes = Number of frames per digit
+            wevents = Number of events to take per timestep/frame
+            patt    = Patter to insert in the sequence
+            nDigits = Amount of digits to create the random sequence
+            pfreq   = Every 'pfreq' digits, I insert the pattern
+        """
+        # generate a random list of all the files in nmnist with qsmp
+        self.nframes = nframes
+        self.wevents = wevents
+        self.samples_list = []
+        self.target_list = []
+        self.digit_list = []
+        self.pattern_list = []
+        self.patt = patt
+        nros = os.listdir(root)
+
+        # Collect numbers for fixed pattern
+        for nro in self.patt:
+            # get file list
+            files = os.listdir(os.path.join(root,str(nro)))
+            # Choose random sample from number
+            sample = random.choice(files)
+            self.pattern_list.append(os.path.join(root,str(nro),sample))
+
+        for i in range(1, nDigits):
+            if i % pfreq == 0:
+                for sample in range(len(self.pattern_list)):
+                    self.samples_list.append(self.pattern_list[sample])
+                    self.target_list.append(1)
+                    self.digit_list.append(patt[sample])
+            else:
+                # Choose a random number
+                nro = random.choice(nros)
+                # get file list
+                files = os.listdir(os.path.join(root,str(nro)))
+                # Choose random sample from number
+                sample = random.choice(files)
+                self.samples_list.append(os.path.join(root,str(nro),sample))
+                self.target_list.append(0)
+                self.digit_list.append(nro)
+
+                
+    def __len__(self):
+        return len(self.samples_list)
+    
+    def __getitem__(self, index):
+        #print('loading ',os.path.join(self.samples_list[index]))
+        data, width, height =  read_dataset(self.samples_list[index])
+
+        # transform data into windows of Wevents:
+        # Sort events by ts
+        data = np.sort(data, order='ts')
+        # Collapse Wevents to the same ts:
+        time = 0
+        data[0].ts = 0
+        for i in range(1, data.shape[0]):
+            if i % self.wevents == 0:
+                time+=1
+            data[i].ts = time
+
+        # Drop last events
+        data = data[:self.wevents * self.nframes]
+
+
+        # add relative index of the sequence
+        data.ts = data.ts + index * self.nframes
+        return np.array(data.ts, dtype=np.int64), np.array(data.x, dtype=np.int16), \
+            np.array(data.y, dtype=np.int16), np.array(data.p, dtype=np.uint8), \
+                self.target_list[index], self.digit_list[index]
+
 
 
 
