@@ -433,7 +433,7 @@ class SDNN:
 
             self.reset_layers()  # Reset all layers for the new frame
 
-            st = self.sequence[:, :, frame:frame+self.frame_time]  # Agarro un frame de 10 timestep
+            st = self.sequence[:, :, frame:frame+self.frame_time]  # Agarro un frame de 15 timestep
             st = np.expand_dims(st, axis=2)
             self.layers[0]['S'] = st  # (H, W, M, time)
             self.prop_step(nlayer=self.learning_layer+1, stdp=True)
@@ -546,20 +546,12 @@ class SDNN:
             else:
                 frame += self.frame_time
 
-            for i in range(1, self.num_layers):
-                s_tmp = self.layers[i]['S']
+            for j in range(1, self.num_layers):
+                s_tmp = self.layers[j]['S']
                 spikes = np.reshape(s_tmp, (s_tmp.shape[0]*s_tmp.shape[1]*s_tmp.shape[2], self.frame_time))
                 spikes = np.transpose(spikes)
                 spikes = spikes.astype(np.float32)
-                self.features_train[i].append(spikes)
-
-            #S_tmp = self.layers[self.num_layers-1]['S']
-            #S = np.reshape(S_tmp, (S_tmp.shape[0]*S_tmp.shape[1]*S_tmp.shape[2], self.frame_time))
-            #S = np.transpose(S)
-            #S = S.astype(np.float32)
-
-            #self.features_train.append(S)
-
+                self.features_train[j].append(spikes)
 
             dt = timer() - start
 

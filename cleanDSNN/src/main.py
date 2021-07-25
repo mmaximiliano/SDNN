@@ -36,7 +36,7 @@ def main():
 
     # ------------------------------- SDNN -------------------------------#
     # SDNN_cuda parameters
-    frame_time = 10
+    frame_time = 15
     network_params = [{'Type': 'input', 'num_filters': 1, 'pad': (0, 0), 'H_layer': 34, 'W_layer': 34},
                       {'Type': 'conv', 'num_filters': 8, 'filter_size': 7, 'th': 5.,
                        'alpha': 1., 'beta': 0., 'delay': 0},
@@ -48,7 +48,7 @@ def main():
                        'alpha': 1., 'beta': 0., 'delay': 0}]
     weight_params = {'mean': 0.8, 'std': 0.01}
 
-    max_learn_iter = [0, 5000, 0, 5000, 0, 4000, 0]
+    max_learn_iter = [0, 3000, 0, 5000, 0, 7000, 0]
     stdp_params = {'max_learn_iter': max_learn_iter,
                    'stdp_per_layer': [0, 10, 0, 4, 0, 2],
                    'max_iter': sum(max_learn_iter),
