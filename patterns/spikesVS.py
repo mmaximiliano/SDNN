@@ -14,6 +14,7 @@ parser.add_argument("-w", "--w", dest = "width", default= 2000, action='store', 
 parser.add_argument("-d", "--d", dest = "depth", default= 2000, action='store', help="depth", type=int)
 parser.add_argument("-f", "--f", dest = "fname", default= None, action='store', help="Name of the file", type=str)
 parser.add_argument("-wd", "--wd", dest = "wait_delay", default= 2000, action='store', help="Wait delay between frames", type=int)
+parser.add_argument("-m", "--m", dest = "nmap", default= 1, action='store', help="Map to show", type=int)
 
 args = parser.parse_args()
 
@@ -21,6 +22,7 @@ height = args.height
 width = args.width
 depth = args.depth
 fname = args.fname
+nmap = args.nmap
 wait_delay = args.wait_delay
 
 # Obtengo dir del dataset
@@ -34,15 +36,18 @@ sequence = sequence.numpy()
 sequence = np.transpose(sequence)
 sequence = np.reshape(sequence, (height, width, depth, sequence.shape[1]))
 
-# Obtengo los mapas de activacion
+# Obtengo el mapa de activacion segun depth
 data = []
-for i in range(depth):
-    activation_map = np.squeeze(sequence[:,:,i:i+1, :])
-	# Obtengo los indices de los spikes
-    activation_map = np.argwhere(activation_map>0)
-	# Le doy formato para mostrar el frame
-    for m in activation_map:
-        data.append( (m[0], m[1], 1, m[2]) )
+activation_map = np.squeeze(sequence[:,:,nmap:nmap+1, :])
+print(activation_map.shape)
+# Obtengo los indices de los spikes
+activation_map = np.argwhere(activation_map>0)
+if activation_map.shape[0] == 0:
+    print("Map at depth " + str(nmap) + " has no activations")
+    exit()
+# Le doy formato para mostrar el frame
+for m in activation_map:
+    data.append( (m[0], m[1], 1, m[2]) )
 
 data = np.array(data, np.dtype('uint16, uint16, uint8, uint64'))
 
