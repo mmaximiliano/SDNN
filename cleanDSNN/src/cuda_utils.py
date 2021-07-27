@@ -154,25 +154,3 @@ def lateral_inh(S, V, K_inh):
             S[idx, idy, idz] = 0
             return
     K_inh[idx, idy] = 0
-
-
-@cuda.jit((float32[:, :], float32[:, :], uint8[:], uint8))
-def DoG_norm(img_out, img_in, image_size, win_size):
-
-    idx, idy = cuda.grid(2)
-    if idx > image_size[0] - 1:
-         return
-    if idy > image_size[1] - 1:
-         return
-
-    sumation = .0001
-    j = 0 if idy-win_size < 0 else idy-win_size
-    while j <= (image_size[1]-1 if idy+win_size > image_size[1]-1 else idy+win_size):
-        i = 0 if idx - win_size < 0 else idx - win_size
-        while i <= (image_size[0]-1 if idx+win_size > image_size[0]-1 else idx+win_size):
-            sumation += img_in[i, j]
-            i += 1
-        j += 1
-
-    mean = sumation / ((2*win_size+1)**2)
-    img_out[idx, idy] = img_in[idx, idy] / mean
