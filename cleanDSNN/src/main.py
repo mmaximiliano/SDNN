@@ -52,7 +52,7 @@ def main():
 
     max_learn_iter = [0, 3000, 0, 5000, 0, 7000, 0]
     stdp_params = {'max_learn_iter': max_learn_iter,
-                   'stdp_per_layer': [0, 10, 0, 4, 0, 2],
+                   'stdp_per_layer': [0, 100, 0, 40, 0, 20],
                    'max_iter': sum(max_learn_iter),
                    'a_minus': np.array([0, .003, 0, .0003, 0, .0003], dtype=np.float32),
                    'a_plus': np.array([0, .004, 0, .0004, 0, .0004], dtype=np.float32),
