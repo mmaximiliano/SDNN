@@ -47,7 +47,7 @@ def main():
                        'alpha': 1., 'beta': 0., 'delay': 15},
                       {'Type': 'pool', 'num_filters': 20, 'filter_size': 3, 'th': 0., 'stride': 2},
                       {'Type': 'conv', 'num_filters': 20, 'filter_size': 3, 'th': 2.,
-                       'alpha': 1., 'beta': 0., 'delay': 5}]
+                       'alpha': 1., 'beta': 0., 'delay': 0}]
     weight_params = {'mean': 0.8, 'std': 0.01}
 
     max_learn_iter = [0, 3000, 0, 5000, 0, 7000, 0]
