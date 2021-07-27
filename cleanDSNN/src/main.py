@@ -63,7 +63,7 @@ def main():
                                    floor(network_params[5]['filter_size'])]}
 
     # Create network
-    first_net = SDNN(network_params, weight_params, stdp_params, frame_time, free_spikes
+    first_net = SDNN(network_params, weight_params, stdp_params, frame_time, free_spikes,
                      spike_times_pat_seq=spike_times_pat_seq, device='GPU')
 
     # Set the weights or learn STDP
