@@ -41,7 +41,7 @@ def main():
     frame_time = 15
     network_params = [{'Type': 'input', 'num_filters': 1, 'pad': (0, 0), 'H_layer': 34, 'W_layer': 34},
                       {'Type': 'conv', 'num_filters': 8, 'filter_size': 7, 'th': 5.,
-                       'alpha': 1., 'beta': 0., 'delay': 5},
+                       'alpha': 1., 'beta': 0., 'delay': 30},
                       {'Type': 'pool', 'num_filters': 8, 'filter_size': 2, 'th': 0., 'stride': 2},
                       {'Type': 'conv', 'num_filters': 20, 'filter_size': 5, 'th': 10.,
                        'alpha': 1., 'beta': 0., 'delay': 15},
