@@ -68,7 +68,10 @@ def main():
 
     # Set the weights or learn STDP
     if set_weights:
-        weight_path_list = [path_set_weigths + 'weight_' + str(i) + '.npy' for i in range(len(network_params) - 1)]
+        if free_spikes:
+            weight_path_list = [path_set_weigths + 'delayed_weight_' + str(i) + '.npy' for i in range(len(network_params) - 1)]
+        else:
+            weight_path_list = [path_set_weigths + 'weight_' + str(i) + '.npy' for i in range(len(network_params) - 1)]
         first_net.set_weights(weight_path_list)
     else:
         first_net.train_SDNN()
@@ -77,7 +80,10 @@ def main():
     if save_weights:
         weights = first_net.get_weights()
         for i in range(len(weights)):
-            np.save(path_save_weigths + 'weight_'+str(i), weights[i])
+            if free_spikes:
+                np.save(path_save_weigths + 'delayed_weight_'+str(i), weights[i])
+            else:
+                np.save(path_save_weigths + 'weight_'+str(i), weights[i])
 
     # ------------------------------- Classify -------------------------------#
     Sin_tmp = first_net.train_features()
