@@ -51,7 +51,7 @@ class SDNN:
             arXiv:1611.01421v1 (Nov, 2016)
     """
 
-    def __init__(self, network_params, weight_params, stdp_params, frame_time,
+    def __init__(self, network_params, weight_params, stdp_params, frame_time, free_spikes,
                  spike_times_pat_seq=None, device='GPU'):
         """
             Initialisaition of SDNN
@@ -102,6 +102,7 @@ class SDNN:
         self.num_layers = len(network_params)
         self.learnable_layers = []
         self.frame_time = frame_time
+        self.free_spikes = free_spikes
 
         # Layers Initialisation
         self.network_struc = []
@@ -404,6 +405,12 @@ class SDNN:
                         self.weights[lay - 1] = w
                         self.layers[lay]['K_STDP'] = K_STDP
 
+            # Reset K_inh and K_STDP to allow fire and learning for each timestep
+            if self.free_spikes:
+                H, W, D = self.network_struc[i]['shape']
+                self.layers[i]['K_STDP'] = np.ones((H, W, D)).astype(np.uint8)
+                self.layers[i]['K_inh'] = np.ones((H, W)).astype(np.uint8)
+
     # Train all images in training set
     def train_SDNN(self):
         """
@@ -431,7 +438,10 @@ class SDNN:
                 self.counter = 0  # Reseteo el contador para este layer
             self.counter += 1  # Caso contrario aumento el contador
 
-            self.reset_layers()  # Reset all layers for the new frame
+            if self.free_spikes:
+                self.reset_layers_spikes()
+            else:
+                self.reset_layers()  # Reset all layers for the new frame
 
             st = self.sequence[:, :, frame:frame+self.frame_time]  # Agarro un frame de 15 timestep
             st = np.expand_dims(st, axis=2)
@@ -518,7 +528,7 @@ class SDNN:
         """
         self.network_struc[3]['th'] = 7.
         print("-----------------------------------------------------------")
-        print("----------- EXTRACTING TRAINING FEATURES ------------------")
+        print("-------------------- TESTING PHASE ------------------------")
         print("-----------------------------------------------------------")
 
         frame = 0
@@ -531,7 +541,10 @@ class SDNN:
 
             start = timer()
 
-            self.reset_layers()  # Reset all layers for the new frame
+            if self.free_spikes:
+                self.reset_layers_spikes()
+            else:
+                self.reset_layers()  # Reset all layers for the new frame
 
             st = self.sequence[:, :, frame:frame+self.frame_time]  # Agarro un frame de 10 timestep
             st = np.expand_dims(st, axis=2)
