@@ -18,6 +18,8 @@ def main():
     # Flags
     learn_SDNN = True  # This flag toggles between Learning STDP and classify features
                         # or just classify by loading pretrained weights for the face/motor dataset
+    free_spikes = True # This flag toggles wheter we allowed neurons to spikes every timestep or once per timeframe
+
     if learn_SDNN:
         set_weights = False  # Loads the weights from a path (path_set_weigths) and prevents any SDNN learning
         save_weights = True  # Saves the weights in a path (path_save_weigths)
@@ -39,13 +41,13 @@ def main():
     frame_time = 15
     network_params = [{'Type': 'input', 'num_filters': 1, 'pad': (0, 0), 'H_layer': 34, 'W_layer': 34},
                       {'Type': 'conv', 'num_filters': 8, 'filter_size': 7, 'th': 5.,
-                       'alpha': 1., 'beta': 0., 'delay': 0},
+                       'alpha': 1., 'beta': 0., 'delay': 30},
                       {'Type': 'pool', 'num_filters': 8, 'filter_size': 2, 'th': 0., 'stride': 2},
                       {'Type': 'conv', 'num_filters': 20, 'filter_size': 5, 'th': 10.,
-                       'alpha': 1., 'beta': 0., 'delay': 0},
+                       'alpha': 1., 'beta': 0., 'delay': 15},
                       {'Type': 'pool', 'num_filters': 20, 'filter_size': 3, 'th': 0., 'stride': 2},
                       {'Type': 'conv', 'num_filters': 20, 'filter_size': 3, 'th': 2.,
-                       'alpha': 1., 'beta': 0., 'delay': 0}]
+                       'alpha': 1., 'beta': 0., 'delay': 5}]
     weight_params = {'mean': 0.8, 'std': 0.01}
 
     max_learn_iter = [0, 3000, 0, 5000, 0, 7000, 0]
@@ -61,7 +63,7 @@ def main():
                                    floor(network_params[5]['filter_size'])]}
 
     # Create network
-    first_net = SDNN(network_params, weight_params, stdp_params, frame_time,
+    first_net = SDNN(network_params, weight_params, stdp_params, frame_time, free_spikes
                      spike_times_pat_seq=spike_times_pat_seq, device='GPU')
 
     # Set the weights or learn STDP
@@ -80,7 +82,10 @@ def main():
     # ------------------------------- Classify -------------------------------#
     Sin_tmp = first_net.train_features()
     for i in range(1, len(network_params)):
-        fname = 'layer_' + str(i) + '_' + str(network_params[i]['Type'])
+        if network_params[1]['delay'] != 0:
+            fname = 'delayed_layer_' + str(i) + '_' + str(network_params[i]['Type'])
+        else:
+            fname = 'layer_' + str(i) + '_' + str(network_params[i]['Type'])
         Sin = torch.tensor(Sin_tmp[i])
         torch.save(Sin, path_spikes_out + fname + '.pt')
 
