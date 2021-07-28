@@ -50,7 +50,7 @@ def main():
                        'alpha': 1., 'beta': 0., 'delay': 0}]
     weight_params = {'mean': 0.8, 'std': 0.01}
 
-    max_learn_iter = [0, 2000, 0, 2900, 0, 5000, 0]
+    max_learn_iter = [0, 2000, 0, 2800, 0, 5000, 0]
     stdp_params = {'max_learn_iter': max_learn_iter,
                    'stdp_per_layer': [0, 100, 0, 40, 0, 20],
                    'max_iter': sum(max_learn_iter),
