@@ -150,4 +150,6 @@ cleanDSNN/src/.idea/*
 .idea/*
 cleanDSNN/results/layer_?_conv.pt
 cleanDSNN/results/layer_?_pool.pt
+cleanDSNN/results/delayed_layer_?_conv.pt
+cleanDSNN/results/delayed_layer_?_pool.pt
 SDNN-1.0.0-compare/*
