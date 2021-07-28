@@ -16,9 +16,9 @@ import time
 def main():
 
     # Flags
-    learn_SDNN = True  # This flag toggles between Learning STDP and classify features
+    learn_SDNN = True   # This flag toggles between Learning STDP and classify features
                         # or just classify by loading pretrained weights for the face/motor dataset
-    free_spikes = True # This flag toggles wheter we allowed neurons to spikes every timestep or once per timeframe
+    free_spikes = False  # This flag toggles wheter we allowed neurons to spikes every timestep or once per timeframe
 
     if learn_SDNN:
         set_weights = False  # Loads the weights from a path (path_set_weigths) and prevents any SDNN learning
@@ -41,10 +41,10 @@ def main():
     frame_time = 15
     network_params = [{'Type': 'input', 'num_filters': 1, 'pad': (0, 0), 'H_layer': 34, 'W_layer': 34},
                       {'Type': 'conv', 'num_filters': 8, 'filter_size': 7, 'th': 5.,
-                       'alpha': 1., 'beta': 0., 'delay': 30},
+                       'alpha': 1., 'beta': 0., 'delay': 0},
                       {'Type': 'pool', 'num_filters': 8, 'filter_size': 2, 'th': 0., 'stride': 2},
                       {'Type': 'conv', 'num_filters': 20, 'filter_size': 5, 'th': 10.,
-                       'alpha': 1., 'beta': 0., 'delay': 15},
+                       'alpha': 1., 'beta': 0., 'delay': 0},
                       {'Type': 'pool', 'num_filters': 20, 'filter_size': 3, 'th': 0., 'stride': 2},
                       {'Type': 'conv', 'num_filters': 20, 'filter_size': 3, 'th': 2.,
                        'alpha': 1., 'beta': 0., 'delay': 0}]
