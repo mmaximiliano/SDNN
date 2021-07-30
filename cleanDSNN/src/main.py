@@ -56,7 +56,7 @@ def main():
                    'max_iter': sum(max_learn_iter),
                    'a_minus': np.array([0, .003, 0, .0003, 0, .0003], dtype=np.float32),
                    'a_plus': np.array([0, .004, 0, .0004, 0, .0004], dtype=np.float32),
-                   'offset_STDP': [0, floor(network_params[1]['filter_size'])/2,
+                   'offset_STDP': [0, floor(network_params[1]['filter_size']/3),
                                    0,
                                    floor(network_params[3]['filter_size']/8),
                                    0,
