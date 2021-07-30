@@ -50,13 +50,13 @@ def main():
                        'alpha': 1., 'beta': 0., 'delay': 0}]
     weight_params = {'mean': 0.8, 'std': 0.01}
 
-    max_learn_iter = [0, 30000, 0, 20000, 0, 100, 0]
+    max_learn_iter = [0, 4000, 0, 6000, 0, 8000, 0]
     stdp_params = {'max_learn_iter': max_learn_iter,
-                   'stdp_per_layer': [0, 10, 0, 4, 0, 2],
+                   'stdp_per_layer': [0, 20, 0, 8, 0, 4],
                    'max_iter': sum(max_learn_iter),
                    'a_minus': np.array([0, .003, 0, .0003, 0, .0003], dtype=np.float32),
                    'a_plus': np.array([0, .004, 0, .0004, 0, .0004], dtype=np.float32),
-                   'offset_STDP': [0, floor(network_params[1]['filter_size']),
+                   'offset_STDP': [0, floor(network_params[1]['filter_size'])/2,
                                    0,
                                    floor(network_params[3]['filter_size']/8),
                                    0,
