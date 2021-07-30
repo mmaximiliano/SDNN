@@ -60,7 +60,7 @@ def main():
                                    0,
                                    floor(network_params[3]['filter_size']/8),
                                    0,
-                                   floor(network_params[5]['filter_size'])]}
+                                   floor(network_params[5]['filter_size']/3)]}
 
     # Create network
     first_net = SDNN(network_params, weight_params, stdp_params, frame_time, free_spikes,
