@@ -18,7 +18,7 @@ def main():
     # Flags
     learn_SDNN = True   # This flag toggles between Learning STDP and classify features
                         # or just classify by loading pretrained weights for the face/motor dataset
-    free_spikes = True  # This flag toggles wheter we allowed neurons to spikes every timestep or once per timeframe
+    free_spikes = False  # This flag toggles whether we allowed neurons to spikes every timestep or once per timeframe
 
     if learn_SDNN:
         set_weights = False  # Loads the weights from a path (path_set_weigths) and prevents any SDNN learning
@@ -50,9 +50,9 @@ def main():
                        'alpha': 1., 'beta': 0., 'delay': 0}]
     weight_params = {'mean': 0.8, 'std': 0.01}
 
-    max_learn_iter = [0, 2000, 0, 3000, 0, 5000, 0]
+    max_learn_iter = [0, 14000, 0, 100, 0, 100, 0]
     stdp_params = {'max_learn_iter': max_learn_iter,
-                   'stdp_per_layer': [0, 100, 0, 40, 0, 20],
+                   'stdp_per_layer': [0, 10, 0, 4, 0, 2],
                    'max_iter': sum(max_learn_iter),
                    'a_minus': np.array([0, .003, 0, .0003, 0, .0003], dtype=np.float32),
                    'a_plus': np.array([0, .004, 0, .0004, 0, .0004], dtype=np.float32),
