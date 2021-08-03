@@ -77,24 +77,9 @@ class SDNN:
                 - 'offset_STDP': a list of ints specifying the STDP ofset per leayer updates per layer (len = number of layers)
                 - 'a_minus': an np.float32 numpy array specifying the learning rate when no causality 
                 - 'a_plus': an np.float32 numpy array specifying the learning rate when there is causality 
-            - total_time: An int specifying the number of time steps per image
-            - spike_times_learn: A list of strings with a valid absolute or relative path to the folders with 
-                                 the learning .jpg images OR 
-                                 An uint8 array with the learning spike times of shape (N_lr, H_in, W_in, M_in). 
-                                 Axis 0 is each of the images
-            - spike_times_train: A list of strings with a valid absolute or relative path to the folders with 
-                                 the training .jpg images OR 
-                                 An uint8 array with the training spike times of shape (N_tr, H_in, W_in, M_in). 
-                                 Axis 0 is each of the images
-            - spike_times_test: A list of strings with a valid absolute or relative path to the folders with 
-                                 the testing .jpg images OR 
-                                 An uint8 array with the testing spike times of shape (N_ts, H_in, W_in, M_in). 
-                                 Axis 0 is each of the images   
-            - DoG_params: None OR A dictionary with the following keys:
-                -'img_size': A tuple of integers with the dimensions to which the images are to be resized 
-                -'DoG_size': An int with the size of the DoG filter window size
-                -'std1': A float with the standard deviation 1 for the DoG filter
-                -'std2': A float with the standard deviation 2 for the DoG filter
+            - frame_time: An int specifying the number of time steps per digit
+            - free_spikes: Bool that toggles whether we allowed neurons to spikes every timestep or once per timeframe
+            - spike_times_pat_seq: Locataion of the input sequence
         """
 
         # --------------------------- Network Initialisation -------------------#
