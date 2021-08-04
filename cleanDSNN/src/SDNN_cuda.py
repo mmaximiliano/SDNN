@@ -74,7 +74,7 @@ class SDNN:
                 - 'max_iter': an int specifyng the maximum number of iterations allowed on learning
                 - 'max_learn_iter': a list of ints specifying the maximum number of iterations allowed for training each layer (len = number of layers)
                 - 'stdp_per_layer': a list of ints specifying the maximum number of STDP updates per layer (len = number of layers)
-                - 'offset_STDP': a list of ints specifying the STDP ofset per leayer updates per layer (len = number of layers)
+                - 'offset_STDP': a list of ints specifying the STDP ofset per layer updates per layer (len = number of layers)
                 - 'a_minus': an np.float32 numpy array specifying the learning rate when no causality 
                 - 'a_plus': an np.float32 numpy array specifying the learning rate when there is causality 
             - frame_time: An int specifying the number of time steps per digit
