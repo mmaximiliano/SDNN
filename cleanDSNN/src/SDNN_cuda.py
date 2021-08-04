@@ -518,11 +518,11 @@ class SDNN:
 
         frame = 0
         for i in range(self.num_frame_train):
-            print("------------ Train features Extraction Progress  {}%----------------".format(str(i) + '/'
-                                                                                                + str(self.num_frame_train)
-                                                                                                + ' ('
-                                                                                                + str(100 * i / self.num_frame_train)
-                                                                                                + ')'))
+            print("------------ Testing Progress  {}%----------------".format(str(i) + '/'
+                                                                              + str(self.num_frame_train)
+                                                                              + ' ('
+                                                                              + str(100 * i / self.num_frame_train)
+                                                                              + ')'))
 
             start = timer()
 
