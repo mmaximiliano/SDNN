@@ -18,14 +18,14 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-p", "--p", nargs='+', dest="patt_list", default=[1], action='store', help="Pattern list", type=int)
 parser.add_argument("-nn", "--nn", nargs='+', dest="noiseNums", default=None, action='store', help="Noisy Numbers", type=int)
 parser.add_argument("-w", "--w", dest="nevents", default=120, action='store', help="Number of events", type=int)
+parser.add_argument("-pf", "--pf", dest="pfreq", default=3, action='store', help="Frequency of the pattern", type=int)
+parser.add_argument("-nd", "--nd", dest="nDigits", default=1000, action='store', help="Number of Digits", type=int)
 parser.add_argument("-fname", "--fname", dest="fname", default="default_seq", action='store',
                     help="File name of the sequence", type=str)
 
 args = parser.parse_args()
 
-patt_list = args.patt_list
 noiseNums = args.noiseNums
-nevents = args.nevents
 fname = args.fname
 
 root_dataset = './N-MNIST/Train'
@@ -36,13 +36,13 @@ path_seq_pat = path + '/sequences/'
 pan_functions.seed_torch(seed=0)
 
 # parameters of the dataset
-nframes = 15  # frames per digit
-wevents = nevents  # number of events to take per ts
-patt = patt_list  # pattern to copy throught the sequence
-nDigits = 1000  # Amount of digits to include in the random sequence
-pfreq = 3  # Every 'pfreq' digits, I insert the pattern
-qsmp = 27  # number of samples of each digit to include in the sequence
-qrep = 30  # number of times the patter is repeated on the sequence
+nframes = 15            # frames per digit
+wevents = args.nevents  # number of events to take per ts
+patt = args.patt_list   # pattern to copy throught the sequence
+nDigits = args.nDigits  # Amount of digits to include in the random sequence
+pfreq = args.pfreq      # Every 'pfreq' digits, I insert the pattern
+qsmp = 27               # number of samples of each digit to include in the sequence
+qrep = 30               # number of times the patter is repeated on the sequence
 
 # Pablo's function
 # train_seq = pan_functions.seqPatternEvents(root=root_dataset,nframes=nframes,
