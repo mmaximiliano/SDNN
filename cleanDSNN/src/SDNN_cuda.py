@@ -438,7 +438,7 @@ class SDNN:
             else:
                 frame += self.frame_time
 
-            if i % 750 == 0:
+            if i % 500 == 0:
                 self.stdp_a_plus[self.learning_layer] = min(2.*self.stdp_a_plus[self.learning_layer], 0.15)
                 self.stdp_a_minus[self.learning_layer] = 0.75*self.stdp_a_plus[self.learning_layer]
 
@@ -502,14 +502,12 @@ class SDNN:
 
 # --------------------------- Propagation functions ------------------------#
 
-    # Get training features
+    # Get testing results
     def train_features(self):
         """
-            Gets the train features by propagating the set of training images
+            Gets the output spikes of each layer by propagating the set of training sequences
             Returns:
-                - X_train: Training features of size (N, M)
-                            where N is the number of training samples
-                            and M is the number of maps in the last layer
+                - features_train: Sequence of output spikes from each layer
         """
         self.network_struc[3]['th'] = 7.
         print("-----------------------------------------------------------")
@@ -531,12 +529,12 @@ class SDNN:
             else:
                 self.reset_layers()  # Reset all layers for the new frame
 
-            st = self.sequence[:, :, frame:frame+self.frame_time]  # Agarro un frame de 10 timestep
+            st = self.sequence[:, :, frame:frame+self.frame_time]  # Agarro un frame de 15 timestep
             st = np.expand_dims(st, axis=2)
             self.layers[0]['S'] = st  # (H, W, M, time)
             # Propagates one image through the SDNN network.
             # Here no STDP takes place and we always reach the last layer.
-            self.prop_step(nlayer=self.num_layers, stdp=True)
+            self.prop_step(nlayer=self.num_layers, stdp=False)
 
             # Tomo el siguiente frame de la secuencia
             if frame >= (self.sequence.shape[2] - (2*self.frame_time)):
@@ -554,14 +552,14 @@ class SDNN:
             dt = timer() - start
 
 
-        print("------------ Train features Extraction Progress  {}%----------------".format(str(self.num_frame_train)
+        print("------------ Testing Progress  {}%----------------".format(str(self.num_frame_train)
                                                                                             + '/'
                                                                                             + str(self.num_frame_train)
                                                                                             + ' ('
                                                                                             + str(100)
                                                                                             + ')'))
         print("-----------------------------------------------------------")
-        print("------------- TRAINING FEATURES EXTRACTED -----------------")
+        print("--------------- TESTING PHASE COMPLETED -------------------")
         print("-----------------------------------------------------------")
 
         # Transform features to numpy array
