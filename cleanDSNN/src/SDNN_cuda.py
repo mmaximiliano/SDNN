@@ -438,7 +438,7 @@ class SDNN:
             else:
                 frame += self.frame_time
 
-            if i % 500 == 0:
+            if i % 750 == 0:
                 self.stdp_a_plus[self.learning_layer] = min(2.*self.stdp_a_plus[self.learning_layer], 0.15)
                 self.stdp_a_minus[self.learning_layer] = 0.75*self.stdp_a_plus[self.learning_layer]
 
