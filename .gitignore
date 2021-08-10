@@ -154,3 +154,5 @@ cleanDSNN/results/delayed_layer_?_conv.pt
 cleanDSNN/results/delayed_layer_?_pool.pt
 SDNN-1.0.0-compare/*
 patterns/sequences/*
+cleanDSNN/results/old_results/r_1/data_two_nums.npy
+cleanDSNN/results/old_results/*/*two_nums*.npy
