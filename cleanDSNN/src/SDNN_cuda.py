@@ -54,7 +54,7 @@ class SDNN:
     def __init__(self, network_params, weight_params, stdp_params, frame_time, free_spikes,
                  spike_times_pat_seq=None, device='GPU'):
         """
-            Initialisaition of SDNN
+            Initialisation of SDNN
 
             Input:            
             - network_params: A list of dictionaries with the following keys:                
