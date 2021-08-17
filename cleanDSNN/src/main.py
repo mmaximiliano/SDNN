@@ -17,7 +17,7 @@ def main():
 
     # Flags
     learn_SDNN = True   # This flag toggles between Learning STDP and classify features
-                        # or just classify by loading pretrained weights for the face/motor dataset
+                        # or just classify by loading pretrained weights
     free_spikes = False  # This flag toggles whether we allowed neurons to spikes every timestep or once per timeframe
 
     if learn_SDNN:
