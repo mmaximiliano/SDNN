@@ -127,7 +127,7 @@ class SDNN:
         # Generate Iterators with the full path to the images in each set OR reference the spike times
         self.spike_times_pat_seq = spike_times_pat_seq
         self.num_img_learn = 1  # len(listdir(spike_times_pat_seq)) Ver como automatizar
-        self.sequence = np.load(self.spike_times_pat_seq + "all_nums.npy")
+        self.sequence = np.load(self.spike_times_pat_seq + "all_nums_less_freq.npy")
         # duration of sequence divided by duration of frame = Number of digits
         self.num_frame_train = int(self.sequence.shape[2] / self.frame_time)
 
