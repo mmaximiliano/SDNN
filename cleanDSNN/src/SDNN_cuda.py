@@ -410,7 +410,8 @@ class SDNN:
         print("-----------------------------------------------------------")
 
         frame = 0
-        for i in range(self.max_iter):
+        i = 0
+        while i < self.max_iter:
             print("----------------- Learning Progress  {}%----------------------".format(str(i) + '/'
                                                                                           + str(self.max_iter)
                                                                                           + ' ('
@@ -418,16 +419,18 @@ class SDNN:
                                                                                           + ')'))
 
             if self.c_learning:
+                i += 1
                 lay = self.learning_layer
                 w = self.weights[lay - 1]
                 c_l = self.weight_convergence(w, w.shape[0], w.shape[1], w.shape[2], w.shape[3])
 
                 if (c_l < 0.01) | (self.counter > self.max_learn_iter[self.learning_layer]):
+                    i = i - self.counter + self.max_learn_iter[self.learning_layer]
                     self.curr_lay_idx += 1  # Paso al siguiente layer
                     self.learning_layer = self.learnable_layers[self.curr_lay_idx]  # Actualizo el learning layer actual
                     self.counter = 0  # Reseteo el contador para este layer
                 self.counter += 1  # Caso contrario aumento el contador
-                print("Layer " + str(lay) + ' ' + str(self.network_struc[i]['Type']) + " Convergence: " + str(c_l))
+                print("Layer " + str(lay) + ' ' + str(self.network_struc[lay]['Type']) + " Convergence: " + str(c_l))
             else:
                 # Dentro del total de iteraciones veo cuantas le corresponden a cada layer
                 # Me fijo si ya realice todas las iteraciones de este layer
@@ -436,6 +439,7 @@ class SDNN:
                     self.learning_layer = self.learnable_layers[self.curr_lay_idx]  # Actualizo el learning layer actual
                     self.counter = 0  # Reseteo el contador para este layer
                 self.counter += 1  # Caso contrario aumento el contador
+                i += 1
 
             if self.free_spikes:
                 self.reset_layers_spikes()
