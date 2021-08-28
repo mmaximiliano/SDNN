@@ -52,7 +52,7 @@ class SDNN:
     """
 
     def __init__(self, network_params, weight_params, stdp_params, frame_time, free_spikes,
-                 spike_times_pat_seq=None, device='GPU'):
+                 spike_times_pat_seq=None, c_learning=False, device='GPU'):
         """
             Initialisation of SDNN
 
@@ -88,6 +88,7 @@ class SDNN:
         self.learnable_layers = []
         self.frame_time = frame_time
         self.free_spikes = free_spikes
+        self.c_learning = c_learning
 
         # Layers Initialisation
         self.network_struc = []
@@ -415,13 +416,26 @@ class SDNN:
                                                                                           + ' ('
                                                                                           + str(100 * i / self.max_iter)
                                                                                           + ')'))
-            # Dentro del total de iteraciones veo cuantas le corresponden a cada layer
-            # Me fijo si ya realice todas las iteraciones de este layer
-            if self.counter > self.max_learn_iter[self.learning_layer]:
-                self.curr_lay_idx += 1  # Paso al siguiente layer
-                self.learning_layer = self.learnable_layers[self.curr_lay_idx]  # Actualizo el learning layer actual
-                self.counter = 0  # Reseteo el contador para este layer
-            self.counter += 1  # Caso contrario aumento el contador
+
+            if self.c_learning:
+                lay = self.learning_layer
+                w = self.weights[lay - 1]
+                c_l = self.weight_convergence(w, w.shape[0], w.shape[1], w.shape[2], w.shape[3])
+
+                if (c_l < 0.01) | (self.counter > self.max_learn_iter[self.learning_layer]):
+                    self.curr_lay_idx += 1  # Paso al siguiente layer
+                    self.learning_layer = self.learnable_layers[self.curr_lay_idx]  # Actualizo el learning layer actual
+                    self.counter = 0  # Reseteo el contador para este layer
+                self.counter += 1  # Caso contrario aumento el contador
+                print("Layer " + str(lay) + ' ' + str(self.network_struc[i]['Type']) + " Convergence: " + str(c_l))
+            else:
+                # Dentro del total de iteraciones veo cuantas le corresponden a cada layer
+                # Me fijo si ya realice todas las iteraciones de este layer
+                if self.counter > self.max_learn_iter[self.learning_layer]:
+                    self.curr_lay_idx += 1  # Paso al siguiente layer
+                    self.learning_layer = self.learnable_layers[self.curr_lay_idx]  # Actualizo el learning layer actual
+                    self.counter = 0  # Reseteo el contador para este layer
+                self.counter += 1  # Caso contrario aumento el contador
 
             if self.free_spikes:
                 self.reset_layers_spikes()
@@ -639,3 +653,18 @@ class SDNN:
         d_w.copy_to_host(w_out)
         d_K_STDP.copy_to_host(K_STDP_out)
         return w_out, K_STDP_out
+
+    def weight_convergence(self, w, H, W, M, D):
+        """
+                    Cuda Weight Convergence Calculator
+                    Returns the weight convergence
+        """
+        # Calculate the membrance potential
+        c_l = 0.
+        for l in range(D):
+            for k in range(M):
+                for j in range(W):
+                    for i in range(H):
+                        c_l += (w[i, j, k, l])*(1-(w[i, j, k, l]))
+        c_l = c_l / (H * W * M * W)
+        return c_l
