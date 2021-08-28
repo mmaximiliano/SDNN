@@ -19,6 +19,7 @@ def main():
     learn_SDNN = True   # This flag toggles between Learning STDP and classify features
                         # or just classify by loading pretrained weights
     free_spikes = False  # This flag toggles whether we allowed neurons to spikes every timestep or once per timeframe
+    c_learning = False   # This flag toggles whether we learn by a fixed amount of iterationts or when weights converges
 
     if learn_SDNN:
         set_weights = False  # Loads the weights from a path (path_set_weigths) and prevents any SDNN learning
@@ -64,7 +65,7 @@ def main():
 
     # Create network
     first_net = SDNN(network_params, weight_params, stdp_params, frame_time, free_spikes,
-                     spike_times_pat_seq=spike_times_pat_seq, device='GPU')
+                     spike_times_pat_seq=spike_times_pat_seq, c_learning=c_learning,device='GPU')
 
     # Set the weights or learn STDP
     if set_weights:
