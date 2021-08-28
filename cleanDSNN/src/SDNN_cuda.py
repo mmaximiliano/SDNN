@@ -430,7 +430,7 @@ class SDNN:
                     self.learning_layer = self.learnable_layers[self.curr_lay_idx]  # Actualizo el learning layer actual
                     self.counter = 0  # Reseteo el contador para este layer
                 self.counter += 1  # Caso contrario aumento el contador
-                print("Layer " + str(lay) + ' ' + str(self.network_struc[lay]['Type']) + " Convergence: " + str(c_l))
+                print("Layer " + str(lay) + "weight convergence: " + str(c_l))
             else:
                 # Dentro del total de iteraciones veo cuantas le corresponden a cada layer
                 # Me fijo si ya realice todas las iteraciones de este layer
