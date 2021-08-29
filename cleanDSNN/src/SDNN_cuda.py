@@ -424,7 +424,7 @@ class SDNN:
                 w = self.weights[lay - 1]
                 c_l = self.weight_convergence(w, w.shape[0], w.shape[1], w.shape[2], w.shape[3])
 
-                if (c_l < 0.01) | (self.counter > self.max_learn_iter[self.learning_layer]):
+                if (c_l < 0.007) | (self.counter > self.max_learn_iter[self.learning_layer]):
                     i = i - self.counter + self.max_learn_iter[self.learning_layer]
                     self.curr_lay_idx += 1  # Paso al siguiente layer
                     self.learning_layer = self.learnable_layers[self.curr_lay_idx]  # Actualizo el learning layer actual
