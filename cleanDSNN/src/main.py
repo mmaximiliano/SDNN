@@ -41,10 +41,10 @@ def main():
     # SDNN_cuda parameters
     frame_time = 15
     network_params = [{'Type': 'input', 'num_filters': 1, 'pad': (0, 0), 'H_layer': 34, 'W_layer': 34},
-                      {'Type': 'conv', 'num_filters': 8, 'filter_size': 7, 'th': 15.,
+                      {'Type': 'conv', 'num_filters': 8, 'filter_size': 7, 'th': 10.,
                        'alpha': .99, 'beta': 0., 'delay': 0},
                       {'Type': 'pool', 'num_filters': 8, 'filter_size': 2, 'th': 0., 'stride': 2},
-                      {'Type': 'conv', 'num_filters': 16, 'filter_size': 5, 'th': 10.,
+                      {'Type': 'conv', 'num_filters': 16, 'filter_size': 5, 'th': 6.,
                        'alpha': .99, 'beta': 0., 'delay': 0},
                       {'Type': 'pool', 'num_filters': 16, 'filter_size': 3, 'th': 0., 'stride': 2},
                       {'Type': 'conv', 'num_filters': 16, 'filter_size': 3, 'th': 2.,
