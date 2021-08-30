@@ -427,7 +427,8 @@ class SDNN:
                 if (c_l < 0.007) | (self.counter > self.max_learn_iter[self.learning_layer]):
                     i = i - self.counter + self.max_learn_iter[self.learning_layer]
                     self.curr_lay_idx += 1  # Paso al siguiente layer
-                    self.learning_layer = self.learnable_layers[self.curr_lay_idx]  # Actualizo el learning layer actual
+                    if self.curr_lay_idx >= len(self.learnable_layers):
+                        self.learning_layer = self.learnable_layers[self.curr_lay_idx]  # Actualizo el learning layer actual
                     self.counter = 0  # Reseteo el contador para este layer
                 self.counter += 1  # Caso contrario aumento el contador
                 print("Layer " + str(lay) + " weight convergence: " + str(c_l))
