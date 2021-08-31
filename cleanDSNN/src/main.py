@@ -41,17 +41,17 @@ def main():
     # SDNN_cuda parameters
     frame_time = 15
     network_params = [{'Type': 'input', 'num_filters': 1, 'pad': (0, 0), 'H_layer': 34, 'W_layer': 34},
-                      {'Type': 'conv', 'num_filters': 8, 'filter_size': 7, 'th': 10.,
+                      {'Type': 'conv', 'num_filters': 8, 'filter_size': 7, 'th': 15.,
                        'alpha': .99, 'beta': 0., 'delay': 0},
                       {'Type': 'pool', 'num_filters': 8, 'filter_size': 2, 'th': 0., 'stride': 2},
-                      {'Type': 'conv', 'num_filters': 16, 'filter_size': 5, 'th': 6.,
+                      {'Type': 'conv', 'num_filters': 20, 'filter_size': 5, 'th': 10.,
                        'alpha': .99, 'beta': 0., 'delay': 0},
-                      {'Type': 'pool', 'num_filters': 16, 'filter_size': 3, 'th': 0., 'stride': 2},
-                      {'Type': 'conv', 'num_filters': 16, 'filter_size': 3, 'th': 2.,
+                      {'Type': 'pool', 'num_filters': 20, 'filter_size': 3, 'th': 0., 'stride': 2},
+                      {'Type': 'conv', 'num_filters': 20, 'filter_size': 3, 'th': 2.,
                        'alpha': .99, 'beta': 0., 'delay': 0}]
     weight_params = {'mean': 0.8, 'std': 0.01}
 
-    max_learn_iter = [0, 6000, 0, 9000, 0, 15000, 0]
+    max_learn_iter = [0, 3000, 0, 4000, 0, 6000, 0]
     stdp_params = {'max_learn_iter': max_learn_iter,
                    'stdp_per_layer': [0, 10, 0, 4, 0, 2],
                    'max_iter': sum(max_learn_iter),
@@ -65,7 +65,7 @@ def main():
 
     # Create network
     first_net = SDNN(network_params, weight_params, stdp_params, frame_time, free_spikes,
-                     spike_times_pat_seq=spike_times_pat_seq, c_learning=c_learning,device='GPU')
+                     spike_times_pat_seq=spike_times_pat_seq, c_learning=c_learning, device='GPU')
 
     # Set the weights or learn STDP
     if set_weights:
@@ -81,12 +81,12 @@ def main():
     if save_weights:
         weights = first_net.get_weights()
         for i in range(len(weights)):
-            if free_spikes:
+            if network_params[1]['delay'] != 0:
                 np.save(path_save_weigths + 'delayed_weight_'+str(i), weights[i])
             else:
                 np.save(path_save_weigths + 'weight_'+str(i), weights[i])
 
-    # ------------------------------- Classify -------------------------------#
+    # ------------------------------- Save Results -------------------------------#
     Sin_tmp = first_net.train_features()
     for i in range(1, len(network_params)):
         if network_params[1]['delay'] != 0:
@@ -98,6 +98,35 @@ def main():
 
     print('DONE')
 
+    # -------------------------- Single Neuron Output -------------------------- #
+    #Sin_tmp = torch.tensor(Sin_tmp[len(network_params)-1])
+    #T = Sin_tmp.shape[0]
+    #N_out = 1
+    #N_in = Sin_tmp.shape[1]
+    #th = 3.8
+
+    #singleNeuron = STDPLIFDensePopulation(in_channels=N_in, out_channels=N_out,
+    #                                      weight=0.75, alpha=float(np.exp(-1e-3 / 10e-3)),
+    #                                      beta=float(np.exp(-1e-3 / 2e-5)), delay=0,
+    #                                      th=th, a_plus=.03225, a_minus=.045625,
+    #                                      w_max=1.)
+    #Sin = Sin_tmp.clone().detach()
+
+    # Pre-procesamos PSpikes y NSpikes
+    #dt_ltp = 10  # Cantidad de timesteps que miro hacia atras
+    #dt_ltd = 50  # Cantidad de timesteps que miro hacia delante
+    #PSpikes = preSpikes(T, dt_ltp, torch.zeros(T, N_in), Sin)
+    #NSpikes = nextSpikes(T, dt_ltd, torch.zeros(T, N_in), Sin)
+
+    # Realizamos el entrenamiento STDP
+    #Uprobe = np.empty([T, N_out])
+    #Iprobe = np.empty([T, N_out])
+    #Sprobe = np.empty([T, N_out])
+    #for n in range(T):
+    #    state = singleNeuron.forward(Sin[n].unsqueeze(0), PSpikes[n], NSpikes[n - 1])
+    #    Uprobe[n] = state.U.data.numpy()
+    #    Iprobe[n] = state.I.data.numpy()
+    #    Sprobe[n] = state.S.data.numpy()
 
 if __name__ == '__main__':
     start = time.time()
