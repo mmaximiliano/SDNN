@@ -388,7 +388,7 @@ class SDNN:
                         w, K_STDP = self.STDP(S.shape, s, w, K_STDP,
                                               maxval, maxind1, maxind2,
                                               stride, offset, a_minus, a_plus, blockdim, griddim)
-                        self.weights[lay - 1] = w
+                        self.weights[lay - 1] = np.clip(w, 0., 1.)
                         self.layers[lay]['K_STDP'] = K_STDP
 
             # Reset K_inh and K_STDP to allow fire and learning for each timestep
