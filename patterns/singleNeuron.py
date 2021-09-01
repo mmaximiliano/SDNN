@@ -157,6 +157,10 @@ class STDPLIFDensePopulation(LIFDensePopulation):
         self.normalize(self.norm)
         return self.state
 
+    def forward_no_learning(self, Sin_t):
+        nState = super(STDPLIFDensePopulation, self).forward(Sin_t)  # Calculo el estado actual
+        return self.state
+
 
 # -------- Definimos las funciones para pre-procesar los spikes ---------- #
 def preSpikes(t, dt, PSpikes, Sin):
@@ -193,6 +197,12 @@ def nextSpikes(t, dt, NSpikes, Sin):
                                  NSpikes[i])
     return NSpikes
 
+def convergence_level(w):
+    c_l = 0.
+    for i in w:
+        c_l += i.item()*(1-i.item())
+    c_l = c_l/len(w)
+    return c_l
 
 
 
