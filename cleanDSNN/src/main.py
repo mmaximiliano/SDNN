@@ -16,7 +16,7 @@ import time
 def main():
 
     # Flags
-    learn_SDNN = True   # This flag toggles between Learning STDP and classify features
+    learn_SDNN = False   # This flag toggles between Learning STDP and classify features
                         # or just classify by loading pretrained weights
     free_spikes = False  # This flag toggles whether we allowed neurons to spikes every timestep or once per timeframe
     c_learning = True   # This flag toggles whether we learn by a fixed amount of iterationts or when weights converges
@@ -86,7 +86,7 @@ def main():
             else:
                 np.save(path_save_weigths + 'weight_'+str(i), weights[i])
 
-    # ------------------------------- Save Results -------------------------------#
+    # ------------------------------- Run Testing Sequence & Save Results -------------------------------#
     Sin_tmp = first_net.train_features()
     for i in range(1, len(network_params)):
         if network_params[1]['delay'] != 0:
