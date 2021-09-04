@@ -263,17 +263,30 @@ class fixedPattern(Dataset):
             # get file list
             files = os.listdir(os.path.join(root, str(nro)))
             # Choose random sample from number
+            #if nro == 1:
+            #    sample = "31466.bin"
+            #elif nro == 2:
+            #    sample = "58965.bin"
+            #else:
+            #    sample = "03048.bin"
             sample = random.choice(files)
+            #print(sample)
             self.pattern_list.append(os.path.join(root, str(nro), sample))
 
         for i in range(1, nDigits):
             # Check if I should insert the pattern
             if i % pfreq == 0:
                 # Insert pattern
-                for sample in range(len(self.pattern_list)):
-                    self.samples_list.append(self.pattern_list[sample])
+                #for sample in range(len(self.pattern_list)):
+                #    self.samples_list.append(self.pattern_list[sample])
+                #    self.target_list.append(1)
+                #    self.digit_list.append(patt[sample])
+                for nro in self.patt:
+                    files = os.listdir(os.path.join(root, str(nro)))
+                    sample = random.choice(files)
+                    self.samples_list.append(os.path.join(root, str(nro), sample))
                     self.target_list.append(1)
-                    self.digit_list.append(patt[sample])
+                    self.digit_list.append(nro)
             else:
                 # Choose a random number
                 if len(noiseNums) != 0:
@@ -314,3 +327,95 @@ class fixedPattern(Dataset):
         return np.array(data.ts, dtype=np.int64), np.array(data.x, dtype=np.int16), \
                np.array(data.y, dtype=np.int16), np.array(data.p, dtype=np.uint8), \
                self.target_list[index], self.digit_list[index]
+
+class randomPattern(Dataset):
+    def __init__(self, root, nframes=7, wevents=100, patt=None, nDigits=3000, pfreq=10, noiseNums=None):
+        """ 
+            root    = dataset dir
+            nframes = Number of frames per digit
+            wevents = Number of events to take per timestep/frame
+            patt    = Patter to insert in the sequence
+            nDigits = Amount of digits to create the random sequence
+            pfreq   = Max random choice, [1:pfreq] digits until next pattern
+        """
+        # generate a random list of all the files in nmnist with qsmp
+        if noiseNums is None:
+            noiseNums = []
+        if patt is None:
+            patt = [1, 2, 3]
+        self.nframes = nframes
+        self.wevents = wevents
+        self.samples_list = []
+        self.target_list = []
+        self.digit_list = []
+        self.pattern_list = []
+        self.patt = patt
+        nros = os.listdir(root)
+
+        # Collect numbers for fixed pattern
+        for nro in self.patt:
+            # get file list
+            files = os.listdir(os.path.join(root, str(nro)))
+            # Choose random sample from number
+            if nro == 1:
+                sample = "31466.bin"
+            #elif nro == 2:
+            #    sample = "58965.bin"
+            #else:
+            #    sample = "03048.bin"
+            #sample = random.choice(files)
+            #print(sample)
+            self.pattern_list.append(os.path.join(root, str(nro), sample))
+
+        noisyNumbers = random.choice(range(1,pfreq))
+        for i in range(1, nDigits):
+            # Check if I should insert the pattern
+            if noisyNumbers == 0:
+                # Insert pattern
+                for sample in range(len(self.pattern_list)):
+                    self.samples_list.append(self.pattern_list[sample])
+                    self.target_list.append(1)
+                    self.digit_list.append(patt[sample])
+                # Next amount of noisy numbers
+                noisyNumbers = random.choice(range(1,pfreq+1))
+            else:
+                # Choose a random number
+                if len(noiseNums) != 0:
+                    nro = random.choice(noiseNums)
+                else:
+                    nro = random.choice(nros)
+                # get file list
+                files = os.listdir(os.path.join(root, str(nro)))
+                # Choose random sample from number
+                sample = random.choice(files)
+                self.samples_list.append(os.path.join(root, str(nro), sample))
+                self.target_list.append(0)
+                self.digit_list.append(nro)
+                noisyNumbers -= 1
+
+    def __len__(self):
+        return len(self.samples_list)
+
+    def __getitem__(self, index):
+        # print('loading ',os.path.join(self.samples_list[index]))
+        data, width, height = read_dataset(self.samples_list[index])
+
+        # transform data into windows of Wevents:
+        # Sort events by ts
+        data = np.sort(data, order='ts')
+        # Collapse Wevents to the same ts:
+        time = 0
+        data[0].ts = 0
+        for i in range(1, data.shape[0]):
+            if i % self.wevents == 0:
+                time += 1
+            data[i].ts = time
+
+        # Drop last events
+        data = data[:self.wevents * self.nframes]
+
+        # add relative index of the sequence
+        data.ts = data.ts + index * self.nframes
+        return np.array(data.ts, dtype=np.int64), np.array(data.x, dtype=np.int16), \
+               np.array(data.y, dtype=np.int16), np.array(data.p, dtype=np.uint8), \
+               self.target_list[index], self.digit_list[index]               
