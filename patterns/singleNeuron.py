@@ -1,5 +1,6 @@
 import torch.nn as nn
 import torch
+import numpy as np
 from collections import namedtuple
 
 NeuronState = namedtuple('NeuronState', ['U', 'I', 'S', 'D', 'C'])
@@ -204,20 +205,26 @@ def convergence_level(w):
     c_l = c_l/len(w)
     return c_l
 
+def get_metrics(T, pat_times, Sprobe):
+    tp, tn, fp, fn, p, n = 0, 0, 0, 0, 0, 0
+    for i in range(0, T, 15):
+        pat = pat_times[i:i+15]
+        spikes = Sprobe[i:i+15]
+        if np.count_nonzero(pat):
+            p+=1
+        else:
+            n+=1
+        if (not np.count_nonzero(pat)) and (not np.count_nonzero(spikes)):
+            tn+=1
+        elif (np.count_nonzero(pat)) and (np.count_nonzero(spikes)):
+            tp+=1
+        elif (not np.count_nonzero(pat)) and (np.count_nonzero(spikes)):
+            fp+=1
+        elif (np.count_nonzero(pat)) and (not np.count_nonzero(spikes)):
+            fn+=1
+    accuracy =(tp+tn)/(p+n)
+    precision = tp/(tp+fp)
+    recall = tp/(tp+fn)
+    f1 = (2*tp)/(2*tp+fp+fn)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    return accuracy, precision, recall, f1
