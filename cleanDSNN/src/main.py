@@ -41,17 +41,17 @@ def main():
     # SDNN_cuda parameters
     frame_time = 15
     network_params = [{'Type': 'input', 'num_filters': 1, 'pad': (0, 0), 'H_layer': 34, 'W_layer': 34},
-                      {'Type': 'conv', 'num_filters': 8, 'filter_size': 7, 'th': 11.,
+                      {'Type': 'conv', 'num_filters': 6, 'filter_size': 7, 'th': 10.,
                        'alpha': .99, 'beta': 0., 'delay': 0},
-                      {'Type': 'pool', 'num_filters': 8, 'filter_size': 2, 'th': 0., 'stride': 2},
-                      {'Type': 'conv', 'num_filters': 16, 'filter_size': 5, 'th': 7.5,
+                      {'Type': 'pool', 'num_filters': 6, 'filter_size': 2, 'th': 0., 'stride': 2},
+                      {'Type': 'conv', 'num_filters': 12, 'filter_size': 5, 'th': 7.,
                        'alpha': .99, 'beta': 0., 'delay': 0},
-                      {'Type': 'pool', 'num_filters': 16, 'filter_size': 3, 'th': 0., 'stride': 2},
-                      {'Type': 'conv', 'num_filters': 16, 'filter_size': 3, 'th': 1.5,
+                      {'Type': 'pool', 'num_filters': 12, 'filter_size': 3, 'th': 0., 'stride': 2},
+                      {'Type': 'conv', 'num_filters': 12, 'filter_size': 3, 'th': 1.5,
                        'alpha': .99, 'beta': 0., 'delay': 0}]
     weight_params = {'mean': 0.8, 'std': 0.01}
 
-    max_learn_iter = [0, 3500, 0, 5000, 0, 7500, 0]
+    max_learn_iter = [0, 3000, 0, 4000, 0, 6000, 0]
     stdp_params = {'max_learn_iter': max_learn_iter,
                    'stdp_per_layer': [0, 10, 0, 4, 0, 2],
                    'max_iter': sum(max_learn_iter),
