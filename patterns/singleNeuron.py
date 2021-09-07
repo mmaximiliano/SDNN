@@ -226,5 +226,7 @@ def get_metrics(T, pat_times, Sprobe):
     precision = tp/(tp+fp)
     recall = tp/(tp+fn)
     f1 = (2*tp)/(2*tp+fp+fn)
+    fake_alarms = fp/n
+    missed_alarms = fn/p
 
-    return accuracy, precision, recall, f1
+    return accuracy, precision, recall, f1, fake_alarms, missed_alarms
