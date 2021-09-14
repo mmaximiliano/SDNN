@@ -33,7 +33,7 @@ path = dirname(realpath(__file__))
 path_seq_pat = path + '/sequences/'
 
 # seed random for same sequence
-pan_functions.seed_torch(seed=0)
+pan_functions.seed_torch(seed=5)
 
 # parameters of the dataset
 nframes = 15            # frames per digit
@@ -51,8 +51,10 @@ qrep = 30               # number of times the patter is repeated on the sequence
 # print(str(time))
 
 # Maxi's function
-train_seq = pan_functions.fixedPattern(root=root_dataset, nframes=nframes,
-                                       wevents=wevents, patt=patt, nDigits=nDigits, pfreq=pfreq, noiseNums=noiseNums)
+#train_seq = pan_functions.fixedPattern(root=root_dataset, nframes=nframes,
+#                                       wevents=wevents, patt=patt, nDigits=nDigits, pfreq=pfreq, noiseNums=noiseNums)
+train_seq = pan_functions.randomPattern(root=root_dataset, nframes=nframes,
+                                        wevents=wevents, patt=patt, nDigits=nDigits, pfreq=pfreq, noiseNums=noiseNums)
 
 # Calculate total time
 time = len(train_seq) * nframes
