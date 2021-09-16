@@ -16,7 +16,7 @@ import time
 def main():
 
     # Flags
-    learn_SDNN = False   # This flag toggles between Learning STDP and classify features
+    learn_SDNN = True   # This flag toggles between Learning STDP and classify features
                         # or just classify by loading pretrained weights
     free_spikes = False  # This flag toggles whether we allowed neurons to spikes every timestep or once per timeframe
     c_learning = True   # This flag toggles whether we learn by a fixed amount of iterationts or when weights converges
@@ -51,7 +51,7 @@ def main():
                        'alpha': .99, 'beta': 0., 'delay': 0}]
     weight_params = {'mean': 0.8, 'std': 0.01}
 
-    max_learn_iter = [0, 5000, 0, 8000, 0, 10000, 0]
+    max_learn_iter = [0, 6500, 0, 11000, 0, 13000, 0]
     stdp_params = {'max_learn_iter': max_learn_iter,
                    'stdp_per_layer': [0, 10, 0, 4, 0, 2],
                    'max_iter': sum(max_learn_iter),
