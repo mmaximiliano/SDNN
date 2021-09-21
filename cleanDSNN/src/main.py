@@ -9,6 +9,8 @@ import torch
 from SDNN_cuda import SDNN
 import numpy as np
 from math import floor
+import argparse
+import pathlib
 
 import time
 
@@ -28,14 +30,28 @@ def main():
         set_weights = True  # Loads the weights from a path (path_set_weigths) and prevents any SDNN learning
         save_weights = False  # Saves the weights in a path (path_save_weigths)
 
+    #--- Parse Arguments ---#
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-fl", "--fl", dest="file_name", default="none", action='store', help="File name", type=str)
+    parser.add_argument("-s", "--s", dest="seed", default=0, action='store', help="Seed iteration", type=int)
+
+    args = parser.parse_args()
+    file_name = args.file_name
+    seed = str(args.seed)
+
     # ------------------------------- Learn, Train and Test paths-------------------------------#
     # Sequences directories
-    spike_times_pat_seq = '../../patterns/sequences/'
+    spike_times_pat_seq = '../../patterns/sequences/massive_runs/1/' + file_name
+    path_seq_train = spike_times_pat_seq + "training/" + seed + file_name
+    path_seq_test = spike_times_pat_seq + "testing/" + seed + "test_" + file_name
+    path_seq_dif_sample = '../../patterns/sequences/' + "all_nums_dif_sample.npy"
 
     # Results directories
-    path_set_weigths = '../results/'
-    path_save_weigths = '../results/'
-    path_spikes_out = '../results/'
+    path_set_weigths = '../results/1/' + file_name + '/weights/' + seed + '/'
+    path_save_weigths = '../results/1/' + file_name + '/weights/' + seed + '/'
+    path_spikes_out_training = '../results/1/' + file_name + '/training/' + seed + '/'
+    path_spikes_out_testing = '../results/1/' + file_name + '/testing/' + seed + '/'
+    path_spikes_out_dif_sample = '../results/1/' + file_name + 'dif_sample/' + seed + '/'
 
     # ------------------------------- SDNN -------------------------------#
     # SDNN_cuda parameters
@@ -65,7 +81,7 @@ def main():
 
     # Create network
     first_net = SDNN(network_params, weight_params, stdp_params, frame_time, free_spikes,
-                     spike_times_pat_seq=spike_times_pat_seq, c_learning=c_learning, device='GPU')
+                     spike_times_pat_seq=path_seq_train, c_learning=c_learning, device='GPU')
 
     # Set the weights or learn STDP
     if set_weights:
@@ -87,14 +103,27 @@ def main():
                 np.save(path_save_weigths + 'weight_'+str(i), weights[i])
 
     # ------------------------------- Run Testing Sequence & Save Results -------------------------------#
-    Sin_tmp = first_net.train_features()
-    for i in range(1, len(network_params)):
-        if network_params[1]['delay'] != 0:
-            fname = 'delayed_layer_' + str(i) + '_' + str(network_params[i]['Type'])
-        else:
-            fname = 'layer_' + str(i) + '_' + str(network_params[i]['Type'])
-        Sin = torch.tensor(Sin_tmp[i])
-        torch.save(Sin, path_spikes_out + fname + '.pt')
+
+    # Running Training sequence
+    Sin_tmp_train = first_net.train_features(path_seq_train)
+    fname = 'layer_' + str(5) + '_' + str(network_params[5]['Type'])
+    Sin_train = torch.tensor(Sin_tmp_train[5])
+    pathlib.Path(path_spikes_out_training).mkdir(parents=True, exist_ok=True)
+    torch.save(Sin_train, path_spikes_out_training + fname + '.pt')
+
+    # Running Testing sequence
+    Sin_tmp_test = first_net.train_features(path_seq_test)
+    fname = 'layer_' + str(5) + '_' + str(network_params[5]['Type'])
+    Sin_test = torch.tensor(Sin_tmp_test[5])
+    pathlib.Path(path_spikes_out_testing).mkdir(parents=True, exist_ok=True)
+    torch.save(Sin_test, path_spikes_out_testing + fname + '.pt')
+
+    # Running Dif Sample sequence
+    Sin_tmp_dif_sample = first_net.train_features(path_seq_dif_sample)
+    fname = 'layer_' + str(5) + '_' + str(network_params[5]['Type'])
+    Sin_dif_sample = torch.tensor(Sin_tmp_dif_sample[5])
+    pathlib.Path(path_spikes_out_dif_sample).mkdir(parents=True, exist_ok=True)
+    torch.save(Sin_dif_sample, path_spikes_out_dif_sample + fname + '.pt')
 
     print('DONE')
 

@@ -128,8 +128,7 @@ class SDNN:
         # Generate Iterators with the full path to the images in each set OR reference the spike times
         self.spike_times_pat_seq = spike_times_pat_seq
         self.num_img_learn = 1  # len(listdir(spike_times_pat_seq)) Ver como automatizar
-        self.sequence = np.load(self.spike_times_pat_seq + "all_nums_20.npy")
-        self.test_sequence = np.load(self.spike_times_pat_seq + "test_all_nums.npy")
+        self.sequence = np.load(self.spike_times_pat_seq)
         # duration of sequence divided by duration of frame = Number of digits
         self.num_frame_train = int(self.sequence.shape[2] / self.frame_time)
 
@@ -523,7 +522,7 @@ class SDNN:
 # --------------------------- Propagation functions ------------------------#
 
     # Get testing results
-    def train_features(self):
+    def train_features(self, sequence_path):
         """
             Gets the output spikes of each layer by propagating the set of training sequences
             Returns:
@@ -535,6 +534,8 @@ class SDNN:
         print("-----------------------------------------------------------")
 
         frame = 0
+        self.sequence = np.load(sequence_path)
+        self.num_frame_train = int(self.sequence.shape[2] / self.frame_time)
         for i in range(self.num_frame_train):
             print("------------ Testing Progress  {}%----------------".format(str(i) + '/'
                                                                               + str(self.num_frame_train)
