@@ -324,7 +324,7 @@ class fixedPattern(Dataset):
                self.target_list[index], self.digit_list[index]
 
 class randomPattern(Dataset):
-    def __init__(self, root, nframes=7, wevents=100, patt=None, nDigits=3000, pfreq=10, noiseNums=None):
+    def __init__(self, root, nframes=7, wevents=100, patt=None, nDigits=3000, pfreq=10, noiseNums=None, samples=[]):
         """ 
             root    = dataset dir
             nframes = Number of frames per digit
@@ -343,7 +343,7 @@ class randomPattern(Dataset):
         self.samples_list = []
         self.target_list = []
         self.digit_list = []
-        self.pattern_list = []
+        self.pattern_list = samples
         self.patt = patt
         nros = os.listdir(root)
 
@@ -371,11 +371,18 @@ class randomPattern(Dataset):
                 #    self.samples_list.append(self.pattern_list[sample])
                 #    self.target_list.append(1)
                 #    self.digit_list.append(patt[sample])
-                files = os.listdir(os.path.join(root, str(8)))
-                sample_one = random.choice(files)
-                self.samples_list.append(os.path.join(root, str(8), sample_one))
+                #############
+                #files = os.listdir(os.path.join(root, str(8)))
+                #sample_one = random.choice(files)
+                #self.samples_list.append(os.path.join(root, str(8), sample_one))
+                #self.target_list.append(1)
+                #self.digit_list.append(patt[0])
+
+                sample = random.choice(range(len(self.pattern_list)))
+                self.samples_list.append(self.pattern_list[sample])
                 self.target_list.append(1)
                 self.digit_list.append(patt[0])
+
                 # Next amount of noisy numbers
                 noisyNumbers = random.choice(range(1,pfreq+1))
             else:

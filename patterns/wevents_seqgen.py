@@ -66,9 +66,9 @@ if fname[-1] == 's':
     pattern_list.append(os.path.join(root, str(nro), sample))
 
     train_seq = pan_functions.fixedPattern(root=root, nframes=nframes, wevents=wevents, patt=patt,
-                                           nDigits=5000, pfreq=pfreq, noiseNums=noiseNums, samples=pattern_list)
-    test_seq = pan_functions.fixedPattern(root=root, nframes=nframes, wevents=wevents, patt=patt,
-                                           nDigits=2500, pfreq=pfreq, noiseNums=noiseNums, samples=pattern_list)
+                                           nDigits=5000, pfreq=3, noiseNums=noiseNums, samples=pattern_list)
+    test_seq = pan_functions.randomPattern(root=root, nframes=nframes, wevents=wevents, patt=patt,
+                                           nDigits=2500, pfreq=9, noiseNums=noiseNums, samples=pattern_list)
 elif fname[-1] == '5':
     final_destination+= "all_nums_5/"
     sample = random.choice(files)
@@ -83,9 +83,9 @@ elif fname[-1] == '5':
     pattern_list.append(os.path.join(root, str(nro), sample))
 
     train_seq = pan_functions.fixedPattern(root=root, nframes=nframes, wevents=wevents, patt=patt,
-                                           nDigits=5000, pfreq=pfreq, noiseNums=noiseNums, samples=pattern_list)
-    test_seq = pan_functions.fixedPattern(root=root, nframes=nframes, wevents=wevents, patt=patt,
-                                           nDigits=2500, pfreq=pfreq, noiseNums=noiseNums, samples=pattern_list)
+                                           nDigits=5000, pfreq=3, noiseNums=noiseNums, samples=pattern_list)
+    test_seq = pan_functions.randomPattern(root=root, nframes=nframes, wevents=wevents, patt=patt,
+                                           nDigits=2500, pfreq=9, noiseNums=noiseNums, samples=pattern_list)
 else:
     final_destination+= "all_nums_20/"
     sample = random.choice(files)
@@ -130,9 +130,9 @@ else:
     pattern_list.append(os.path.join(root, str(nro), sample))
 
     train_seq = pan_functions.fixedPattern(root=root, nframes=nframes, wevents=wevents, patt=patt,
-                                           nDigits=5000, pfreq=pfreq, noiseNums=noiseNums, samples=pattern_list)
-    test_seq = pan_functions.fixedPattern(root=root, nframes=nframes, wevents=wevents, patt=patt,
-                                           nDigits=2500, pfreq=pfreq, noiseNums=noiseNums, samples=pattern_list)
+                                           nDigits=5000, pfreq=3, noiseNums=noiseNums, samples=pattern_list)
+    test_seq = pan_functions.randomPattern(root=root, nframes=nframes, wevents=wevents, patt=patt,
+                                           nDigits=2500, pfreq=9, noiseNums=noiseNums, samples=pattern_list)
 
 #train_seq = pan_functions.randomPattern(root=root_dataset, nframes=nframes,
 #                                        wevents=wevents, patt=patt, nDigits=nDigits, pfreq=pfreq, noiseNums=noiseNums)
