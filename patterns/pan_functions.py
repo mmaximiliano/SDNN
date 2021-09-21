@@ -235,7 +235,7 @@ class seqPatternEvents(Dataset):
 
 
 class fixedPattern(Dataset):
-    def __init__(self, root, nframes=7, wevents=100, patt=None, nDigits=3000, pfreq=10, noiseNums=None):
+    def __init__(self, root, nframes=7, wevents=100, patt=None, nDigits=3000, pfreq=10, noiseNums=None, samples=[]):
         """ 
             root    = dataset dir
             nframes = Number of frames per digit
@@ -254,43 +254,21 @@ class fixedPattern(Dataset):
         self.samples_list = []
         self.target_list = []
         self.digit_list = []
-        self.pattern_list = []
+        self.pattern_list = samples
         self.patt = patt
         nros = os.listdir(root)
 
         #for i in range(20):
-        #    files = os.listdir(os.path.join(root, str(8)))
+        #    files = os.listdir(os.path.join(root, str(1)))
         #    sample = random.choice(files)
         #    print(sample)
         
         # Collect numbers for fixed pattern
-        for nro in self.patt:
+        #for nro in self.patt:
             # get file list
-            files = os.listdir(os.path.join(root, str(nro)))
+        #    files = os.listdir(os.path.join(root, str(nro)))
             #sample = random.choice(files)
             #sample = "40084.bin"
-            self.pattern_list.append(os.path.join(root, str(nro), "40084.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "09874.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "10593.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "06418.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "23718.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "52914.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "08149.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "46983.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "27031.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "37621.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "15437.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "35982.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "29778.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "17171.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "25388.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "16247.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "56648.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "56057.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "54158.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "27387.bin"))
-
-            #print(sample)
 
         for i in range(1, nDigits):
             # Check if I should insert the pattern
