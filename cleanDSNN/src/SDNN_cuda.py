@@ -238,8 +238,6 @@ class SDNN:
         for i in range(self.num_layers):
             d_tmp = {}
             H, W, D = self.network_struc[i]['shape']
-            print("Layer " + str(i) + " Type: " + str(self.network_struc[i]['Type']) +
-                  " -> H: " + str(H) + " W: " + str(W) + " D: " + str(D))
             d_tmp['S'] = np.zeros((H, W, D, self.frame_time)).astype(np.uint8)
             d_tmp['V'] = np.zeros((H, W, D)).astype(np.float32)
             d_tmp['K_STDP'] = np.ones((H, W, D)).astype(np.uint8)
@@ -350,9 +348,6 @@ class SDNN:
                         S, K_inh = self.lateral_inh(S, V, K_inh, blockdim, griddim)
                         self.layers[i]['S'][:, :, :, t] = S
                         self.layers[i]['K_inh'] = K_inh
-                if t == (self.frame_time-1):
-                    print("Layer " + str(i) + ' ' + str(self.network_struc[i]['Type']) + " spikes: "
-                          + str(np.count_nonzero(self.layers[i]['S'])))
 
             if stdp:
                 # STDP learning
@@ -405,18 +400,11 @@ class SDNN:
             We iterate over the set of sequences a maximum of self.max_iter times
         """
 
-        print("-----------------------------------------------------------")
-        print("-------------------- STARTING LEARNING---------------------")
-        print("-----------------------------------------------------------")
+        print("STARTING LEARNING...........")
 
         frame = 0
         i = 0
         while i < self.max_iter:
-            print("----------------- Learning Progress  {}%----------------------".format(str(i) + '/'
-                                                                                          + str(self.max_iter)
-                                                                                          + ' ('
-                                                                                          + str(100 * i / self.max_iter)
-                                                                                          + ')'))
 
             if self.c_learning:
                 i += 1
@@ -431,7 +419,6 @@ class SDNN:
                         self.learning_layer = self.learnable_layers[self.curr_lay_idx]  # Actualizo el learning layer actual
                     self.counter = 0  # Reseteo el contador para este layer
                 self.counter += 1  # Caso contrario aumento el contador
-                print("Layer " + str(lay) + " weight convergence: " + str(c_l))
             else:
                 # Dentro del total de iteraciones veo cuantas le corresponden a cada layer
                 # Me fijo si ya realice todas las iteraciones de este layer
@@ -466,14 +453,8 @@ class SDNN:
                 self.curr_seq += 1
             else:
                 self.curr_seq = 0
-        print("----------------- Learning Progress  {}%----------------------".format(str(self.max_iter) + '/'
-                                                                                      + str(self.max_iter)
-                                                                                      + ' ('
-                                                                                      + str(100)
-                                                                                      + ')'))
-        print("-----------------------------------------------------------")
-        print("------------------- LEARNING COMPLETED --------------------")
-        print("-----------------------------------------------------------")
+
+        print("LEARNING COMPLETED.")
 
     # Find STDP update indices and potentials
     def get_STDP_idxs(self, valid, H, W, D, layer_idx):
@@ -529,19 +510,12 @@ class SDNN:
                 - features_train: Sequence of output spikes from each layer
         """
         self.network_struc[3]['th'] = 7.
-        print("-----------------------------------------------------------")
-        print("-------------------- TESTING PHASE ------------------------")
-        print("-----------------------------------------------------------")
+        print("TESTING PHASE...........")
 
         frame = 0
         self.sequence = np.load(sequence_path)
         self.num_frame_train = int(self.sequence.shape[2] / self.frame_time)
         for i in range(self.num_frame_train):
-            print("------------ Testing Progress  {}%----------------".format(str(i) + '/'
-                                                                              + str(self.num_frame_train)
-                                                                              + ' ('
-                                                                              + str(100 * i / self.num_frame_train)
-                                                                              + ')'))
 
             start = timer()
 
@@ -572,22 +546,11 @@ class SDNN:
 
             dt = timer() - start
 
-
-        print("------------ Testing Progress  {}%----------------".format(str(self.num_frame_train)
-                                                                                            + '/'
-                                                                                            + str(self.num_frame_train)
-                                                                                            + ' ('
-                                                                                            + str(100)
-                                                                                            + ')'))
-        print("-----------------------------------------------------------")
-        print("--------------- TESTING PHASE COMPLETED -------------------")
-        print("-----------------------------------------------------------")
+        print("TESTING PHASE COMPLETED.")
 
         # Transform features to numpy array
         for i in range(1, self.num_layers):
             Sin = np.concatenate(self.features_train[i], axis=0)
-            print("Layer " + str(i) + " Type " + str(self.network_struc[i]['Type']) + " Shape: " + str(Sin.shape))
-            print("Layer " + str(i) + " Type " + str(self.network_struc[i]['Type']) + " Spikes: " + str(np.count_nonzero(Sin)))
             self.features_train[i] = Sin
 
         return self.features_train
