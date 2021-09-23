@@ -42,13 +42,13 @@ def main():
 
     # ------------------------------- Learn, Train and Test paths-------------------------------#
     # Sequences directories
-    spike_times_pat_seq = '../../patterns/sequences/massive_runs/1/' + file_name
-    path_seq_train = spike_times_pat_seq + "/training/" + seed + '/' + file_name
-    path_seq_test = spike_times_pat_seq + "/testing/" + seed + '/' + "test_" + file_name
-    path_seq_dif_sample = '../../patterns/sequences/' + "all_nums_dif_sample.npy"
+    spike_times_pat_seq = '../../patterns/sequences/massive_runs/1/' + file_name + '.npy'
+    path_seq_train = spike_times_pat_seq + "/training/" + seed + '/' + file_name + '.npy'
+    path_seq_test = spike_times_pat_seq + "/testing/" + seed + '/' + "test_" + file_name + '.npy'
+    path_seq_dif_sample = '../../patterns/sequences/' + "all_nums_dif_sample.npy" + '.npy'
 
     # Sequences pattern directories
-    path_pat_test = spike_times_pat_seq + "/testing/" + seed + '/' + "path_test_" + file_name
+    path_pat_test = spike_times_pat_seq + "/testing/" + seed + '/' + "path_test_" + file_name + '.npy'
     path_pat_dif_sample = '../../patterns/sequences/' + "pat_all_nums_dif_sample.npy"
 
     # Results directories
