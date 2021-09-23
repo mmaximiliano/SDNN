@@ -106,6 +106,7 @@ def main():
             if network_params[1]['delay'] != 0:
                 np.save(path_save_weigths + 'delayed_weight_'+str(i), weights[i])
             else:
+                pathlib.Path(path_save_weigths).mkdir(parents=True, exist_ok=True)
                 np.save(path_save_weigths + 'weight_'+str(i), weights[i])
 
     # ------------------------------- Run Testing Sequence & Save Results -------------------------------#
