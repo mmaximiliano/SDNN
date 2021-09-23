@@ -63,13 +63,13 @@ def main():
     # SDNN_cuda parameters
     frame_time = 15
     network_params = [{'Type': 'input', 'num_filters': 1, 'pad': (0, 0), 'H_layer': 34, 'W_layer': 34},
-                      {'Type': 'conv', 'num_filters': 32, 'filter_size': 7, 'th': 15.,
+                      {'Type': 'conv', 'num_filters': 8, 'filter_size': 7, 'th': 15.,
                        'alpha': .99, 'beta': 0., 'delay': 0},
-                      {'Type': 'pool', 'num_filters': 32, 'filter_size': 2, 'th': 0., 'stride': 2},
-                      {'Type': 'conv', 'num_filters': 80, 'filter_size': 5, 'th': 10.,
+                      {'Type': 'pool', 'num_filters': 8, 'filter_size': 2, 'th': 0., 'stride': 2},
+                      {'Type': 'conv', 'num_filters': 20, 'filter_size': 5, 'th': 10.,
                        'alpha': .99, 'beta': 0., 'delay': 0},
-                      {'Type': 'pool', 'num_filters': 80, 'filter_size': 3, 'th': 0., 'stride': 2},
-                      {'Type': 'conv', 'num_filters': 80, 'filter_size': 3, 'th': 2.,
+                      {'Type': 'pool', 'num_filters': 20, 'filter_size': 3, 'th': 0., 'stride': 2},
+                      {'Type': 'conv', 'num_filters': 20, 'filter_size': 3, 'th': 2.,
                        'alpha': .99, 'beta': 0., 'delay': 0}]
     weight_params = {'mean': 0.8, 'std': 0.01}
 
