@@ -33,7 +33,7 @@ def main():
 
     #--- Parse Arguments ---#
     parser = argparse.ArgumentParser()
-    parser.add_argument("-fl", "--fl", dest="file_name", default="none", action='store', help="File name", type=str)
+    parser.add_argument("-fname", "--fname", dest="file_name", default="none", action='store', help="File name", type=str)
     parser.add_argument("-s", "--s", dest="seed", default=0, action='store', help="Seed iteration", type=int)
 
     args = parser.parse_args()
