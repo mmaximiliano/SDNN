@@ -43,12 +43,12 @@ def main():
     # ------------------------------- Learn, Train and Test paths-------------------------------#
     # Sequences directories
     spike_times_pat_seq = '../../patterns/sequences/massive_runs/1/' + file_name
-    path_seq_train = spike_times_pat_seq + "training/" + seed + file_name
-    path_seq_test = spike_times_pat_seq + "testing/" + seed + "test_" + file_name
+    path_seq_train = spike_times_pat_seq + "/training/" + seed + '/' + file_name
+    path_seq_test = spike_times_pat_seq + "/testing/" + seed + '/' + "test_" + file_name
     path_seq_dif_sample = '../../patterns/sequences/' + "all_nums_dif_sample.npy"
 
     # Sequences pattern directories
-    path_pat_test = spike_times_pat_seq + "testing/" + seed + "path_test_" + file_name
+    path_pat_test = spike_times_pat_seq + "/testing/" + seed + '/' + "path_test_" + file_name
     path_pat_dif_sample = '../../patterns/sequences/' + "pat_all_nums_dif_sample.npy"
 
     # Results directories
@@ -56,8 +56,8 @@ def main():
     path_save_weigths = '../results/1/' + file_name + '/weights/' + seed + '/'
     path_spikes_out_training = '../results/1/' + file_name + '/training/' + seed + '/'
     path_spikes_out_testing = '../results/1/' + file_name + '/testing/' + seed + '/'
-    path_spikes_out_dif_sample = '../results/1/' + file_name + 'dif_sample/' + seed + '/'
-    path_save_metrics = '../results/1/' + file_name + 'metrics/' + seed + '/'
+    path_spikes_out_dif_sample = '../results/1/' + file_name + '/dif_sample/' + seed + '/'
+    path_save_metrics = '../results/1/' + file_name + '/metrics/' + seed + '/'
 
     # ------------------------------- SDNN -------------------------------#
     # SDNN_cuda parameters
