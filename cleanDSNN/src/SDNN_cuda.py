@@ -132,11 +132,6 @@ class SDNN:
         # duration of sequence divided by duration of frame = Number of digits
         self.num_frame_train = int(self.sequence.shape[2] / self.frame_time)
 
-        # --------------------------- Output features -------------------#
-        self.features_train = []
-        for i in range(self.num_layers):
-            self.features_train.append([])
-
 
 # --------------------------- Initialisation functions ------------------------#
     # Network Structure Initialization
@@ -510,11 +505,15 @@ class SDNN:
                 - features_train: Sequence of output spikes from each layer
         """
         self.network_struc[3]['th'] = 7.
+        features_train = []
+        for i in range(self.num_layers):
+            features_train.append([])
         print("TESTING PHASE...........")
 
         frame = 0
         self.sequence = np.load(sequence_path)
         self.num_frame_train = int(self.sequence.shape[2] / self.frame_time)
+
         for i in range(self.num_frame_train):
 
             start = timer()
@@ -542,7 +541,7 @@ class SDNN:
                 spikes = np.reshape(s_tmp, (s_tmp.shape[0]*s_tmp.shape[1]*s_tmp.shape[2], self.frame_time))
                 spikes = np.transpose(spikes)
                 spikes = spikes.astype(np.float32)
-                self.features_train[j].append(spikes)
+                features_train[j].append(spikes)
 
             dt = timer() - start
 
@@ -550,10 +549,10 @@ class SDNN:
 
         # Transform features to numpy array
         for i in range(1, self.num_layers):
-            Sin = np.concatenate(self.features_train[i], axis=0)
-            self.features_train[i] = Sin
+            Sin = np.concatenate(features_train[i], axis=0)
+            features_train[i] = Sin
 
-        return self.features_train
+        return features_train
 
 # --------------------------- CUDA interfacing functions ------------------------#
     def convolution(self, S, I, V, C, s, w, stride, th, alpha, beta, delay, blockdim, griddim):
