@@ -19,7 +19,7 @@ import time
 def main():
 
     # Flags
-    learn_SDNN = False   # This flag toggles between Learning STDP and classify features
+    learn_SDNN = True   # This flag toggles between Learning STDP and classify features
                         # or just classify by loading pretrained weights
     free_spikes = False  # This flag toggles whether we allowed neurons to spikes every timestep or once per timeframe
     c_learning = True   # This flag toggles whether we learn by a fixed amount of iterationts or when weights converges
@@ -45,7 +45,7 @@ def main():
     spike_times_pat_seq = '../../patterns/sequences/massive_runs/1/' + file_name
     path_seq_train = spike_times_pat_seq + "/training/" + seed + '/' + file_name + '.npy'
     path_seq_test = spike_times_pat_seq + "/testing/" + seed + '/' + "test_" + file_name + '.npy'
-    path_seq_dif_sample = '../../patterns/sequences/' + "all_nums_dif_sample.npy" + '.npy'
+    path_seq_dif_sample = '../../patterns/sequences/' + "all_nums_dif_sample.npy"
 
     # Sequences pattern directories
     path_pat_test = spike_times_pat_seq + "/testing/" + seed + '/' + "path_test_" + file_name + '.npy'
@@ -58,7 +58,6 @@ def main():
     path_spikes_out_testing = '../results/1/' + file_name + '/testing/' + seed + '/'
     path_spikes_out_dif_sample = '../results/1/' + file_name + '/dif_sample/' + seed + '/'
     path_save_metrics = '../results/1/' + file_name + '/metrics/' + seed + '/'
-    '../../patterns/sequences/massive_runs/1/all_nums.npy/training/0/all_nums.npy'
     # ------------------------------- SDNN -------------------------------#
     # SDNN_cuda parameters
     frame_time = 15
