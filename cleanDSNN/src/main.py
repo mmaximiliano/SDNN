@@ -48,7 +48,7 @@ def main():
     path_seq_dif_sample = '../../patterns/sequences/' + "all_nums_dif_sample.npy"
 
     # Sequences pattern directories
-    path_pat_test = spike_times_pat_seq + "/testing/" + seed + '/' + "path_test_" + file_name + '.npy'
+    path_pat_test = spike_times_pat_seq + "/testing/" + seed + '/' + "pat_test_" + file_name + '.npy'
     path_pat_dif_sample = '../../patterns/sequences/' + "pat_all_nums_dif_sample.npy"
 
     # Results directories
