@@ -244,7 +244,6 @@ class fixedPattern(Dataset):
             nDigits = Amount of digits to create the random sequence
             pfreq   = Every 'pfreq' digits, I insert the pattern
         """
-        # generate a random list of all the files in nmnist with qsmp
         if noiseNums is None:
             noiseNums = []
         if patt is None:
@@ -263,53 +262,36 @@ class fixedPattern(Dataset):
         #    sample = random.choice(files)
         #    print(sample)
         
+        last_digit = 0
         # Collect numbers for fixed pattern
         for nro in self.patt:
             # get file list
             files = os.listdir(os.path.join(root, str(nro)))
-            #sample = random.choice(files)
-            #sample = "40084.bin"
-            self.pattern_list.append(os.path.join(root, str(nro), "40084.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "09874.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "10593.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "06418.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "23718.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "52914.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "08149.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "46983.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "27031.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "37621.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "15437.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "35982.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "29778.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "17171.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "25388.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "16247.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "56648.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "56057.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "54158.bin"))
-            self.pattern_list.append(os.path.join(root, str(nro), "27387.bin"))
-
-            #print(sample)
+            sample = random.choice(files)
+            self.pattern_list.append(os.path.join(root, str(nro), sample))
 
         for i in range(1, nDigits):
             # Check if I should insert the pattern
             if i % pfreq == 0:
                 # Insert pattern
-                sample = random.choice(range(len(self.pattern_list)))
-                self.samples_list.append(self.pattern_list[sample])
-                self.target_list.append(1)
-                self.digit_list.append(patt[0])
-                #for sample in range(len(self.pattern_list)):
-                #    self.samples_list.append(self.pattern_list[sample])
-                #    self.target_list.append(1)
-                #    self.digit_list.append(patt[sample])
+                #sample = random.choice(range(len(self.pattern_list)))
+                #self.samples_list.append(self.pattern_list[sample])
+                #self.target_list.append(1)
+                #self.digit_list.append(patt[0])
+                for sample in range(len(self.pattern_list)):
+                    self.samples_list.append(self.pattern_list[sample])
+                    self.target_list.append(1)
+                    self.digit_list.append(patt[sample])
             else:
                 # Choose a random number
-                if len(noiseNums) != 0:
+                #if len(noiseNums) != 0:
+                #    nro = random.choice(noiseNums)
+                #else:
+                #    nro = random.choice(nros)
+                nro = random.choice(nros)
+                if (last_digit == 1) and (nro == 8):
                     nro = random.choice(noiseNums)
-                else:
-                    nro = random.choice(nros)
+                last_digit = nro
                 # get file list
                 files = os.listdir(os.path.join(root, str(nro)))
                 # Choose random sample from number
@@ -369,43 +351,55 @@ class randomPattern(Dataset):
         self.patt = patt
         nros = os.listdir(root)
 
-        # Collect numbers for fixed pattern
-        #for nro in self.patt:
+        # Collect numbers for pattern
+        for nro in self.patt:
             # get file list
-            #files = os.listdir(os.path.join(root, str(nro)))
+            files = os.listdir(os.path.join(root, str(nro)))
             # Choose random sample from number
-            #if nro == 1:
-            #    sample = "31466.bin"
-            #elif nro == 2:
-            #    sample = "58965.bin"
-            #else:
-            #    sample = "03048.bin"
-            #sample = random.choice(files)
-            #print(sample)
-            #self.pattern_list.append(os.path.join(root, str(nro), sample))
+            sample = random.choice(files)
+            self.pattern_list.append(os.path.join(root, str(nro), sample))
 
-        noisyNumbers = random.choice(range(1,pfreq))
+        last_digit = 0
+        noisyNumbers = random.choice(range(1,pfreq+1))
         for i in range(1, nDigits):
             # Check if I should insert the pattern
             if noisyNumbers == 0:
                 # Insert pattern
-                #for sample in range(len(self.pattern_list)):
-                #    self.samples_list.append(self.pattern_list[sample])
+                # Always same samples:
+                #for sample_index in range(len(self.pattern_list)):
+                #    self.samples_list.append(self.pattern_list[sample_index])
                 #    self.target_list.append(1)
-                #    self.digit_list.append(patt[sample])
-                files = os.listdir(os.path.join(root, str(8)))
-                sample_one = random.choice(files)
-                self.samples_list.append(os.path.join(root, str(8), sample_one))
-                self.target_list.append(1)
-                self.digit_list.append(patt[0])
+                #    self.digit_list.append(patt[sample_index])
+
+                # Random dif Sample:
+                for p_nro in self.patt:
+                    # get file list
+                    p_files = os.listdir(os.path.join(root, str(p_nro)))
+                    # Choose random sample from number
+                    p_sample = random.choice(p_files)
+                    self.samples_list.append(os.path.join(root, str(p_nro), p_sample))
+                    self.target_list.append(1)
+                    self.digit_list.append(p_nro)
+                #files = os.listdir(os.path.join(root, str(8)))
+                #sample_one = random.choice(files)
+                #self.samples_list.append(os.path.join(root, str(8), sample_one))
+                #self.target_list.append(1)
+                #self.digit_list.append(patt[0])
+
                 # Next amount of noisy numbers
                 noisyNumbers = random.choice(range(1,pfreq+1))
             else:
                 # Choose a random number
-                if len(noiseNums) != 0:
+                #if len(noiseNums) != 0:
+                #    nro = random.choice(noiseNums)
+                #else:
+                #    nro = random.choice(nros)
+
+                nro = random.choice(nros)
+                if (last_digit == 1) and (nro == 8):
                     nro = random.choice(noiseNums)
-                else:
-                    nro = random.choice(nros)
+                last_digit = nro
+                
                 # get file list
                 files = os.listdir(os.path.join(root, str(nro)))
                 # Choose random sample from number

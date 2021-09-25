@@ -33,7 +33,7 @@ path = dirname(realpath(__file__))
 path_seq_pat = path + '/sequences/'
 
 # seed random for same sequence
-pan_functions.seed_torch(seed=5)
+pan_functions.seed_torch(seed=0)
 
 # parameters of the dataset
 nframes = 15            # frames per digit
