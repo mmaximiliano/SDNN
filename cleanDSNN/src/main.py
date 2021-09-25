@@ -98,36 +98,6 @@ def main():
 
     print('DONE')
 
-    # -------------------------- Single Neuron Output -------------------------- #
-    #Sin_tmp = torch.tensor(Sin_tmp[len(network_params)-1])
-    #T = Sin_tmp.shape[0]
-    #N_out = 1
-    #N_in = Sin_tmp.shape[1]
-    #th = 3.8
-
-    #singleNeuron = STDPLIFDensePopulation(in_channels=N_in, out_channels=N_out,
-    #                                      weight=0.75, alpha=float(np.exp(-1e-3 / 10e-3)),
-    #                                      beta=float(np.exp(-1e-3 / 2e-5)), delay=0,
-    #                                      th=th, a_plus=.03225, a_minus=.045625,
-    #                                      w_max=1.)
-    #Sin = Sin_tmp.clone().detach()
-
-    # Pre-procesamos PSpikes y NSpikes
-    #dt_ltp = 10  # Cantidad de timesteps que miro hacia atras
-    #dt_ltd = 50  # Cantidad de timesteps que miro hacia delante
-    #PSpikes = preSpikes(T, dt_ltp, torch.zeros(T, N_in), Sin)
-    #NSpikes = nextSpikes(T, dt_ltd, torch.zeros(T, N_in), Sin)
-
-    # Realizamos el entrenamiento STDP
-    #Uprobe = np.empty([T, N_out])
-    #Iprobe = np.empty([T, N_out])
-    #Sprobe = np.empty([T, N_out])
-    #for n in range(T):
-    #    state = singleNeuron.forward(Sin[n].unsqueeze(0), PSpikes[n], NSpikes[n - 1])
-    #    Uprobe[n] = state.U.data.numpy()
-    #    Iprobe[n] = state.I.data.numpy()
-    #    Sprobe[n] = state.S.data.numpy()
-
 if __name__ == '__main__':
     start = time.time()
     main()
