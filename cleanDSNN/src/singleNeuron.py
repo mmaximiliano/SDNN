@@ -211,21 +211,28 @@ def get_metrics(T, pat_times, Sprobe):
         pat = pat_times[i:i+15]
         spikes = Sprobe[i:i+15]
         if np.count_nonzero(pat):
-            p+=1
+            p += 1
         else:
-            n+=1
+            n += 1
         if (not np.count_nonzero(pat)) and (not np.count_nonzero(spikes)):
-            tn+=1
+            tn += 1
         elif (np.count_nonzero(pat)) and (np.count_nonzero(spikes)):
-            tp+=1
+            tp += 1
         elif (not np.count_nonzero(pat)) and (np.count_nonzero(spikes)):
-            fp+=1
+            fp += 1
         elif (np.count_nonzero(pat)) and (not np.count_nonzero(spikes)):
-            fn+=1
-    accuracy =(tp+tn)/(p+n)
-    precision = tp/(tp+fp)
-    recall = tp/(tp+fn)
-    f1 = (2*tp)/(2*tp+fp+fn)
+            fn += 1
+
+    accuracy = (tp+tn)/(p+n)
+    if (tp == 0) or ((fp == 0) or (fn == 0)):
+        precision = tp/(tp+fp)
+        recall = tp / (tp + fn)
+        f1 = (2 * tp) / (2 * tp + fp + fn)
+    else:
+        precision = tp / (-1)
+        recall = tp / (-1)
+        f1 = (2 * tp) / (-1)
+
     fake_alarms = fp/n
     missed_alarms = fn/p
 
