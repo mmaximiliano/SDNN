@@ -4,9 +4,9 @@ echo "----- Running massive sequence creator -----"
 
 c=1
 
-for fname in "all_nums" "all_nums_5" "all_nums_20"
+for fname in "all_nums"
 do
-	for seed in 0 1 2 3 4 5 6 7 8 9
+	for seed in 0 2 4 5 6 7 8 9
   do
   	echo "Loop: $c/30"
   	echo "Running fname= $fname seed= $seed"
