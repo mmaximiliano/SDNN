@@ -8,7 +8,7 @@ for fname in "all_nums"
 do
 	for seed in 0 2 4 5 6 7 8 9
   do
-  	echo "Loop: $c/30"
+  	echo "Loop: $c/8"
   	echo "Running fname= $fname seed= $seed"
   	python3 main.py -fname $fname -s $seed
   	echo
