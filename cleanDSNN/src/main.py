@@ -33,7 +33,7 @@ def main():
 
     #--- Parse Arguments ---#
     parser = argparse.ArgumentParser()
-    parser.add_argument("-fname", "--fname", dest="file_name", default="none", action='store', help="File name", type=str)
+    parser.add_argument("-fname", "--fname", dest="file_name", default="p_18", action='store', help="File name", type=str)
     parser.add_argument("-s", "--s", dest="seed", default=0, action='store', help="Seed iteration", type=int)
 
     args = parser.parse_args()
@@ -42,33 +42,33 @@ def main():
 
     # ------------------------------- Learn, Train and Test paths-------------------------------#
     # Sequences directories
-    spike_times_pat_seq = '../../patterns/sequences/massive_runs/1/' + file_name
-    path_seq_train = spike_times_pat_seq + "/training/" + seed + '/' + file_name + '.npy'
-    path_seq_test = spike_times_pat_seq + "/testing/" + seed + '/' + "test_" + file_name + '.npy'
-    path_seq_dif_sample = '../../patterns/sequences/' + "all_nums_dif_sample.npy"
+    spike_times_pat_seq = '../../patterns/sequences/p_18'
+    path_seq_train = spike_times_pat_seq + "/training/" + file_name + '.npy'
+    path_seq_test = spike_times_pat_seq + "/testing/" + "test_" + file_name + '.npy'
+    path_seq_dif_sample = '../../patterns/sequences/' + "p_18_dif_sample.npy"
 
     # Sequences pattern directories
-    path_pat_test = spike_times_pat_seq + "/testing/" + seed + '/' + "pat_test_" + file_name + '.npy'
-    path_pat_dif_sample = '../../patterns/sequences/' + "pat_all_nums_dif_sample.npy"
+    path_pat_test = spike_times_pat_seq + "/testing/" + "pat_test_" + file_name + '.npy'
+    path_pat_dif_sample = '../../patterns/sequences/' + "pat_p_18_dif_sample.npy"
 
     # Results directories
-    path_set_weigths = '../results/1/moreFilters/' + file_name + '/weights/' + seed + '/'
-    path_save_weigths = '../results/1/moreFilters/' + file_name + '/weights/' + seed + '/'
-    path_spikes_out_training = '../results/1/moreFilters/' + file_name + '/training/' + seed + '/'
-    path_spikes_out_testing = '../results/1/moreFilters/' + file_name + '/testing/' + seed + '/'
-    path_spikes_out_dif_sample = '../results/1/moreFilters/' + file_name + '/dif_sample/' + seed + '/'
-    path_save_metrics = '../results/1/moreFilters/' + file_name + '/metrics/' + seed + '/'
+    path_set_weigths = '../results/' + file_name + '/weights/'
+    path_save_weigths = '../results/' + file_name + '/weights/'
+    path_spikes_out_training = '../results/' + file_name + '/training/'
+    path_spikes_out_testing = '../results/' + file_name + '/testing/'
+    path_spikes_out_dif_sample = '../results/' + file_name + '/dif_sample/'
+    path_save_metrics = '../results/' + file_name + '/metrics/'
     # ------------------------------- SDNN -------------------------------#
     # SDNN_cuda parameters
     frame_time = 15
     network_params = [{'Type': 'input', 'num_filters': 1, 'pad': (0, 0), 'H_layer': 34, 'W_layer': 34},
-                      {'Type': 'conv', 'num_filters': 32, 'filter_size': 7, 'th': 15.,
-                       'alpha': .99, 'beta': 0., 'delay': 0},
+                      {'Type': 'conv', 'num_filters': 8, 'filter_size': 7, 'th': 15.,
+                       'alpha': .99, 'beta': 0., 'delay': 15},
                       {'Type': 'pool', 'num_filters': 32, 'filter_size': 2, 'th': 0., 'stride': 2},
-                      {'Type': 'conv', 'num_filters': 80, 'filter_size': 5, 'th': 10.,
-                       'alpha': .99, 'beta': 0., 'delay': 0},
-                      {'Type': 'pool', 'num_filters': 80, 'filter_size': 3, 'th': 0., 'stride': 2},
-                      {'Type': 'conv', 'num_filters': 80, 'filter_size': 3, 'th': 2.,
+                      {'Type': 'conv', 'num_filters': 20, 'filter_size': 5, 'th': 10.,
+                       'alpha': .99, 'beta': 0., 'delay': 5},
+                      {'Type': 'pool', 'num_filters': 20, 'filter_size': 3, 'th': 0., 'stride': 2},
+                      {'Type': 'conv', 'num_filters': 20, 'filter_size': 3, 'th': 2.,
                        'alpha': .99, 'beta': 0., 'delay': 0}]
     weight_params = {'mean': 0.8, 'std': 0.01}
 
