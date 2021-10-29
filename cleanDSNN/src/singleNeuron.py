@@ -205,6 +205,7 @@ def convergence_level(w):
     c_l = c_l/len(w)
     return c_l
 
+
 def get_metrics(T, pat_times, Sprobe):
     tp, tn, fp, fn, p, n = 0, 0, 0, 0, 0, 0
     for i in range(0, T, 15):
@@ -224,13 +225,19 @@ def get_metrics(T, pat_times, Sprobe):
             fn += 1
 
     accuracy = (tp+tn)/(p+n)
-    if (tp == 0) or ((fp == 0) or (fn == 0)):
+    if (tp == 0) and (fp == 0):
         precision = tp / (-1)
-        recall = tp / (-1)
-        f1 = (2 * tp) / (-1)
     else:
         precision = tp / (tp + fp)
+
+    if (tp == 0) and (fn == 0):
+        recall = tp / (-1)
+    else:
         recall = tp / (tp + fn)
+
+    if (tp == 0) and ((fp == 0) and (fn == 0)):
+        f1 = (2 * tp) / (-1)
+    else:
         f1 = (2 * tp) / (2 * tp + fp + fn)
 
     fake_alarms = fp/n
