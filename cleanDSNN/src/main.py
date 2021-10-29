@@ -5,6 +5,9 @@ __email__ = maxii.martino@gmail.com
 SDNN Implementation based on Kheradpisheh, S.R., et al. 'STDP-based spiking deep neural networks 
 for object recognition'. arXiv:1611.01421v1 (Nov, 2016)
 """
+import os
+#os.environ["CUDA_VISIBLE_DEVICES"] = "0,3"  # specify which GPU(s) to be used
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 import torch
 from SDNN_cuda import SDNN
 import numpy as np
@@ -12,7 +15,6 @@ from math import floor
 import argparse
 import pathlib
 import singleNeuron as sn
-
 import time
 
 
