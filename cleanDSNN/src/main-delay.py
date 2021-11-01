@@ -35,9 +35,9 @@ def main():
 
     #--- Parse Arguments ---#
     parser = argparse.ArgumentParser()
-    parser.add_argument("-c1", "--c1", dest="conv1", default=0, action='store', help="conv 1 delay", type=str)
-    parser.add_argument("-c2", "--c2", dest="conv2", default=0, action='store', help="conv 2 delay", type=int)
-    parser.add_argument("-c3", "--c3", dest="conv3", default=0, action='store', help="conv 3 delay", type=int)
+    parser.add_argument("-cuno", "--cuno", dest="conv1", default=0, action='store', help="conv 1 delay", type=str)
+    parser.add_argument("-cdos", "--cdos", dest="conv2", default=0, action='store', help="conv 2 delay", type=int)
+    parser.add_argument("-ctres", "--ctres", dest="conv3", default=0, action='store', help="conv 3 delay", type=int)
 
     args = parser.parse_args()
     c_1 = args.conv1
