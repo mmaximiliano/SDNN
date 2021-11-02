@@ -8,7 +8,7 @@ for fname in "all_nums_20"
 do
 	for seed in 2 3 4 5 6 7 8 9
   do
-  	echo "Loop: $c/20"
+  	echo "Loop: $c/8"
   	echo "Running fname= $fname seed= $seed"
   	python3 main-parallel.py -fname $fname -s $seed
   	echo
