@@ -92,7 +92,7 @@ def main():
     # Set the weights or learn STDP
     if set_weights:
         if free_spikes:
-            weight_path_list = [path_set_weigths + 'delayed_weight_' + str(i) + '.npy' for i in range(len(network_params) - 1)]
+            weight_path_list = [path_set_weigths + 'weight_' + str(i) + '.npy' for i in range(len(network_params) - 1)]
         else:
             weight_path_list = [path_set_weigths + 'weight_' + str(i) + '.npy' for i in range(len(network_params) - 1)]
         first_net.set_weights(weight_path_list)
@@ -103,11 +103,8 @@ def main():
     if save_weights:
         weights = first_net.get_weights()
         for i in range(len(weights)):
-            if network_params[1]['delay'] != 0:
-                np.save(path_save_weigths + 'delayed_weight_'+str(i), weights[i])
-            else:
-                pathlib.Path(path_save_weigths).mkdir(parents=True, exist_ok=True)
-                np.save(path_save_weigths + 'weight_'+str(i), weights[i])
+            pathlib.Path(path_save_weigths).mkdir(parents=True, exist_ok=True)
+            np.save(path_save_weigths + 'weight_'+str(i), weights[i])
 
     # ------------------------------- Run Testing Sequence & Save Results -------------------------------#
     print("Starting testing without training.")
