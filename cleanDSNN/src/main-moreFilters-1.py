@@ -47,11 +47,11 @@ def main():
     spike_times_pat_seq = '../../patterns/sequences/massive_runs/1/' + file_name
     path_seq_train = spike_times_pat_seq + "/training/" + seed + '/' + file_name + '.npy'
     path_seq_test = spike_times_pat_seq + "/testing/" + seed + '/' + "test_" + file_name + '.npy'
-    path_seq_dif_sample = spike_times_pat_seq + 'random_dif_sample/random_all_nums_dif_sample.npy'
+    path_seq_dif_sample = spike_times_pat_seq + '/random_dif_sample/random_all_nums_dif_sample.npy'
 
     # Sequences pattern directories
     path_pat_test = spike_times_pat_seq + "/testing/" + seed + '/' + "pat_test_" + file_name + '.npy'
-    path_pat_dif_sample = spike_times_pat_seq + 'random_dif_sample/pat_random_all_nums_dif_sample.npy'
+    path_pat_dif_sample = spike_times_pat_seq + '/random_dif_sample/pat_random_all_nums_dif_sample.npy'
 
     # Results directories
     path_set_weigths = '../results/1/moreFilters/' + file_name + '/weights/' + seed + '/'
