@@ -51,7 +51,7 @@ def main():
 
     # Sequences pattern directories
     path_pat_test = spike_times_pat_seq + "/testing/" + seed + '/' + "pat_test_" + file_name + '.npy'
-    path_pat_dif_sample = spike_times_pat_seq + '/random_dif_sample/pat_random_all_nums_dif_sample.npy'
+    path_pat_dif_sample = '../../patterns/sequences/massive_runs/1/random_dif_sample/pat_random_all_nums_dif_sample.npy'
 
     # Results directories
     path_set_weigths = '../results/1/moreFilters/' + file_name + '/weights/' + seed + '/'
