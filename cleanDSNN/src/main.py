@@ -7,7 +7,7 @@ for object recognition'. arXiv:1611.01421v1 (Nov, 2016)
 """
 import os
 #os.environ["CUDA_VISIBLE_DEVICES"] = "0,3"  # specify which GPU(s) to be used
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 import torch
 from SDNN_cuda import SDNN
 import numpy as np
