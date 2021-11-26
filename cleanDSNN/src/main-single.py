@@ -23,7 +23,7 @@ def main():
     # Flags
     learn_SDNN = True   # This flag toggles between Learning STDP and classify features
                         # or just classify by loading pretrained weights
-    free_spikes = True  # This flag toggles whether we allowed neurons to spikes every timestep or once per timeframe
+    free_spikes = False  # This flag toggles whether we allowed neurons to spikes every timestep or once per timeframe
     c_learning = True   # This flag toggles whether we learn by a fixed amount of iterationts or when weights converges
 
     if learn_SDNN:
