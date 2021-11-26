@@ -53,11 +53,11 @@ def main():
 
 
     # Results directories
-    path_set_weigths = '../results/p_18/weights/' + str(c_1) + '_' + str(c_2) + '_' + str(c_3) + '/'
-    path_save_weigths = '../results/p_18/weights/' + str(c_1) + '_' + str(c_2) + '_' + str(c_3) + '/'
-    path_spikes_out_training = '../results/p_18/training/' + str(c_1) + '_' + str(c_2) + '_' + str(c_3) + '/'
-    path_spikes_out_testing = '../results/p_18/testing/' + str(c_1) + '_' + str(c_2) + '_' + str(c_3) + '/'
-    path_spikes_out_dif_sample = '../results/p_18/dif_sample/' + str(c_1) + '_' + str(c_2) + '_' + str(c_3) + '/'
+    path_set_weigths = '../results/p_18/free_spikes/weights/' + str(c_1) + '_' + str(c_2) + '_' + str(c_3) + '/'
+    path_save_weigths = '../results/p_18/free_spikes/weights/' + str(c_1) + '_' + str(c_2) + '_' + str(c_3) + '/'
+    path_spikes_out_training = '../results/p_18/free_spikes/training/' + str(c_1) + '_' + str(c_2) + '_' + str(c_3) + '/'
+    path_spikes_out_testing = '../results/p_18/free_spikes/testing/' + str(c_1) + '_' + str(c_2) + '_' + str(c_3) + '/'
+    path_spikes_out_dif_sample = '../results/p_18/free_spikes/dif_sample/' + str(c_1) + '_' + str(c_2) + '_' + str(c_3) + '/'
 
     # ------------------------------- SDNN -------------------------------#
     # SDNN_cuda parameters
