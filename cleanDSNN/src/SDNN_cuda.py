@@ -382,10 +382,10 @@ class SDNN:
                         self.layers[lay]['K_STDP'] = K_STDP
 
             # Reset K_inh and K_STDP to allow fire and learning for each timestep
-            if self.free_spikes:
-                H, W, D = self.network_struc[i]['shape']
-                self.layers[i]['K_STDP'] = np.ones((H, W, D)).astype(np.uint8)
-                self.layers[i]['K_inh'] = np.ones((H, W)).astype(np.uint8)
+            #if self.free_spikes:
+            #    H, W, D = self.network_struc[i]['shape']
+            #    self.layers[i]['K_STDP'] = np.ones((H, W, D)).astype(np.uint8)
+            #    self.layers[i]['K_inh'] = np.ones((H, W)).astype(np.uint8)
 
     # Train all images in training set
     def train_SDNN(self):
