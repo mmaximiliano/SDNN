@@ -244,3 +244,52 @@ def get_metrics(T, pat_times, Sprobe):
     missed_alarms = fn/p
 
     return accuracy, precision, recall, f1, fake_alarms, missed_alarms
+
+def get_metrics_long_pat(T, pat_times, Sprobe, pat_len):
+    tp, tn, fp, fn, p, n = 0, 0, 0, 0, 0, 0
+    skip_next = False
+    for i in range(0, T, 15):
+        # Ask we check the pat last time
+        if skip_next:
+            skip_next = False
+            continue
+        pat = pat_times[i:i+15]
+        spikes = Sprobe[i:i+15]
+
+        if np.count_nonzero(pat):
+            pat = pat_times[i:i+pat_len]
+            spikes = Sprobe[i:i+pat_len]
+            # if we se the pattern we need to skip next iter because of pat_len
+            skip_next = True
+            p += 1
+        else:
+            n += 1
+        if (not np.count_nonzero(pat)) and (not np.count_nonzero(spikes)):
+            tn += 1
+        elif (np.count_nonzero(pat)) and (np.count_nonzero(spikes)):
+            tp += 1
+        elif (not np.count_nonzero(pat)) and (np.count_nonzero(spikes)):
+            fp += 1
+        elif (np.count_nonzero(pat)) and (not np.count_nonzero(spikes)):
+            fn += 1
+
+    accuracy = (tp+tn)/(p+n)
+    if (tp == 0) and (fp == 0):
+        precision = tp / (-1)
+    else:
+        precision = tp / (tp + fp)
+
+    if (tp == 0) and (fn == 0):
+        recall = tp / (-1)
+    else:
+        recall = tp / (tp + fn)
+
+    if (tp == 0) and ((fp == 0) and (fn == 0)):
+        f1 = (2 * tp) / (-1)
+    else:
+        f1 = (2 * tp) / (2 * tp + fp + fn)
+
+    fake_alarms = fp/n
+    missed_alarms = fn/p
+
+    return accuracy, precision, recall, f1, fake_alarms, missed_alarms
