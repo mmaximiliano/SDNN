@@ -323,6 +323,7 @@ class randomPattern(Dataset):
             pfreq   = Max random choice, [1:pfreq] digits until next pattern
         """
         # generate a random list of all the files in nmnist with qsmp
+        # Always same samples:
         if samples is None:
             samples = []
         if noiseNums is None:
@@ -334,7 +335,7 @@ class randomPattern(Dataset):
         self.samples_list = []
         self.target_list = []
         self.digit_list = []
-        self.pattern_list = samples
+        self.pattern_list = []
         self.patt = patt
         nros = os.listdir(root)
 
@@ -343,13 +344,22 @@ class randomPattern(Dataset):
         for i in range(1, nDigits):
             # Check if I should insert the pattern
             if noisyNumbers == 0:
-                # Insert pattern
+                # Insert pattern (Always same samples)
                 for k in range(0, len(self.patt)):
                     # Choose random sample from number
                     p_sample = random.choice(range(len(self.pattern_list[k])))
                     self.samples_list.append(self.pattern_list[k][p_sample])
                     self.target_list.append(1)
                     self.digit_list.append(patt[k])
+
+                # Insert pattern (Dif Sample)
+                #for p_nro in self.patt:
+                #    # Choose random sample from number
+                #    p_files = os.listdir(os.path.join(root, str(p_nro)))
+                #    p_sample = random.choice(p_files)
+                #    self.samples_list.append(os.path.join(root, str(p_nro), p_sample))
+                #    self.target_list.append(1)
+                #    self.digit_list.append(p_nro)
 
                 # Next amount of noisy numbers
                 noisyNumbers = random.choice(range(1,pfreq+1))
