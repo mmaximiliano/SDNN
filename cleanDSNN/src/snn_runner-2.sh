@@ -6,7 +6,7 @@ c=1
 
 for fname in "p_18"
 do
-	for seed in 0 1 2 3 4
+	for seed in 5 6 7 8 9
   do
   	echo "Loop: $c/1"
   	echo "Running fname= $fname seed= $seed"

@@ -44,33 +44,33 @@ def main():
 
     # ------------------------------- Learn, Train and Test paths-------------------------------#
     # Sequences directories
-    spike_times_pat_seq = '../../patterns/sequences/massive_runs/8/' + file_name
+    spike_times_pat_seq = '../../patterns/sequences/massive_runs/18/' + file_name
     path_seq_train = spike_times_pat_seq + "/training/" + seed + '/' + file_name + '.npy'
     path_seq_test = spike_times_pat_seq + "/testing/" + seed + '/' + "test_" + file_name + '.npy'
-    path_seq_dif_sample = '../../patterns/sequences/' + "all_nums_dif_sample.npy"
+    path_seq_dif_sample = '../../patterns/sequences/' + "p_18_dif_sample.npy"
 
     # Sequences pattern directories
     path_pat_test = spike_times_pat_seq + "/testing/" + seed + '/' + "pat_test_" + file_name + '.npy'
-    path_pat_dif_sample = '../../patterns/sequences/' + "pat_all_nums_dif_sample.npy"
+    path_pat_dif_sample = '../../patterns/sequences/' + "pat_p_18_dif_sample.npy"
 
     # Results directories
-    path_set_weigths = '../results/8/moreFilters/' + file_name + '/weights/' + seed + '/'
-    path_save_weigths = '../results/8/moreFilters/' + file_name + '/weights/' + seed + '/'
-    path_spikes_out_training = '../results/8/moreFilters/' + file_name + '/training/' + seed + '/'
-    path_spikes_out_testing = '../results/8/moreFilters/' + file_name + '/testing/' + seed + '/'
-    path_spikes_out_dif_sample = '../results/8/moreFilters/' + file_name + '/dif_sample/' + seed + '/'
-    path_save_metrics = '../results/8/moreFilters/' + file_name + '/metrics/' + seed + '/'
+    path_set_weigths = '../results/18/' + file_name + '/weights/' + seed + '/'
+    path_save_weigths = '../results/18/' + file_name + '/weights/' + seed + '/'
+    path_spikes_out_training = '../results/18/' + file_name + '/training/' + seed + '/'
+    path_spikes_out_testing = '../results/18/' + file_name + '/testing/' + seed + '/'
+    path_spikes_out_dif_sample = '../results/18/' + file_name + '/dif_sample/' + seed + '/'
+    path_save_metrics = '../results/18/' + file_name + '/metrics/' + seed + '/'
     # ------------------------------- SDNN -------------------------------#
     # SDNN_cuda parameters
     frame_time = 15
     network_params = [{'Type': 'input', 'num_filters': 1, 'pad': (0, 0), 'H_layer': 34, 'W_layer': 34},
-                      {'Type': 'conv', 'num_filters': 32, 'filter_size': 7, 'th': 15.,
+                      {'Type': 'conv', 'num_filters': 8, 'filter_size': 7, 'th': 15.,
                        'alpha': .99, 'beta': 0., 'delay': 0},
-                      {'Type': 'pool', 'num_filters': 32, 'filter_size': 2, 'th': 0., 'stride': 2},
-                      {'Type': 'conv', 'num_filters': 80, 'filter_size': 5, 'th': 10.,
+                      {'Type': 'pool', 'num_filters': 8, 'filter_size': 2, 'th': 0., 'stride': 2},
+                      {'Type': 'conv', 'num_filters': 20, 'filter_size': 5, 'th': 10.,
                        'alpha': .99, 'beta': 0., 'delay': 0},
-                      {'Type': 'pool', 'num_filters': 80, 'filter_size': 4, 'th': 0., 'stride': 2},
-                      {'Type': 'conv', 'num_filters': 80, 'filter_size': 3, 'th': 2.,
+                      {'Type': 'pool', 'num_filters': 20, 'filter_size': 4, 'th': 0., 'stride': 2},
+                      {'Type': 'conv', 'num_filters': 20, 'filter_size': 3, 'th': 2.,
                        'alpha': .99, 'beta': 0., 'delay': 0}]
     weight_params = {'mean': 0.8, 'std': 0.01}
 
@@ -137,6 +137,9 @@ def main():
     pathlib.Path(path_spikes_out_dif_sample).mkdir(parents=True, exist_ok=True)
     torch.save(Sin_dif_sample, path_spikes_out_dif_sample + fname + '.pt')
 
+    print('Done.')
+
+    """
     # -------------------------- Single Neuron Output -------------------------- #
     print("Start Single Neuron Training and Testing for each th value")
     for th in [1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 99.0, 98.0]:
@@ -254,6 +257,8 @@ def main():
         np.save(path_save_metrics + 'dif_sample_metrics_' + str_th + '.npy', metrics)
 
     print('Done.')
+"""
+
 
 if __name__ == '__main__':
     start = time.time()

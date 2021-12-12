@@ -4,7 +4,7 @@ echo "----- Running massive sequence creator -----"
 
 c=1
 
-for fname in "p_18"
+for fname in "p_18_5"
 do
 	for seed in 0 1 2 3 4
   do
