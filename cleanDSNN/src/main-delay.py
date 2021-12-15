@@ -35,42 +35,45 @@ def main():
 
     #--- Parse Arguments ---#
     parser = argparse.ArgumentParser()
-    parser.add_argument("-c1", "--c1", dest="conv1", default=0, action='store', help="conv 1 delay", type=int)
-    parser.add_argument("-c2", "--c2", dest="conv2", default=0, action='store', help="conv 2 delay", type=int)
-    parser.add_argument("-c3", "--c3", dest="conv3", default=0, action='store', help="conv 3 delay", type=int)
+    parser.add_argument("-fname", "--fname", dest="file_name", default="none", action='store', help="File name",
+                        type=str)
+    parser.add_argument("-s", "--s", dest="seed", default=0, action='store', help="Seed iteration", type=int)
 
     args = parser.parse_args()
-    c_1 = args.conv1
-    c_2 = args.conv2
-    c_3 = args.conv3
+    file_name = args.file_name
+    seed = str(args.seed)
 
     # ------------------------------- Learn, Train and Test paths-------------------------------#
     # Sequences directories
-    spike_times_pat_seq = '../../patterns/sequences/p_18'
-    path_seq_train = spike_times_pat_seq + '/training/p_18.npy'
-    path_seq_test = spike_times_pat_seq + '/testing/test_p_18.npy'
-    path_seq_dif_sample = '../../patterns/sequences/p_18_dif_sample/' + "p_18_dif_sample.npy"
+    spike_times_pat_seq = '../../patterns/sequences/massive_runs/18/' + file_name
+    path_seq_train = spike_times_pat_seq + "/training/" + seed + '/' + file_name + '.npy'
+    path_seq_test = spike_times_pat_seq + "/testing/" + seed + '/' + "test_" + file_name + '.npy'
+    path_seq_dif_sample = '../../patterns/sequences/massive_runs/18/p_18_dif_sample/p_18_dif_sample.npy'
 
+    # Sequences pattern directories
+    path_pat_test = spike_times_pat_seq + "/testing/" + seed + '/' + "pat_test_" + file_name + '.npy'
+    path_pat_dif_sample = '../../patterns/sequences/massive_runs/18/p_18_dif_sample/pat_p_18_dif_sample.npy'
 
     # Results directories
-    path_set_weigths = '../results/p_18/weights/' + str(c_1) + '_' + str(c_2) + '_' + str(c_3) + '/'
-    path_save_weigths = '../results/p_18/weights/' + str(c_1) + '_' + str(c_2) + '_' + str(c_3) + '/'
-    path_spikes_out_training = '../results/p_18/training/' + str(c_1) + '_' + str(c_2) + '_' + str(c_3) + '/'
-    path_spikes_out_testing = '../results/p_18/testing/' + str(c_1) + '_' + str(c_2) + '_' + str(c_3) + '/'
-    path_spikes_out_dif_sample = '../results/p_18/dif_sample/' + str(c_1) + '_' + str(c_2) + '_' + str(c_3) + '/'
+    path_set_weigths = '../results/18/' + file_name + '/weights/' + seed + '/'
+    path_save_weigths = '../results/18/' + file_name + '/weights/' + seed + '/'
+    path_spikes_out_training = '../results/18/' + file_name + '/training/' + seed + '/'
+    path_spikes_out_testing = '../results/18/' + file_name + '/testing/' + seed + '/'
+    path_spikes_out_dif_sample = '../results/18/' + file_name + '/dif_sample/' + seed + '/'
+    path_save_metrics = '../results/18/' + file_name + '/metrics/' + seed + '/'
 
     # ------------------------------- SDNN -------------------------------#
     # SDNN_cuda parameters
     frame_time = 15
     network_params = [{'Type': 'input', 'num_filters': 1, 'pad': (0, 0), 'H_layer': 34, 'W_layer': 34},
                       {'Type': 'conv', 'num_filters': 8, 'filter_size': 7, 'th': 15.,
-                       'alpha': .99, 'beta': 0., 'delay': c_1},
+                       'alpha': .99, 'beta': 0., 'delay': 15},
                       {'Type': 'pool', 'num_filters': 8, 'filter_size': 2, 'th': 0., 'stride': 2},
                       {'Type': 'conv', 'num_filters': 20, 'filter_size': 5, 'th': 10.,
-                       'alpha': .99, 'beta': 0., 'delay': c_2},
+                       'alpha': .99, 'beta': 0., 'delay': 0},
                       {'Type': 'pool', 'num_filters': 20, 'filter_size': 4, 'th': 0., 'stride': 2},
                       {'Type': 'conv', 'num_filters': 20, 'filter_size': 3, 'th': 2.,
-                       'alpha': .99, 'beta': 0., 'delay': c_3}]
+                       'alpha': .99, 'beta': 0., 'delay': 0}]
     weight_params = {'mean': 0.8, 'std': 0.01}
 
     max_learn_iter = [0, 6500, 0, 11000, 0, 13000, 0]
