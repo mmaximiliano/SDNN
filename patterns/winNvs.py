@@ -13,6 +13,7 @@ parser.add_argument("-n", "--n", dest = "n", default= 0, action='store', help="N
 parser.add_argument("-w", "--w", dest = "wevents", default= 100, action='store', help="Number of events", type=int)
 parser.add_argument("-f", "--f", dest = "nframes", default= 5, action='store', help="Number of frames", type=int)
 parser.add_argument("-wd", "--wd", dest = "wdelay", default= 5000, action='store', help="Wait Delay between frames", type=int)
+parser.add_argument("-s", "--s", dest = "nSample", default= 0, action='store', help="Number Sample", type=int)
 
 args = parser.parse_args()
 
@@ -20,6 +21,7 @@ n = args.n
 wevents = args.wevents
 nframes = args.nframes
 wdelay = args.wdelay
+nSample = args.nSample
 
 # Obtengo dir del dataset
 root = './N-MNIST/Train'
@@ -29,11 +31,11 @@ nros = os.listdir(root)
 nros.sort()
 
 # Agarro la carpeta del numero indicado
-nro = nros[n]
+nro = nros[n+1]
 files = os.listdir(os.path.join(root,nro))
 
-# Agarro un sample del numero
-sample = os.path.join(root,nro,files[0])
+# Agarro el sample indicado del numero
+sample = os.path.join(root,nro,files[nSample])
 
 # Read sample
 data, width, height =  pan_functions.read_dataset(sample)
