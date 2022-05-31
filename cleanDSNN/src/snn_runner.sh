@@ -1,19 +1,16 @@
 #!/bin/bash
 
-echo "----- Running massive sequence creator -----"
+echo "----- Running massive pattern runner -----"
 
 c=1
 
-for fname in "p_18"
+for th in 500 600 650 700 750
 do
-	for seed in 0 1 2 3 4
-  do
-  	echo "Loop: $c/1"
-  	echo "Running fname= $fname seed= $seed"
-  	python3 main-delay.py -fname $fname -s $seed
-  	echo
-  	c=$((c+1))
-	done
+  echo "Loop: $c/1"
+  echo "Running th= $th "
+  python3 pattern-runner.py -th $th
+  echo
+  c=$((c+1))
 done
 
 echo "Done."

@@ -271,7 +271,7 @@ def get_metrics_long_pat(T, pat_times, Sprobe, pat_len, pat_number):
             tp += 1
         elif (not np.count_nonzero(pat)) and (np.count_nonzero(spikes)):
             fp += 1
-            fake_spikes_numbers.append(pat_number[i])
+            #fake_spikes_numbers.append(pat_number[i])
         elif (np.count_nonzero(pat)) and (not np.count_nonzero(spikes)):
             fn += 1
 
