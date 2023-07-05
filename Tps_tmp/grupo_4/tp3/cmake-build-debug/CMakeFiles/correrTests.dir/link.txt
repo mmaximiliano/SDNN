@@ -1,3 +1,0 @@
-"C:\Program Files\JetBrains\CLion 2022.2.4\bin\cmake\win\bin\cmake.exe" -E rm -f CMakeFiles\correrTests.dir/objects.a
-C:\PROGRA~1\JETBRA~1\CLION2~1.4\bin\mingw\bin\ar.exe qc CMakeFiles\correrTests.dir/objects.a @CMakeFiles\correrTests.dir\objects1.rsp
-C:\PROGRA~1\JETBRA~1\CLION2~1.4\bin\mingw\bin\G__~1.EXE  -pthread -std=gnu++11 -ggdb3 -g -g -Wl,--whole-archive CMakeFiles\correrTests.dir/objects.a -Wl,--no-whole-archive -o correrTests.exe -Wl,--out-implib,libcorrerTests.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\correrTests.dir\linklibs.rsp

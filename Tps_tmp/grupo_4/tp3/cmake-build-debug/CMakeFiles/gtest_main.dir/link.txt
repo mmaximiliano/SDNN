@@ -1,2 +1,0 @@
-C:\PROGRA~1\JETBRA~1\CLION2~1.4\bin\mingw\bin\ar.exe qc libgtest_main.a "CMakeFiles/gtest_main.dir/tests/gtest-1.8.1/gtest_main.cc.obj"
-C:\PROGRA~1\JETBRA~1\CLION2~1.4\bin\mingw\bin\ranlib.exe libgtest_main.a
