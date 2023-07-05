@@ -1,0 +1,11 @@
+# ninja log v5
+41	573	7102201771885768	CMakeFiles/correrTests.dir/src/minHeap.cpp.obj	b8606172b4858a63
+23	698	7102201773187587	CMakeFiles/correrTests.dir/src/Puesto.cpp.obj	c10e512d139c560b
+9	988	7102201776091237	CMakeFiles/gtest_main.dir/tests/gtest-1.8.1/gtest_main.cc.obj	8d685fbdd832253f
+989	1116	7102201777282933	libgtest_main.a	b0732b8332e8f3c
+16	1355	7102201779728050	CMakeFiles/correrTests.dir/src/Lolla.cpp.obj	91d163ecae95c1b4
+31	1415	7102201780345751	CMakeFiles/correrTests.dir/src/fachada_lollapatuza.cpp.obj	ceddf27cbe8aa18a
+575	2600	7102201792199806	CMakeFiles/correrTests.dir/tests/tests_lollapatuza.cpp.obj	307f28f42a731cc6
+0	5577	7102201821889546	CMakeFiles/gtest.dir/tests/gtest-1.8.1/gtest-all.cc.obj	4a8461eaf8a0170
+5579	6387	7102201830083195	libgtest.a	c175e2dd9abd7d56
+6388	7904	7102201845180790	correrTests.exe	f0ac39409691f3cb

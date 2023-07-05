@@ -1,0 +1,10 @@
+# ninja log v5
+39	1468	7102179324438799	CMakeFiles/correrTests.dir/src/solucion/puesto.cpp.obj	a5fe53f38ac31594
+49	1563	7102179325519379	CMakeFiles/correrTests.dir/src/fachada_lollapatuza.cpp.obj	86d6f29ee0215467
+11	1803	7102179328017960	CMakeFiles/gtest_main.dir/tests/gtest-1.8.1/gtest_main.cc.obj	79d57ced2f05b000
+1804	1934	7102179329309542	libgtest_main.a	b0732b8332e8f3c
+30	2070	7102179330655493	CMakeFiles/correrTests.dir/src/solucion/llolapatuza.cpp.obj	55d4a660b0512e08
+20	3219	7102179342107049	CMakeFiles/correrTests.dir/tests/tests_lollapatuza.cpp.obj	915554e6b65bfe87
+0	6337	7102179373281666	CMakeFiles/gtest.dir/tests/gtest-1.8.1/gtest-all.cc.obj	23849aa454231a0
+6339	7191	7102179381895172	libgtest.a	c175e2dd9abd7d56
+7191	8814	7102179398051027	correrTests.exe	2e1fe049693015a
